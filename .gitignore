@@ -1,0 +1,7 @@
+.settings/
+*.log
+plugin.xml
+*.zip
+*.un~
+target
+web-app/WEB-INF/classes/
