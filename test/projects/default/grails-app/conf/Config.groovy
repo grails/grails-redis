@@ -1,3 +1,16 @@
+grails {
+    redis {
+        poolConfig {
+            // pool specific tweaks here
+            // for parms see https://github.com/xetorthio/jedis/blob/master/src/main/java/redis/clients/jedis/JedisPoolConfig.java
+            // numTestsPerEvictionRun = 4
+        }
+        port = 6379
+        host = "localhost"
+    }
+}
+
+
 log4j = {
     error  'org.codehaus.groovy.grails.web.servlet',  //  controllers
            'org.codehaus.groovy.grails.web.pages', //  GSP
