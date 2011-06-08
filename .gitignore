@@ -3,5 +3,6 @@
 plugin.xml
 *.zip
 *.un~
+.DS_Store
 target
-web-app/WEB-INF/classes/
+web-app
