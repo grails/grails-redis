@@ -1,6 +1,7 @@
 package org.grails.redis
 
 import grails.test.*
+import redis.clients.jedis.Transaction
 import redis.clients.jedis.Jedis
 
 class RedisServiceTests extends GroovyTestCase {
@@ -89,5 +90,16 @@ class RedisServiceTests extends GroovyTestCase {
         // should have hit the cache, not called our method again
         assertEquals 1, calledCount
         assertEquals expectedHash, cacheHitResult
+    }
+
+    def testWithTransaction() {
+        redisService.withRedis { Jedis redis ->
+            assertNull redis.get("foo")
+            redisService.withTransaction { Transaction transaction ->
+                transaction.set("foo", "bar")
+                assertNull redis.get("foo")
+            }
+            assertEquals "bar", redis.get("foo")
+        }
     }
 }

@@ -2,6 +2,8 @@ package org.grails.redis
 
 import redis.clients.jedis.Jedis
 import redis.clients.jedis.Pipeline
+import redis.clients.jedis.Transaction
+
 
 class RedisService {
 
@@ -73,6 +75,14 @@ class RedisService {
             Pipeline pipeline = redis.pipelined()
             closure(pipeline)
             pipeline.sync()
+        }
+    }
+
+    def withTransaction(Closure closure) {
+        withRedis { Jedis redis ->
+            Transaction transaction = redis.multi()
+            closure(transaction)
+            transaction.exec()
         }
     }
 
