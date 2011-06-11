@@ -125,4 +125,20 @@ class RedisServiceTests extends GroovyTestCase {
             assertEquals "bar", redis.foo
         }
     }
+
+    def testMethodMissingDelegatesToJedis() {
+        assertNull redisService.foo
+
+        redisService.set("foo", "bar")
+
+        assertEquals "bar", redisService.foo
+    }
+
+    def testMethodNotOnJedisThrowsMethodMissingException() {
+        def result = shouldFail {
+            redisService.methodThatDoesNotExistAndNeverWill()
+        }
+
+        assert result?.startsWith("No signature of method: redis.clients.jedis.Jedis.methodThatDoesNotExistAndNeverWill")
+    }
 }

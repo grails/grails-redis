@@ -86,6 +86,12 @@ class RedisService {
         }
     }
 
+    def methodMissing(String name, args) {
+        withRedis { Jedis redis ->
+            redis.invokeMethod(name, args)
+        }
+    }
+
     void propertyMissing(String name, Object value) {
         withRedis { Jedis redis ->
             redis.set(name, value.toString())
