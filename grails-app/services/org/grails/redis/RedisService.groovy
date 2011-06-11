@@ -11,6 +11,64 @@ class RedisService {
 
     boolean transactional = true
 
+    def withPipeline(Closure closure) {
+        withRedis { Jedis redis ->
+            Pipeline pipeline = redis.pipelined()
+            closure(pipeline)
+            pipeline.sync()
+        }
+    }
+
+    def withTransaction(Closure closure) {
+        withRedis { Jedis redis ->
+            Transaction transaction = redis.multi()
+            closure(transaction)
+            transaction.exec()
+        }
+    }
+
+    def methodMissing(String name, args) {
+        withRedis { Jedis redis ->
+            redis.invokeMethod(name, args)
+        }
+    }
+
+    void propertyMissing(String name, Object value) {
+        withRedis { Jedis redis ->
+            redis.set(name, value.toString())
+        }
+    }
+
+    Object propertyMissing(String name) {
+        withRedis { Jedis redis -> 
+            redis.get(name)
+        }
+    }
+
+    def withRedis(Closure closure) {
+        Jedis redis = redisPool.getResource()
+        try {
+            return closure(redis)
+        } finally {
+            redisPool.returnResource(redis)
+        }
+    }
+
+    // SET/GET a value on a Redis key
+    def memoize(String key, Closure closure) {
+        withRedis { Jedis redis ->
+            def result = redis.get(key)
+            if (!result) {
+                log.debug "cache miss: $key"
+                result = closure(redis)
+                if (result) redis.set(key, result as String)
+            } else {
+                log.debug "cache hit : $key = $result"
+            }
+            return result
+        }
+    }
+
     def memoizeHash(String key, Closure closure) {
         withRedis { Jedis redis ->
             def hash = redis.hgetAll(key)
@@ -52,55 +110,6 @@ class RedisService {
                 log.debug "cache hit : $key.$field = $result"
             }
             return result
-        }
-    }
-
-    // SET/GET a value on a Redis key
-    def memoize(String key, Closure closure) {
-        withRedis { Jedis redis ->
-            def result = redis.get(key)
-            if (!result) {
-                log.debug "cache miss: $key"
-                result = closure(redis)
-                if (result) redis.set(key, result as String)
-            } else {
-                log.debug "cache hit : $key = $result"
-            }
-            return result
-        }
-    }
-
-    def withPipeline(Closure closure) {
-        withRedis { Jedis redis ->
-            Pipeline pipeline = redis.pipelined()
-            closure(pipeline)
-            pipeline.sync()
-        }
-    }
-
-    def withTransaction(Closure closure) {
-        withRedis { Jedis redis ->
-            Transaction transaction = redis.multi()
-            closure(transaction)
-            transaction.exec()
-        }
-    }
-
-    def methodMissing(String name, args) {
-        withRedis { Jedis redis ->
-            redis.invokeMethod(name, args)
-        }
-    }
-
-    void propertyMissing(String name, Object value) {
-        withRedis { Jedis redis ->
-            redis.set(name, value.toString())
-        }
-    }
-
-    Object propertyMissing(String name) {
-        withRedis { Jedis redis -> 
-            redis.get(name)
         }
     }
 
@@ -155,15 +164,6 @@ class RedisService {
             return idList.collect { id -> domainClass.load(id) }
         }
         return []
-    }
-
-    def withRedis(Closure closure) {
-        Jedis redis = redisPool.getResource()
-        try {
-            return closure(redis)
-        } finally {
-            redisPool.returnResource(redis)
-        }
     }
 
     // should ONLY Be used from tests unless we have a really good reason to clear out the entire redis db
