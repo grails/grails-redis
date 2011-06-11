@@ -11,9 +11,9 @@ grails.project.dependency.resolution = {
         grailsPlugins()
         grailsHome()
         grailsCentral()
-        mavenRepo "https://repository.sonatype.org/content/repositories/central/"
+        mavenCentral()
     }
     dependencies {
-        compile 'redis.clients:jedis:1.5.2'
+        compile 'redis.clients:jedis:2.0.0'
     }
 }

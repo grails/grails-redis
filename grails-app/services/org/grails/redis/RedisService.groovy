@@ -72,7 +72,7 @@ class RedisService {
         withRedis { Jedis redis ->
             Pipeline pipeline = redis.pipelined()
             closure(pipeline)
-            pipeline.execute()
+            pipeline.sync()
         }
     }
 
