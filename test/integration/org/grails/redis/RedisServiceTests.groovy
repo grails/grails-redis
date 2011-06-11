@@ -3,6 +3,7 @@ package org.grails.redis
 import grails.test.*
 import redis.clients.jedis.Transaction
 import redis.clients.jedis.Jedis
+import static org.grails.redis.RedisService.NO_EXPIRATION_TTL
 
 class RedisServiceTests extends GroovyTestCase {
     def redisService
@@ -31,7 +32,7 @@ class RedisServiceTests extends GroovyTestCase {
         }
     }
 
-    void testMemoizeKey() {
+    void testMemoizeKeyNoExpire() {
         def calledCount = 0
         def cacheMissClosure = {
             calledCount += 1
@@ -41,6 +42,7 @@ class RedisServiceTests extends GroovyTestCase {
 
         assertEquals 1, calledCount
         assertEquals "foo", cacheMissResult
+        assertEquals NO_EXPIRATION_TTL, redisService.ttl("mykey")
 
         def cacheHitResult = redisService.memoize("mykey", cacheMissClosure)
 
@@ -48,29 +50,44 @@ class RedisServiceTests extends GroovyTestCase {
         assertEquals 1, calledCount
         assertEquals "foo", cacheHitResult
     }
+    
+    void testMemoizeKeyWithExpire() {
+        assertEquals NO_EXPIRATION_TTL, redisService.ttl("mykey")
+        def result = redisService.memoize("mykey", 60) { "foo" } 
+        assertEquals "foo", result
+        assertTrue NO_EXPIRATION_TTL < redisService.ttl("mykey")
+    }
 
-    void testMemoizeKeyField() {
+    void testMemoizeHashField() {
         def calledCount = 0
         def cacheMissClosure = {
             calledCount += 1
             return "foo"
         }
-        def cacheMissResult = redisService.memoize("mykey", "first", cacheMissClosure)
+        def cacheMissResult = redisService.memoizeHashField("mykey", "first", cacheMissClosure)
 
         assertEquals 1, calledCount
         assertEquals "foo", cacheMissResult
+        assertEquals NO_EXPIRATION_TTL, redisService.ttl("mykey")
 
-        def cacheHitResult = redisService.memoize("mykey", "first", cacheMissClosure)
+        def cacheHitResult = redisService.memoizeHashField("mykey", "first", cacheMissClosure)
 
         // should have hit the cache, not called our method again
         assertEquals 1, calledCount
         assertEquals "foo", cacheHitResult
 
-        def cacheMissSecondResult = redisService.memoize("mykey", "second", cacheMissClosure)
+        def cacheMissSecondResult = redisService.memoizeHashField("mykey", "second", cacheMissClosure)
 
         // cache miss because we're using a different field in the same key
         assertEquals 2, calledCount
         assertEquals "foo", cacheMissSecondResult
+    }
+
+    void testMemoizeHashFieldWithExpire() {
+        assertEquals NO_EXPIRATION_TTL, redisService.ttl("mykey")
+        def result = redisService.memoizeHashField("mykey", "first", 60) { "foo" } 
+        assertEquals "foo", result
+        assertTrue NO_EXPIRATION_TTL < redisService.ttl("mykey")
     }
 
     def testMemoizeHash() {
@@ -84,12 +101,21 @@ class RedisServiceTests extends GroovyTestCase {
 
         assertEquals 1, calledCount
         assertEquals expectedHash, cacheMissResult
+        assertEquals NO_EXPIRATION_TTL, redisService.ttl("mykey")
 
         def cacheHitResult = redisService.memoizeHash("mykey", cacheMissClosure)
 
         // should have hit the cache, not called our method again
         assertEquals 1, calledCount
         assertEquals expectedHash, cacheHitResult
+    }
+
+    void testMemoizeHashWithExpire() {
+        def expectedHash = [foo: 'bar', baz: 'qux']
+        assertEquals NO_EXPIRATION_TTL, redisService.ttl("mykey")
+        def result = redisService.memoizeHash("mykey", 60) { expectedHash } 
+        assertEquals expectedHash, result
+        assertTrue NO_EXPIRATION_TTL < redisService.ttl("mykey")
     }
 
     def testWithTransaction() {

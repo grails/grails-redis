@@ -7,9 +7,10 @@ class RedisTagLib {
 
     def memoize = { attrs, body ->
         String key = attrs.key
+        Integer expire = attrs.expire?.toInteger()
 
         if (!key) throw new IllegalArgumentException("[key] attribute must be specified for memoize!")
 
-        out << redisService.memoize(key) { body() ?: "" }
+        out << redisService.memoize(key, expire) { body() ?: "" }
     }
 }
