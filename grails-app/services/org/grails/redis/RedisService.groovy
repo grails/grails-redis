@@ -86,6 +86,18 @@ class RedisService {
         }
     }
 
+    void propertyMissing(String name, Object value) {
+        withRedis { Jedis redis ->
+            redis.set(name, value.toString())
+        }
+    }
+
+    Object propertyMissing(String name) {
+        withRedis { Jedis redis -> 
+            redis.get(name)
+        }
+    }
+
     List memoizeDomainList(Class domainClass, String key, Closure closure) {
         List<Long> idList = getIdListFor(key)
         if (idList) return hydrateDomainObjectsFrom(domainClass, idList)

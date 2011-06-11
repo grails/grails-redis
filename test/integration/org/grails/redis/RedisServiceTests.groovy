@@ -102,4 +102,27 @@ class RedisServiceTests extends GroovyTestCase {
             assertEquals "bar", redis.get("foo")
         }
     }
+
+
+    def testPropertyMissingGetterRetrievesStringValue() {
+        assertNull redisService.foo
+
+        redisService.withRedis { Jedis redis ->
+            redis.set("foo", "bar")
+        }
+
+        assertEquals "bar", redisService.foo
+    }
+
+    def testPropertyMissingSetterSetsStringValue() {
+        redisService.withRedis { Jedis redis -> 
+            assertNull redis.foo
+        }
+
+        redisService.foo = "bar"
+
+        redisService.withRedis { Jedis redis -> 
+            assertEquals "bar", redis.foo
+        }
+    }
 }
