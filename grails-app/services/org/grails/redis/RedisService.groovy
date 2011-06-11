@@ -64,8 +64,11 @@ class RedisService {
                 log.debug "cache miss: $key"
                 result = closure(redis)
                 if (result) {
-                    redis.set(key, result as String)
-                    if (expire) redis.expire(key, expire)
+                    if (!expire) { 
+                        redis.set(key, result as String)
+                    } else {
+                        redis.setex(key, expire, result as String)
+                    }
                 }
             } else {
                 log.debug "cache hit : $key = $result"

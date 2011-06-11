@@ -32,7 +32,7 @@ class RedisServiceTests extends GroovyTestCase {
         }
     }
 
-    void testMemoizeKeyNoExpire() {
+    void testMemoizeKey() {
         def calledCount = 0
         def cacheMissClosure = {
             calledCount += 1
@@ -128,7 +128,6 @@ class RedisServiceTests extends GroovyTestCase {
             assertEquals "bar", redis.get("foo")
         }
     }
-
 
     def testPropertyMissingGetterRetrievesStringValue() {
         assertNull redisService.foo
