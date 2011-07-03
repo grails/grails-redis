@@ -2,8 +2,8 @@ import redis.clients.jedis.JedisPool
 import redis.clients.jedis.JedisPoolConfig
 
 class RedisGrailsPlugin {
-    def version = "0.1"
-    def grailsVersion = "1.3.6 > *"
+    def version = "1.0.0.M7"
+    def grailsVersion = "1.3.4 > *"
     def dependsOn = [:]
     def pluginExcludes = [
             "grails-app/domain/*.groovy",
@@ -21,8 +21,8 @@ class RedisGrailsPlugin {
     def documentation = "http://grails.org/plugin/redis"
 
     def doWithSpring = {
-        def redisPoolConfigMap = application.config?.grails?.redis?.poolConfig ?: [:]
         def redisConfigMap = application.config?.grails?.redis ?: [:]
+        def redisPoolConfigMap = (redisConfigMap ? redisConfigMap.poolConfig : [:]) ?: [:]
 
         redisPoolConfig(JedisPoolConfig) {
             // used to set arbitrary config values without calling all of them out here or requiring any of them
