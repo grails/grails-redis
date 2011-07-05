@@ -6,3 +6,7 @@ plugin.xml
 .DS_Store
 target
 web-app
+
+*.iml
+*.ipr
+*.iws
