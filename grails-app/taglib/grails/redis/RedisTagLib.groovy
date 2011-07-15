@@ -1,4 +1,4 @@
-package org.grails.redis
+package grails.redis
 
 class RedisTagLib {
     def redisService

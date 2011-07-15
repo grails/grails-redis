@@ -1,4 +1,4 @@
-package org.grails.redis
+package grails.redis
 
 import grails.test.*
 import redis.clients.jedis.Transaction
