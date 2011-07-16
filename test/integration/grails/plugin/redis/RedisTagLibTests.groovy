@@ -1,4 +1,4 @@
-package grails.redis
+package grails.plugin.redis
 
 import grails.test.TagLibUnitTestCase
 

@@ -184,4 +184,4 @@ The `redis:memoize` TagLib lets you leverage memoization within your GSP files. 
 [jedis]:https://github.com/xetorthio/jedis/wiki
 [jedispoolconfig]:https://github.com/xetorthio/jedis/blob/master/src/main/java/redis/clients/jedis/JedisPoolConfig.java
 [genericobjectpool]:http://commons.apache.org/pool/apidocs/org/apache/commons/pool/impl/GenericObjectPool.html
-[redisservicecode]:https://github.com/grails-plugins/grails-redis/blob/master/grails-app/services/grails/redis/RedisService.groovy
+[redisservicecode]:https://github.com/grails-plugins/grails-redis/blob/master/grails-app/services/grails/plugin/redis/RedisService.groovy

@@ -1,8 +1,8 @@
-package grails.redis
+package grails.plugin.redis
 
 import grails.test.*
 import com.example.Book
-import static org.grails.redis.RedisService.NO_EXPIRATION_TTL
+import static grails.plugin.redis.RedisService.NO_EXPIRATION_TTL
 
 class RedisIntegrationTests extends GroovyTestCase {
     

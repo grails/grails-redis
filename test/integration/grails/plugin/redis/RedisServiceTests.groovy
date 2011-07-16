@@ -1,9 +1,9 @@
-package grails.redis
+package grails.plugin.redis
 
 import grails.test.*
 import redis.clients.jedis.Transaction
 import redis.clients.jedis.Jedis
-import static org.grails.redis.RedisService.NO_EXPIRATION_TTL
+import static grails.plugin.redis.RedisService.NO_EXPIRATION_TTL
 
 class RedisServiceTests extends GroovyTestCase {
     def redisService

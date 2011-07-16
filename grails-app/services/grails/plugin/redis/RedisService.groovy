@@ -1,4 +1,4 @@
-package grails.redis
+package grails.plugin.redis
 
 import redis.clients.jedis.Jedis
 import redis.clients.jedis.Pipeline
