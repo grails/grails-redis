@@ -4,10 +4,9 @@ import redis.clients.jedis.Jedis
 import redis.clients.jedis.Pipeline
 import redis.clients.jedis.Transaction
 
-
 class RedisService {
 
-    protected static final NO_EXPIRATION_TTL = -1
+    public static final int NO_EXPIRATION_TTL = -1
 
     def redisPool
 
@@ -42,7 +41,7 @@ class RedisService {
     }
 
     Object propertyMissing(String name) {
-        withRedis { Jedis redis -> 
+        withRedis { Jedis redis ->
             redis.get(name)
         }
     }

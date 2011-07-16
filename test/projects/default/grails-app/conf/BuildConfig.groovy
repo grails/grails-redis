@@ -28,9 +28,9 @@ grails.project.dependency.resolution = {
 
         // runtime 'mysql:mysql-connector-java:5.1.13'
     }
-	plugins {
-		runtime ':build-test-data:1.1.1'
-    }    
+    plugins {
+        runtime ':build-test-data:1.1.1'
+    }
 }
 
 grails.plugin.location.redis = "../../.."

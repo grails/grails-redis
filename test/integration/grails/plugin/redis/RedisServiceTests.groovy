@@ -1,9 +1,8 @@
 package grails.plugin.redis
 
-import grails.test.*
-import redis.clients.jedis.Transaction
-import redis.clients.jedis.Jedis
 import static grails.plugin.redis.RedisService.NO_EXPIRATION_TTL
+import redis.clients.jedis.Jedis
+import redis.clients.jedis.Transaction
 
 class RedisServiceTests extends GroovyTestCase {
     def redisService
@@ -11,10 +10,6 @@ class RedisServiceTests extends GroovyTestCase {
     protected void setUp() {
         super.setUp()
         redisService.flushDB()
-    }
-
-    protected void tearDown() {
-        super.tearDown()
     }
 
     void testFlushDB() {
@@ -50,10 +45,10 @@ class RedisServiceTests extends GroovyTestCase {
         assertEquals 1, calledCount
         assertEquals "foo", cacheHitResult
     }
-    
+
     void testMemoizeKeyWithExpire() {
         assertEquals NO_EXPIRATION_TTL, redisService.ttl("mykey")
-        def result = redisService.memoize("mykey", 60) { "foo" } 
+        def result = redisService.memoize("mykey", 60) { "foo" }
         assertEquals "foo", result
         assertTrue NO_EXPIRATION_TTL < redisService.ttl("mykey")
     }
@@ -85,7 +80,7 @@ class RedisServiceTests extends GroovyTestCase {
 
     void testMemoizeHashFieldWithExpire() {
         assertEquals NO_EXPIRATION_TTL, redisService.ttl("mykey")
-        def result = redisService.memoizeHashField("mykey", "first", 60) { "foo" } 
+        def result = redisService.memoizeHashField("mykey", "first", 60) { "foo" }
         assertEquals "foo", result
         assertTrue NO_EXPIRATION_TTL < redisService.ttl("mykey")
     }
@@ -113,7 +108,7 @@ class RedisServiceTests extends GroovyTestCase {
     void testMemoizeHashWithExpire() {
         def expectedHash = [foo: 'bar', baz: 'qux']
         assertEquals NO_EXPIRATION_TTL, redisService.ttl("mykey")
-        def result = redisService.memoizeHash("mykey", 60) { expectedHash } 
+        def result = redisService.memoizeHash("mykey", 60) { expectedHash }
         assertEquals expectedHash, result
         assertTrue NO_EXPIRATION_TTL < redisService.ttl("mykey")
     }
@@ -140,13 +135,13 @@ class RedisServiceTests extends GroovyTestCase {
     }
 
     def testPropertyMissingSetterSetsStringValue() {
-        redisService.withRedis { Jedis redis -> 
+        redisService.withRedis { Jedis redis ->
             assertNull redis.foo
         }
 
         redisService.foo = "bar"
 
-        redisService.withRedis { Jedis redis -> 
+        redisService.withRedis { Jedis redis ->
             assertEquals "bar", redis.foo
         }
     }

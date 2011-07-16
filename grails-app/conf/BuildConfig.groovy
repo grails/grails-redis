@@ -3,8 +3,8 @@ grails.project.test.class.dir = "target/test-classes"
 grails.project.test.reports.dir = "target/test-reports"
 
 grails.project.dependency.resolution = {
-    inherits("global") {
-    }
+
+    inherits "global"
     log "warn"
 
     repositories {
@@ -13,6 +13,7 @@ grails.project.dependency.resolution = {
         grailsCentral()
         mavenCentral()
     }
+
     dependencies {
         compile 'redis.clients:jedis:2.0.0'
     }
