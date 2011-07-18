@@ -3,7 +3,7 @@ Grails Redis Plugin
 
 For integration between [Redis][redis] and Grails GORM layer, see the [Redis GORM plugin][redisgorm]. 
 
-This plugin was originally called just "redis" (the name of this plugin), but it has since been refactored to "redis-gorm" and now relies on this plugin for connectivity.
+That plugin was originally called "redis" (the name of this plugin), but it has since been refactored to "redis-gorm" and now relies on this plugin for connectivity.
 
 What is Redis?
 --------------
@@ -165,6 +165,10 @@ The `redis:memoize` TagLib lets you leverage memoization within your GSP files. 
     </redis:memoize>
 
 
+Release Notes
+=============
+
+* 1.0.0M7  - (unreleased as of 7/17/11) actually the first released revision of the plugin. As it's replacing the old "redis" plugin (now "redis-gorm"), we needed to start with a number higher than the last released revision of that
 
 
 [redisgorm]: http://grails.github.com/inconsequential/redis/
