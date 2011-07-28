@@ -42,6 +42,8 @@ Out of the box, the plugin expects that Redis is running on `localhost:6379`.  Y
             }
             port = 6379
             host = "localhost"
+            timeout = 2000 //default in milliseconds
+            password = "somepassword" //defaults to no password
         }
     }
 
