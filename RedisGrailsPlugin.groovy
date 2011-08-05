@@ -30,7 +30,9 @@ class RedisGrailsPlugin {
 
     def license = "APACHE"
     def developers = [
-            [ name: "Burt Beckwith" ]
+            [ name: "Burt Beckwith" ],
+            [ name: "Graeme Rocher" ],
+            [ name: "Michael Cameron" ]
     ]
 
     def scm = [ url: "https://github.com/grails-plugins/grails-redis" ]
