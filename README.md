@@ -3,7 +3,7 @@ Grails Redis Plugin
 
 For integration between [Redis][redis] and Grails GORM layer, see the [Redis GORM plugin][redisgorm]. 
 
-That plugin was originally called "redis" (the name of this plugin), but it has since been refactored to "redis-gorm" and now relies on this plugin for connectivity.
+That plugin was originally called "redis" (the name of this plugin), but it has since been refactored to "redis-gorm" and now relies on this plugin for connectivity.  ("redis-gorm" hasn't been released yet, to install the old plugin, use "grails install-plugin 1.0.0.M6" till it is released)
 
 What is Redis?
 --------------
