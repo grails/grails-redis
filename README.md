@@ -170,7 +170,7 @@ The `redis:memoize` TagLib lets you leverage memoization within your GSP files. 
 Release Notes
 =============
 
-* 1.0.0M7  - (unreleased as of 7/17/11) actually the first released revision of the plugin. As it's replacing the old "redis" plugin (now "redis-gorm"), we needed to start with a number higher than the last released revision of that
+* 1.0.0M7  - released 8/5/2011 - this is actually the first released revision of the plugin. As it's replacing the old "redis" plugin (now "redis-gorm"), we needed to start with a number higher than the last released revision of that.  If you want the old redis-gorm plugin (which hasn't been released as of 8/5/2011), you can use "grails install-plugin 1.0.0.M6"
 
 
 [redisgorm]: http://grails.github.com/inconsequential/redis/
