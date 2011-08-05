@@ -24,7 +24,7 @@ class RedisGrailsPlugin {
     def authorEmail = "contact@naleid.com"
     def title = "Redis Plugin"
 
-    def description = '''\\
+    def description = '''\
     The Redis plugin provides integration with a Redis datastore. Redis is a lightning fast 'data structure server'.  The plugin enables a number of memoization techniques to cache results from complex operations in Redis.
 '''
 
