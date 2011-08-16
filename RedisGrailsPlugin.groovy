@@ -39,7 +39,7 @@ class RedisGrailsPlugin {
     def documentation = "http://grails.org/plugin/redis"
 
     def doWithSpring = {
-        def redisConfigMap = application.config.grails.redis
+        def redisConfigMap = application.config.grails.redis ?: [:]
 
         redisPoolConfig(JedisPoolConfig) {
             // used to set arbitrary config values without calling all of them out here or requiring any of them
