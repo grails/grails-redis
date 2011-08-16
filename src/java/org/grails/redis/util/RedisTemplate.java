@@ -224,4 +224,6 @@ public interface RedisTemplate<T, S> {
     void sortstore(String key, String destKey,  SortParams<S> params);
 
     T getRedisClient();
+
+    boolean isInMulti();
 }
