@@ -172,6 +172,7 @@ Release Notes
 
 * 1.0.0.M7 - released 8/5/2011 - this is actually the first released revision of the plugin. As it's replacing the old "redis" plugin (now "redis-gorm"), we needed to start with a number higher than the last released revision of that.  If you want the old redis-gorm plugin (which hasn't been released as of 8/5/2011), you can use "grails install-plugin 1.0.0.M6"
 * 1.0.0.M8 - released 8/15/2011 - bugfix release mostly around the JedisTemplate that was ported from redis-gorm
+* 1.0.0.M9 - released 8/16/2011 - removal of the Jedis/RedisTemplate stuff from redis-gorm as it's needed by things that can't rely on grails plugins, minor bugfixes for tests.
 
 [redisgorm]: http://grails.github.com/inconsequential/redis/
 [redis]: http://redis.io
