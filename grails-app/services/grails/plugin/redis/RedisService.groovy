@@ -24,7 +24,7 @@ class RedisService {
 
     def redisPool
 
-    boolean transactional = true
+    boolean transactional = false
 
     def withPipeline(Closure closure) {
         withRedis { Jedis redis ->

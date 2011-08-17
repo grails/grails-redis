@@ -7,6 +7,8 @@ import redis.clients.jedis.Transaction
 class RedisServiceTests extends GroovyTestCase {
     def redisService
 
+    boolean transactional = false
+    
     protected void setUp() {
         super.setUp()
         redisService.flushDB()
