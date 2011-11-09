@@ -26,6 +26,7 @@ class RedisGrailsPlugin {
 
     def description = '''The Redis plugin provides integration with a Redis datastore. Redis is a lightning fast 'data structure server'.  The plugin enables a number of memoization techniques to cache results from complex operations in Redis.
 '''
+    def issueManagement = [ system: 'github', url: 'https://github.com/grails-plugins/grails-redis/issues' ]
 
     def license = "APACHE"
     def developers = [
