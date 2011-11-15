@@ -139,7 +139,7 @@ class RedisServiceTests extends GroovyTestCase {
 		assertEquals 1, calledCount
 		assertEquals([book1, book2, book3] as Set, cacheHitList)
 		assertEquals cacheMissList, cacheHitList
-	}
+    }
 
 	def testMemoizeSetWithExpire() {
 		def book1 = "book1"
