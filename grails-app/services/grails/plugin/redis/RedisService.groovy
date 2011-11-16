@@ -228,6 +228,26 @@ class RedisService {
         return []
     }
 
+    //memoization for sets
+    def memoizeSet(String key, Integer expire, Closure closure) {
+        memoizeSet(key, [expire: expire], closure)
+    }
+    def memoizeSet(String key, Map options = [:], Closure closure) {
+        withRedis { Jedis redis ->
+            def set = redis.smembers(key)
+            if(!set) {
+                log.debug "cache miss: $key"
+                set = closure(redis)
+                if(set) {
+                    set.each { redis.sadd(key, it) }
+                    if(options?.expire) redis.expire(key, options.expire)
+                }
+            } else {
+                log.debug "cach hit: $key"
+            }
+            return set
+        }
+    }
     // should ONLY Be used from tests unless we have a really good reason to clear out the entire redis db
     def flushDB() {
         log.warn("flushDB called!")
