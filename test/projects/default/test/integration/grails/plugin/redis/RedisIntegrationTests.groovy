@@ -69,38 +69,26 @@ class RedisIntegrationTests extends GroovyTestCase {
         assertEquals([book1.id, book3.id], cacheHitList)
         assertEquals cacheMissList, cacheHitList
     }
-    
-    def testMemoizeSet() {
-        def book1 = "book1"
-        def book2 = "book2"
-        def book3 = "book3"
-        def bookSet = [book1, book2, book3] as Set
+
+    def testMemoizeDomainObject() {
+        Book book1 = Book.build(title: "book1")
 
         def calledCount = 0
         def cacheMissClosure = {
             calledCount += 1
-            return bookSet
+            return Book.get(book1.id)
         }
 
-        def cacheMissList = redisService.memoizeSet("Books", cacheMissClosure)
+        def cacheMissBook = redisService.memoizeDomainObject(Book, "domainkey",  cacheMissClosure)
 
-        assertEquals 1, calledCount
-        assertEquals([book1, book2, book3] as Set, cacheMissList)
-        assertEquals NO_EXPIRATION_TTL, redisService.ttl("Books")
+        assert 1 == calledCount
+        assert book1.id == cacheMissBook.id
 
-        def cacheHitList = redisService.memoizeSet("Books", cacheMissClosure)
+        def cacheHitBook = redisService.memoizeDomainObject(Book, "domainkey", cacheMissClosure)
 
         // cache hit, don't call closure again
-        assertEquals 1, calledCount
-        assertEquals([book1, book2, book3] as Set, cacheHitList)
-        assertEquals cacheMissList, cacheHitList
+        assert 1 == calledCount
+        assert book1.id == cacheHitBook.id
+        assert cacheHitBook.id == cacheMissBook.id
     }
-
-    def testMemoizeSetWithExpire() {
-        def book1 = "book1"
-        assertEquals NO_EXPIRATION_TTL, redisService.ttl("Books")
-        def result = redisService.memoizeSet("Books", 60) { [book1] as Set }
-        assertEquals([book1] as Set, result)
-        assertTrue NO_EXPIRATION_TTL < redisService.ttl("Books")
-    }    
 }

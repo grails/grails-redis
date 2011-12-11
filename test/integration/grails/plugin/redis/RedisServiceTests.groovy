@@ -184,6 +184,33 @@ class RedisServiceTests extends GroovyTestCase {
         assertTrue NO_EXPIRATION_TTL < redisService.ttl("mykey")
     }
 
+
+    void testDeleteKeysWithPattern() {
+        def calledCount = 0
+        def cacheMissClosure = {
+            calledCount += 1
+            return "foobar"
+        }
+        redisService.memoize("mykey:1", cacheMissClosure)
+        redisService.memoize("mykey:2", cacheMissClosure)
+
+        assertEquals 2, calledCount
+
+        redisService.memoize("mykey:1", cacheMissClosure)
+        redisService.memoize("mykey:2", cacheMissClosure)
+
+        // call count shouldn't increase
+        assertEquals 2, calledCount
+
+        redisService.deleteKeysWithPattern("mykey:*")
+
+        redisService.memoize("mykey:1", cacheMissClosure)
+        redisService.memoize("mykey:2", cacheMissClosure)
+
+        // Because we deleted those keys before and there is a cache miss
+        assertEquals 4, calledCount
+    }
+
     def testWithTransaction() {
         redisService.withRedis { Jedis redis ->
             assertNull redis.get("foo")

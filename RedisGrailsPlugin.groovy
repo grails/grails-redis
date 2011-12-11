@@ -31,7 +31,7 @@ class RedisGrailsPlugin {
     def license = "APACHE"
     def developers = [
             [ name: "Burt Beckwith" ],
-            [ name: "Graeme Rocher" ],
+            [ name: "Brian Coles" ],
             [ name: "Michael Cameron" ]
     ]
 
