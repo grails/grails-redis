@@ -115,7 +115,7 @@ By default, the key/value will be cached forever in Redis, you can ensure that t
         """
     }
 
-### Domain Object Memoizatoin ###
+### Domain Object Memoization ###
 
 You can memoize a single domain object with redis.  It will cache the ID of the domain object returned from the closure and on subsequent cache hits will return a proxy domain object using grails <code>DomainObject.load(cachedId)</code>.
 
