@@ -18,7 +18,7 @@ import redis.clients.jedis.JedisPoolConfig
 import redis.clients.jedis.Protocol
 
 class RedisGrailsPlugin {
-    def version = "1.0.0.M9"
+    def version = "1.1"
     def grailsVersion = "1.3.4 > *"
     def author = "Ted Naleid"
     def authorEmail = "contact@naleid.com"
