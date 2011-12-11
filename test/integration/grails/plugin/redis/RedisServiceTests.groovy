@@ -115,6 +115,41 @@ class RedisServiceTests extends GroovyTestCase {
         assertTrue NO_EXPIRATION_TTL < redisService.ttl("mykey")
     }
 
+    def testMemoizeList() {
+        def book1 = "book1"
+        def book2 = "book2"
+        def book3 = "book3"
+        List books = [book1, book2, book3] 
+        
+        def calledCount = 0
+        def cacheMissClosure = {
+            calledCount += 1
+            return books
+        }
+        
+        def cacheMissList = redisService.memoizeList("mykey", cacheMissClosure)
+        
+        assertEquals 1, calledCount
+        assertEquals([book1, book2, book3], cacheMissList)
+        assertEquals NO_EXPIRATION_TTL, redisService.ttl("mykey")
+        
+        List cacheHitList = redisService.memoizeList("mykey", cacheMissClosure)
+        
+        // cache hit, don't call closure again
+        assertEquals 1, calledCount
+        assertEquals([book1, book2, book3], cacheHitList)
+        assertEquals cacheMissList, cacheHitList
+    }
+
+    def testMemoizeListWithExpire() {
+        def book1 = "book1"
+        assertEquals NO_EXPIRATION_TTL, redisService.ttl("mykey")
+        def result = redisService.memoizeList("mykey", 60) { [book1] }
+        assertEquals([book1], result)
+        assertTrue NO_EXPIRATION_TTL < redisService.ttl("mykey")
+    }
+    
+
     def testMemoizeSet() {
         def book1 = "book1"
         def book2 = "book2"
@@ -127,28 +162,27 @@ class RedisServiceTests extends GroovyTestCase {
             return bookSet
         }
         
-        def cacheMissList = redisService.memoizeSet("Books", cacheMissClosure)
+        Set cacheMissSet = redisService.memoizeSet("mykey", cacheMissClosure)
         
         assertEquals 1, calledCount
-        assertEquals([book1, book2, book3]as Set, cacheMissList)
-        assertEquals NO_EXPIRATION_TTL, redisService.ttl("Books")
+        assertEquals([book1, book2, book3] as Set, cacheMissSet)
+        assertEquals NO_EXPIRATION_TTL, redisService.ttl("mykey")
         
-        def cacheHitList = redisService.memoizeSet("Books", cacheMissClosure)
+        def cacheHitSet = redisService.memoizeSet("mykey", cacheMissClosure)
         
         // cache hit, don't call closure again
         assertEquals 1, calledCount
-        assertEquals([book1, book2, book3]as Set, cacheHitList)
-        assertEquals cacheMissList, cacheHitList
+        assertEquals([book1, book2, book3] as Set, cacheHitSet)
+        assertEquals cacheMissSet, cacheHitSet
     }
 
     def testMemoizeSetWithExpire() {
         def book1 = "book1"
-        assertEquals NO_EXPIRATION_TTL, redisService.ttl("Books")
-        def result = redisService.memoizeSet("Books", 60) { [book1]as Set }
-        assertEquals([book1]as Set, result)
-        assertTrue NO_EXPIRATION_TTL < redisService.ttl("Books")
+        assertEquals NO_EXPIRATION_TTL, redisService.ttl("mykey")
+        def result = redisService.memoizeSet("mykey", 60) { [book1] as Set }
+        assertEquals([book1] as Set, result)
+        assertTrue NO_EXPIRATION_TTL < redisService.ttl("mykey")
     }
-
 
     def testWithTransaction() {
         redisService.withRedis { Jedis redis ->

@@ -163,6 +163,8 @@ class RedisService {
         }
     }
 
+
+
     List memoizeDomainList(Class domainClass, String key, Integer expire, Closure closure) {
         memoizeDomainList(domainClass, key, [expire: expire], closure)
     }
@@ -228,10 +230,33 @@ class RedisService {
         return []
     }
 
-    //memoization for sets
+    def memoizeList(String key, Integer expire, Closure closure) {
+        memoizeList(key, [expire: expire], closure)
+    }
+
+    def memoizeList(String key, Map options = [:], Closure closure) {
+        withRedis { Jedis redis ->
+            List list = redis.lrange(key, 0, -1)
+            if(!list) {
+                log.debug "cache miss: $key"
+                list = closure(redis)
+                if(list) {
+                    withPipeline { pipeline -> 
+                        for ( obj in list ) pipeline.rpush(key, obj)
+                        if(options?.expire) pipeline.expire(key, options.expire)
+                    }
+                }
+            } else {
+                log.debug "cach hit: $key"
+            }
+            return list
+        }
+    }
+
     def memoizeSet(String key, Integer expire, Closure closure) {
         memoizeSet(key, [expire: expire], closure)
     }
+
     def memoizeSet(String key, Map options = [:], Closure closure) {
         withRedis { Jedis redis ->
             def set = redis.smembers(key)
@@ -239,8 +264,10 @@ class RedisService {
                 log.debug "cache miss: $key"
                 set = closure(redis)
                 if(set) {
-                    set.each { redis.sadd(key, it) }
-                    if(options?.expire) redis.expire(key, options.expire)
+                    withPipeline { pipeline ->
+                        for (obj in set) pipeline.sadd(key, obj)
+                        if(options?.expire) pipeline.expire(key, options.expire)
+                    }
                 }
             } else {
                 log.debug "cach hit: $key"
