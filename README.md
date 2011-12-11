@@ -72,7 +72,7 @@ The service overrides `propertyMissing` and `methodMissing` to delegate any miss
         
 It also provides a template method called `withRedis` that takes a closure as a parameter.  It passes a Jedis connection object to Redis into the closure.  The template method automatically gets an object out of the pool and ensures that it gets returned to the pool after the closure finishes (even if there's an error).
 
-    redisService.withRedis { Jedis redis ->
+    redisService.withRedis { 
         redis.set("foo", "bar")
     }
 
@@ -100,7 +100,7 @@ This technique is very useful for caching values that are frequently requested b
 
 ### String Memoization ###
 
-    redisService.memoize("user:$userId:helloMessage") { Jedis redis ->
+    redisService.memoize("user:$userId:helloMessage") { 
         // expensive to calculate method that returns a String
         "Hello ${security.currentLoggedInUser().firstName}"
     }
@@ -108,12 +108,33 @@ This technique is very useful for caching values that are frequently requested b
 By default, the key/value will be cached forever in Redis, you can ensure that the key is refreshed either by deleting the key from Redis, making the key include a date or timestamp, or by using the optional `expire` parameter, the value is the number of seconds before Redis should expire the key:
 
     def ONE_HOUR = 3600
-    redisService.memoize("user:$userId:helloMessage", [expire: ONE_HOUR]) { Jedis redis ->
+    redisService.memoize("user:$userId:helloMessage", [expire: ONE_HOUR]) { 
         """
         Hello ${security.currentLoggedInUser().firstName. 
         The temperature this hour is ${currentTemperature()}
         """
     }
+
+### Domain Object Memoizatoin ###
+
+You can memoize a single domain object with redis.  It will cache the ID of the domain object returned from the closure and on subsequent cache hits will return a proxy domain object using grails <code>DomainObject.load(cachedId)</code>.
+
+
+    String key = "user:42:favorite:author"
+    Author author = redisService.memoizeDomainObject(Author, key) { 
+        Author author = ... // expensive method to calculate user 42's favorite author...
+        return author
+    }
+
+Now that you have the proxy object for the Author, you can do queries with it without actually having to hydrate the object (and anything it eagerly loads):
+
+    def recommendedBooks = Book.findByAuthor(author) 
+
+The object has the id field populated, but the remaining fields are lazily loaded only if their values are requested, so you can still do:
+
+    println author.name
+
+To actually print out the name of the author.
 
 ### Domain List Memoization ###
 
@@ -135,12 +156,31 @@ There are other memoization methods that the plugin provides, check out the [Red
 
     // Redis Hash memoize methods
     
-    redisService.memoizeHash("saved-hash") { Jedis redis -> return [foo: "bar"] }
+    redisService.memoizeHash("saved-hash") { return [foo: "bar"] }
 
-    redisService.memoizeHashField("saved-hash", "foo") { Jedis redis -> return "bar" }
+    redisService.memoizeHashField("saved-hash", "foo") { return "bar" }
 
-    // Redis Sorted Set memoize methods
-    redisService.memoizeScore("saved-sorted-set", "set-item") { Jedis redis -> return score }
+    // Redis List memoize method
+    redisService.memoizeList("saved-list") { return ["foo", "bar", "baz"] }
+
+    // Redis Set memoize method
+    redisService.memoizeSet("saved-set") { return ["foo", "bar", "baz"] as Set } 
+
+    // Redis Sorted Set memoize method
+    redisService.memoizeScore("saved-sorted-set", "set-item") { return score }
+
+
+### Other Methods ###
+
+The plugin also provides a few utility methods such as:
+
+    redisService.flushDB() // dangerous!!!! should probably only be used for test cleanup
+
+    // deletes all keys in the database matching a pattern, this is fairly expensive
+    // as it uses the <code>keys</code> operation.  If you're doing this a lot and
+    // have many keys in redis, you should be aggregating your own set of keys that
+    // you'll later want to delete
+    redisService.deleteKeysWithPattern("key:pattern:*") 
 
 ### Redis Pool Bean ###
 
@@ -150,7 +190,6 @@ You can have direct access to the pool of Redis connection objects by injecting 
 
 
 ### Redis Taglib ###
-
 
 The `redis:memoize` TagLib lets you leverage memoization within your GSP files.  Wrap it around any expensive to generate text and it will cache it and quickly serve it from Redis.
 
@@ -173,6 +212,7 @@ Release Notes
 * 1.0.0.M7 - released 8/5/2011 - this is actually the first released revision of the plugin. As it's replacing the old "redis" plugin (now "redis-gorm"), we needed to start with a number higher than the last released revision of that.  If you want the old redis-gorm plugin (which hasn't been released as of 8/5/2011), you can use "grails install-plugin 1.0.0.M6"
 * 1.0.0.M8 - released 8/15/2011 - bugfix release mostly around the JedisTemplate that was ported from redis-gorm
 * 1.0.0.M9 - released 8/16/2011 - removal of the Jedis/RedisTemplate stuff from redis-gorm as it's needed by things that can't rely on grails plugins, minor bugfixes for tests.
+* 1.1 - released 12/10/2011 - removed hibernate & tomcat plugin dependency, added memoizeSet, memoizeList, memoizeDomainObject, and deleteKeysWithPattern methods, significantly reduced amount of time redis connections were used by plugin during memoization, BREAKING CHANGE: memoize methods no longer pass a Jedis connection object into the closure, they must be created on demand within the closure code.
 
 [redisgorm]: http://grails.github.com/inconsequential/redis/
 [redis]: http://redis.io
