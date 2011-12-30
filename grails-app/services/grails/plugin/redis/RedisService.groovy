@@ -70,6 +70,7 @@ class RedisService {
     }
 
     def memoize(String key, Integer expire, Closure closure) {
+        println "caching $key"
         memoize(key, [expire: expire], closure)
     }
 

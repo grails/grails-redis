@@ -3,14 +3,33 @@ package grails.plugin.redis
 import static grails.plugin.redis.RedisService.NO_EXPIRATION_TTL
 
 import com.example.Book
+import com.example.BookService
 
 class RedisIntegrationTests extends GroovyTestCase {
 
     def redisService
+    def bookService
 
     protected void setUp() {
         super.setUp()
         redisService.flushDB()
+    }
+    
+    def testMemoizeAnnotation(){
+        def text = 'hello'
+        def date = new Date()
+        def output = bookService.doWork(text, date)
+        
+        assertEquals output, "$text $date"
+        
+        Thread.sleep(1000)
+
+        def text2 = 'world'
+        def date2 = new Date()
+        def output2 = bookService.doWork(text2, date2)
+
+        assert output2 != "$text2 $date2"
+        assert output2 == "$text $date"
     }
 
     def testMemoizeDomainList() {
