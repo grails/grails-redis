@@ -9,6 +9,7 @@ class BookService {
 
     @Memoize
     def doWork(String text, Date date) {
+        println 'in doWork'
         "$text $date"
     }
 }

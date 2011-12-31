@@ -20,7 +20,7 @@ class RedisIntegrationTests extends GroovyTestCase {
         def date = new Date()
         def output = bookService.doWork(text, date)
         
-        assertEquals output, "$text $date"
+        assert output == "$text $date"
         
         Thread.sleep(1000)
 

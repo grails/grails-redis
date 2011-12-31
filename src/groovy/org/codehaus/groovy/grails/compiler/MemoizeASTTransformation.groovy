@@ -16,24 +16,30 @@ class MemoizeASTTransformation implements ASTTransformation {
         MethodNode method = (MethodNode) nodes[1]
 
         MethodNode newMethod = method
+        def statement = memoizeMethod(newMethod)
         method.code.statements.clear()
-        method.code.statements.add(0, memoizeMethod(newMethod))
+        method.code.statements.add(statement)
 
     }
 
     def memoizeMethod(MethodNode method) {
-        def key = method.parameters.collect{ it.name }.join("+ \":\" +")
+        def key = method.parameters.collect { it.name }.join("+ \":\" +")
+        //todo: get this injected....
+        def code = method.code.text
+
+        println method.code.statements
         def ast = new AstBuilder().buildFromString(CompilePhase.SEMANTIC_ANALYSIS, false, """
             def key = "${method.name}:" + ${key}
             println "using " + key
             def val = redisService.memoize(key, [expire: 3600]){
-                ${method.code.statements}
+                println "cache miss"
+
             }
-            val
+            println "val " + val
+            return val
         """
         )
-        Statement stmt = ast[0]
-        stmt
+       ast[0]
     }
 
 //    void visit(ASTNode[] astNodes, SourceUnit sourceUnit) {
