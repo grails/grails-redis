@@ -91,16 +91,16 @@ class MemoizeASTTransformation implements ASTTransformation {
     }
 
     private ClosureExpression createClosureExpression(MethodNode methodNode) {
+
         ClosureExpression closureExpression = new ClosureExpression(
                 [] as Parameter[],
-                new BlockStatement(methodNode.code.statements as Statement[], new VariableScope())
+//                new BlockStatement(methodNode.code.statements as Statement[], new VariableScope())
+//                new BlockStatement(methodNode.code.statements as Statement[], methodNode.variableScope)
+                new BlockStatement(methodNode.code.statements as Statement[], new VariableScope(methodNode.variableScope))
         )
-
-        VariableScope closureScope = new VariableScope()
-        methodNode.parameters.each {Parameter parameter ->
-            closureScope.putDeclaredVariable(parameter)
-        }
-        closureExpression.variableScope = closureScope
+//        closureExpression.variableScope = new VariableScope()
+//        closureExpression.variableScope = methodNode.variableScope
+        closureExpression.variableScope = new VariableScope(methodNode.variableScope)
         return closureExpression
     }
 

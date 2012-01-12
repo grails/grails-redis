@@ -7,7 +7,7 @@ class BookService {
 
     RedisService redisService
 
-    @Memoize({text})
+    @Memoize({"#{text}"})
     def doWork(String text, Date date) {
         println 'in doWork'
         return "$text $date"
