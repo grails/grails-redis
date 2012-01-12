@@ -37,15 +37,11 @@ class MemoizeASTTransformation implements ASTTransformation {
 
     private List<Statement> memoizeMethod(MethodNode methodNode) {
         BlockStatement body = new BlockStatement()
-
+        //body.variableScope = methodNode.variableScope
         createInterceptionLogging(body)
-
         ClosureExpression closureExpression = createClosureExpression(methodNode);
-
         createClosureVariable(body, closureExpression)
-
         createRedisServiceMemoizeInvocation(body, methodNode)
-
         return body.statements
     }
 
@@ -92,15 +88,17 @@ class MemoizeASTTransformation implements ASTTransformation {
 
     private ClosureExpression createClosureExpression(MethodNode methodNode) {
 
+        VariableScope variableScope = new VariableScope(methodNode.variableScope)
+
         ClosureExpression closureExpression = new ClosureExpression(
                 [] as Parameter[],
-//                new BlockStatement(methodNode.code.statements as Statement[], new VariableScope())
-//                new BlockStatement(methodNode.code.statements as Statement[], methodNode.variableScope)
-                new BlockStatement(methodNode.code.statements as Statement[], new VariableScope(methodNode.variableScope))
+                //new BlockStatement(methodNode.code.statements as Statement[], new VariableScope())
+                //new BlockStatement(methodNode.code.statements as Statement[], methodNode.variableScope)
+                new BlockStatement(methodNode.code.statements as Statement[], variableScope)
         )
-//        closureExpression.variableScope = new VariableScope()
-//        closureExpression.variableScope = methodNode.variableScope
-        closureExpression.variableScope = new VariableScope(methodNode.variableScope)
+        //closureExpression.variableScope = new VariableScope()
+        //closureExpression.variableScope = methodNode.variableScope
+        closureExpression.variableScope = variableScope
         return closureExpression
     }
 
