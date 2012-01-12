@@ -7,9 +7,17 @@ class BookService {
 
     RedisService redisService
 
-    @Memoize
+    @Memoize({text})
     def doWork(String text, Date date) {
         println 'in doWork'
-        "$text $date"
+        return "$text $date"
+    }
+
+    def doWork2(String text, Date date) {
+        def closure = {
+            println "cache miss"
+            return "$text $date"
+        }
+        return redisService.memoize(text, closure)
     }
 }

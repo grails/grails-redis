@@ -12,4 +12,5 @@ import java.lang.annotation.Retention
 @Target([ElementType.METHOD])
 @GroovyASTTransformationClass(["org.codehaus.groovy.grails.compiler.MemoizeASTTransformation"])
 public @interface Memoize {
+    Class value() default {true};
 }

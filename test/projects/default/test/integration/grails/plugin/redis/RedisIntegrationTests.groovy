@@ -14,22 +14,39 @@ class RedisIntegrationTests extends GroovyTestCase {
         super.setUp()
         redisService.flushDB()
     }
-    
-    def testMemoizeAnnotation(){
+
+    def testCachedMemoizeOnService(){
         def text = 'hello'
         def date = new Date()
-        def output = bookService.doWork(text, date)
-        
-        assert output == "$text $date"
-        
+        def outputMemoize = bookService.doWork2(text, date)
+
+        assert outputMemoize == "$text $date"
+
         Thread.sleep(1000)
 
-        def text2 = 'world'
         def date2 = new Date()
-        def output2 = bookService.doWork(text2, date2)
+        def outputMemoize2 = bookService.doWork2(text, date2)
 
-        assert output2 != "$text2 $date2"
-        assert output2 == "$text $date"
+
+        assert outputMemoize2 != "$text $date2"
+        assert outputMemoize2 == "$text $date"
+    }
+    
+    def testMemoizeAstTransformationOnService(){
+        def text = 'hello'
+        def date = new Date()
+        def outputAst = bookService.doWork(text, date)
+
+        assert outputAst == "$text $date"
+
+        Thread.sleep(1000)
+
+        def date2 = new Date()
+        def outputAst2 = bookService.doWork(text, date2)
+
+
+        assert outputAst2 != "$text $date2"
+        assert outputAst2 == "$text $date"
     }
 
     def testMemoizeDomainList() {
