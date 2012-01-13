@@ -1,9 +1,7 @@
 package grails.plugin.redis
 
-import static grails.plugin.redis.RedisService.NO_EXPIRATION_TTL
-
 import com.example.Book
-import com.example.BookService
+import static grails.plugin.redis.RedisService.NO_EXPIRATION_TTL
 
 class RedisIntegrationTests extends GroovyTestCase {
 
@@ -81,7 +79,7 @@ class RedisIntegrationTests extends GroovyTestCase {
             return Book.get(book1.id)
         }
 
-        def cacheMissBook = redisService.memoizeDomainObject(Book, "domainkey",  cacheMissClosure)
+        def cacheMissBook = redisService.memoizeDomainObject(Book, "domainkey", cacheMissClosure)
 
         assert 1 == calledCount
         assert book1.id == cacheMissBook.id

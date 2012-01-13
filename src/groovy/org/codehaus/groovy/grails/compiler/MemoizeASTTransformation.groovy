@@ -13,8 +13,6 @@ import org.codehaus.groovy.control.CompilePhase
 import org.codehaus.groovy.control.SourceUnit
 import org.codehaus.groovy.control.messages.SyntaxErrorMessage
 import org.codehaus.groovy.syntax.SyntaxException
-import org.codehaus.groovy.syntax.Token
-import org.codehaus.groovy.syntax.Types
 import org.codehaus.groovy.transform.ASTTransformation
 import org.codehaus.groovy.transform.GroovyASTTransformation
 import org.codehaus.groovy.ast.expr.*
@@ -26,12 +24,11 @@ class MemoizeASTTransformation implements ASTTransformation {
         MethodNode methodNode = (MethodNode) astNodes[1]
         def annotationExpression = astNodes[0].members.value
 
-        if(annotationExpression.class != ClosureExpression) {
-            addError("Internal Error: annotation doesn't contain key closure", astNodes[0], sourceUnit)
+        if(!validateMemoizeKey(annotationExpression)) {
             return
         }
 
-        def stmt = memoizeMethod(methodNode)
+        def stmt = memoizeMethod(methodNode, annotationExpression)
         methodNode.code.statements.clear()
         methodNode.code.statements.addAll(stmt)
 
@@ -41,50 +38,56 @@ class MemoizeASTTransformation implements ASTTransformation {
         }
     }
 
-    private List<Statement> memoizeMethod(MethodNode methodNode) {
+    private boolean validateMemoizeKey(annotationExpression) {
+        if(annotationExpression.class != ClosureExpression) {
+            addError("Internal Error: annotation doesn't contain key closure", astNodes[0], sourceUnit)
+            return false
+        }
+
+        if(annotationExpression?.code?.statements[0]?.expression?.value?.class != String) {
+            addError("Internal Error: annotation doesn't contain string key closure", astNodes[0], sourceUnit)
+            return false
+        }
+        return true
+    }
+
+    private List<Statement> memoizeMethod(MethodNode methodNode, ClosureExpression annotationExpression) {
         BlockStatement body = new BlockStatement()
-        //body.variableScope = methodNode.variableScope
-        createInterceptionLogging(body)
-//        ClosureExpression closureExpression = createClosureExpression(methodNode);
-        //        createClosureVariable(body, closureExpression)
-        createRedisServiceMemoizeInvocation(body, methodNode)
+
+        // todo: remove this call after development
+        createInterceptionLogging(body, 'memoized method')
+
+        createRedisServiceMemoizeInvocation(body, methodNode, annotationExpression)
         return body.statements
     }
 
-    private def createInterceptionLogging(BlockStatement body) {
+    /**
+     * this is just used for debugging during development
+     * todo: remove this after all things are flushed out
+     * @param body
+     */
+    private void createInterceptionLogging(BlockStatement body, String message) {
         body.addStatement(
                 new ExpressionStatement(
                         new MethodCallExpression(
                                 new VariableExpression("this"),
                                 new ConstantExpression("println"),
                                 new ArgumentListExpression(
-                                        new ConstantExpression("memoized method")
+                                        new ConstantExpression(message)
                                 )
                         )
                 )
         )
     }
 
-    private def createClosureVariable(BlockStatement body, ClosureExpression closureExpression) {
-        body.addStatement(
-                new ExpressionStatement(
-                        new DeclarationExpression(
-                                new VariableExpression("closure"),
-                                new Token(Types.EQUALS, "=", -1, -1),
-                                closureExpression
-                        )
-                )
-        )
-    }
-
-    private def createRedisServiceMemoizeInvocation(BlockStatement body, MethodNode methodNode) {
+    private void createRedisServiceMemoizeInvocation(BlockStatement body, MethodNode methodNode, ClosureExpression annotationExpression) {
         body.addStatement(
                 new ReturnStatement(
                         new MethodCallExpression(
                                 new VariableExpression("redisService"),
                                 new ConstantExpression("memoize"),
                                 new ArgumentListExpression(
-                                        generateMemoizeKey(methodNode),
+                                        generateMemoizeKey(methodNode, annotationExpression),
                                         createClosureExpression(methodNode)
                                 )
                         )
@@ -93,24 +96,20 @@ class MemoizeASTTransformation implements ASTTransformation {
     }
 
     private ClosureExpression createClosureExpression(MethodNode methodNode) {
-        VariableScope variableScope = new VariableScope(methodNode.variableScope)
 
         ClosureExpression closureExpression = new ClosureExpression(
                 [] as Parameter[],
-                //[new Parameter()] as Parameter[],
-                //new BlockStatement(methodNode.code.statements as Statement[], new VariableScope())
-                //new BlockStatement(methodNode.code.statements as Statement[], methodNode.variableScope)
                 new BlockStatement(methodNode.code.statements as Statement[], new VariableScope())
         )
-        //closureExpression.variableScope = new VariableScope()
-        //closureExpression.variableScope = methodNode.variableScope
         closureExpression.variableScope = methodNode.variableScope.copy()
         return closureExpression
     }
 
     //todo generate a better key here
-    private generateMemoizeKey(MethodNode methodNode) {
-        new ConstantExpression(methodNode.name)
+    private ConstantExpression generateMemoizeKey(MethodNode methodNode, ClosureExpression annotationExpression) {
+        String key = annotationExpression.code?.statements[0]?.expression?.value
+//        println key.replace('#','\$')
+        return new ConstantExpression(key.replace('#','\$'))
     }
 
     public void addError(String msg, ASTNode node, SourceUnit source) {
