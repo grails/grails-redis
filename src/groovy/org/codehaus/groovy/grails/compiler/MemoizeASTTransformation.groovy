@@ -8,10 +8,13 @@ import org.codehaus.groovy.ast.stmt.BlockStatement
 import org.codehaus.groovy.ast.stmt.ExpressionStatement
 import org.codehaus.groovy.ast.stmt.ReturnStatement
 import org.codehaus.groovy.ast.stmt.Statement
+import org.codehaus.groovy.classgen.VariableScopeVisitor
 import org.codehaus.groovy.control.CompilePhase
 import org.codehaus.groovy.control.SourceUnit
 import org.codehaus.groovy.control.messages.SyntaxErrorMessage
 import org.codehaus.groovy.syntax.SyntaxException
+import org.codehaus.groovy.syntax.Token
+import org.codehaus.groovy.syntax.Types
 import org.codehaus.groovy.transform.ASTTransformation
 import org.codehaus.groovy.transform.GroovyASTTransformation
 import org.codehaus.groovy.ast.expr.*
@@ -28,27 +31,24 @@ class MemoizeASTTransformation implements ASTTransformation {
             return
         }
 
-        BlockStatement blockStatement = memoizeMethod(methodNode)
-        // todo: this didn't work either?!
-        // todo: http://groovy.329449.n5.nabble.com/AST-transformation-help-needed-td2849549.html
-        //def visitor = new VariableScopeVisitor(sourceUnit)
-        //visitor.visitBlockStatement(blockStatement)
-
+        def stmt = memoizeMethod(methodNode)
         methodNode.code.statements.clear()
-        methodNode.code.statements.addAll blockStatement.statements
+        methodNode.code.statements.addAll(stmt)
+
+        VariableScopeVisitor scopeVisitor = new VariableScopeVisitor(sourceUnit);
+        sourceUnit.AST.classes.each {
+            scopeVisitor.visitClass(it)
+        }
     }
 
-    private BlockStatement memoizeMethod(MethodNode methodNode) {
+    private List<Statement> memoizeMethod(MethodNode methodNode) {
         BlockStatement body = new BlockStatement()
-        body.variableScope = new VariableScope(methodNode.variableScope)
+        //body.variableScope = methodNode.variableScope
         createInterceptionLogging(body)
-//        ClosureExpression closureExpression = createClosureExpression(methodNode)
+//        ClosureExpression closureExpression = createClosureExpression(methodNode);
         //        createClosureVariable(body, closureExpression)
         createRedisServiceMemoizeInvocation(body, methodNode)
-
-//        println body.text
-
-        body
+        return body.statements
     }
 
     private def createInterceptionLogging(BlockStatement body) {
@@ -58,24 +58,24 @@ class MemoizeASTTransformation implements ASTTransformation {
                                 new VariableExpression("this"),
                                 new ConstantExpression("println"),
                                 new ArgumentListExpression(
-                                        new ConstantExpression("memoized method3")
+                                        new ConstantExpression("memoized method")
                                 )
                         )
                 )
         )
     }
 
-//    private def createClosureVariable(BlockStatement body, ClosureExpression closureExpression) {
-    //        body.addStatement(
-    //                new ExpressionStatement(
-    //                        new DeclarationExpression(
-    //                                new VariableExpression("closure"),
-    //                                new Token(Types.EQUALS, "=", -1, -1),
-    //                                closureExpression
-    //                        )
-    //                )
-    //        )
-    //    }
+    private def createClosureVariable(BlockStatement body, ClosureExpression closureExpression) {
+        body.addStatement(
+                new ExpressionStatement(
+                        new DeclarationExpression(
+                                new VariableExpression("closure"),
+                                new Token(Types.EQUALS, "=", -1, -1),
+                                closureExpression
+                        )
+                )
+        )
+    }
 
     private def createRedisServiceMemoizeInvocation(BlockStatement body, MethodNode methodNode) {
         body.addStatement(
@@ -93,19 +93,18 @@ class MemoizeASTTransformation implements ASTTransformation {
     }
 
     private ClosureExpression createClosureExpression(MethodNode methodNode) {
-
         VariableScope variableScope = new VariableScope(methodNode.variableScope)
 
         ClosureExpression closureExpression = new ClosureExpression(
                 [] as Parameter[],
+                //[new Parameter()] as Parameter[],
                 //new BlockStatement(methodNode.code.statements as Statement[], new VariableScope())
                 //new BlockStatement(methodNode.code.statements as Statement[], methodNode.variableScope)
-                new BlockStatement(methodNode.code.statements as Statement[], new VariableScope(variableScope))
+                new BlockStatement(methodNode.code.statements as Statement[], new VariableScope())
         )
         //closureExpression.variableScope = new VariableScope()
-        closureExpression.variableScope = variableScope
-//        closureExpression.variableScope = variableScope
-
+        //closureExpression.variableScope = methodNode.variableScope
+        closureExpression.variableScope = methodNode.variableScope.copy()
         return closureExpression
     }
 
