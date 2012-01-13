@@ -73,15 +73,6 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="RedisMemoizeTests.groovy" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/test/integration/grails/plugin/redis/RedisMemoizeTests.groovy">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="21" column="8" selection-start="482" selection-end="500" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="MemoizeASTTransformation.groovy" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/../../../src/groovy/org/codehaus/groovy/grails/compiler/MemoizeASTTransformation.groovy">
           <provider selected="true" editor-type-id="text-editor">
@@ -118,10 +109,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="BookService.groovy" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="BookService.groovy" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/grails-app/services/com.example/BookService.groovy">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="13" column="28" selection-start="331" selection-end="331" vertical-scroll-proportion="0.3575526">
+            <state line="22" column="8" selection-start="513" selection-end="513" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -154,10 +145,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="RedisMemoizeSpec.groovy" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="RedisMemoizeSpec.groovy" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/test/integration/grails/plugin/redis/RedisMemoizeSpec.groovy">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="53" column="43" selection-start="1542" selection-end="1542" vertical-scroll-proportion="0.0">
+            <state line="54" column="31" selection-start="1616" selection-end="1616" vertical-scroll-proportion="0.057361376">
               <folding />
             </state>
           </provider>
@@ -205,8 +196,8 @@
         <option value="$PROJECT_DIR$/test/integration/grails/plugin/redis/RedisMemoizeTests.groovy" />
         <option value="$PROJECT_DIR$/grails-app/domain/com/example/Book.groovy" />
         <option value="$PROJECT_DIR$/../../../src/groovy/org/codehaus/groovy/grails/compiler/MemoizeASTTransformation.groovy" />
-        <option value="$PROJECT_DIR$/test/integration/grails/plugin/redis/RedisMemoizeSpec.groovy" />
         <option value="$PROJECT_DIR$/grails-app/services/com.example/BookService.groovy" />
+        <option value="$PROJECT_DIR$/test/integration/grails/plugin/redis/RedisMemoizeSpec.groovy" />
       </list>
     </option>
   </component>
@@ -751,13 +742,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/test/integration/grails/plugin/redis/RedisMemoizeTests.groovy">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="21" column="8" selection-start="482" selection-end="500" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/grails-app/conf/BuildConfig.groovy">
       <provider selected="true" editor-type-id="text-editor">
         <state line="32" column="30" selection-start="1290" selection-end="1290" vertical-scroll-proportion="0.0">
@@ -803,16 +787,16 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/test/integration/grails/plugin/redis/RedisMemoizeSpec.groovy">
+    <entry file="file://$PROJECT_DIR$/grails-app/services/com.example/BookService.groovy">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="53" column="43" selection-start="1542" selection-end="1542" vertical-scroll-proportion="0.0">
+        <state line="22" column="8" selection-start="513" selection-end="513" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/grails-app/services/com.example/BookService.groovy">
+    <entry file="file://$PROJECT_DIR$/test/integration/grails/plugin/redis/RedisMemoizeSpec.groovy">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="13" column="28" selection-start="331" selection-end="331" vertical-scroll-proportion="0.3575526">
+        <state line="54" column="31" selection-start="1616" selection-end="1616" vertical-scroll-proportion="0.057361376">
           <folding />
         </state>
       </provider>

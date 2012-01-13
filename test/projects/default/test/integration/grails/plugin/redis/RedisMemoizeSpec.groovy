@@ -25,8 +25,7 @@ class RedisMemoizeSpec extends IntegrationSpec {
         value1 == "$book $date"
 
         when: 'get value again using book.title key and new date'
-        Thread.sleep(1000)
-        def date2 = new Date()
+        def date2 = new Date() + 1
         def book2 = Book.build(title: title, createDate: date2)
         def value2 = bookService.getAnnotatedBook(book2, date2)
 
@@ -49,8 +48,7 @@ class RedisMemoizeSpec extends IntegrationSpec {
         value1 == "$text $date"
 
         when: 'get value again using text key and new date'
-        Thread.sleep(1000)
-        def date2 = new Date()
+        def date2 = new Date() + 1
         def value2 = bookService.getAnnotatedText(text, date2)
 
         then: 'value should be the same as first call not new date'
@@ -71,11 +69,11 @@ class RedisMemoizeSpec extends IntegrationSpec {
         value1 == "$text $date"
 
         when: 'get value again using text key and new date'
-        Thread.sleep(100)
-        def date2 = new Date()
+        def date2 = new Date() + 1
         def value2 = bookService.getMemoizedTextDate(text, date2)
 
         then: 'value should be the same as first call not new date'
+        value2 == value1
         value2 == "$text $date"
         value2 != "$text $date2"
     }
