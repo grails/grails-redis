@@ -117,7 +117,7 @@
       <file leaf-file-name="MemoizeASTTransformation.groovy" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/../../../src/groovy/org/codehaus/groovy/grails/compiler/MemoizeASTTransformation.groovy">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="112" column="48" selection-start="4673" selection-end="4673" vertical-scroll-proportion="0.53696495">
+            <state line="112" column="84" selection-start="4709" selection-end="4709" vertical-scroll-proportion="0.8677043">
               <folding />
             </state>
           </provider>
@@ -939,7 +939,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/../../../src/groovy/org/codehaus/groovy/grails/compiler/MemoizeASTTransformation.groovy">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="112" column="48" selection-start="4673" selection-end="4673" vertical-scroll-proportion="0.53696495">
+        <state line="112" column="84" selection-start="4709" selection-end="4709" vertical-scroll-proportion="0.8677043">
           <folding />
         </state>
       </provider>
