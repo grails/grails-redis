@@ -20,15 +20,20 @@ import org.codehaus.groovy.ast.expr.*
 @GroovyASTTransformation(phase = CompilePhase.CANONICALIZATION)
 class MemoizeASTTransformation implements ASTTransformation {
 
+    private static final String KEY = 'key'
+    private static final String EXPIRE = 'expire'
+
     void visit(ASTNode[] astNodes, SourceUnit sourceUnit) {
         MethodNode methodNode = (MethodNode) astNodes[1]
-        def annotationExpression = astNodes[0].members.value
+        //def keyExpression = astNodes[0]?.members?.value
 
-        if(!validateMemoizeKey(annotationExpression)) {
+        def memoizeProperties = [:]
+        generateMemoizeProperties(astNodes, sourceUnit, memoizeProperties)
+        if(!memoizeProperties.containsKey(KEY) || !memoizeProperties.get(KEY)) {
             return
         }
 
-        def stmt = memoizeMethod(methodNode, annotationExpression)
+        def stmt = memoizeMethod(methodNode, memoizeProperties)
         methodNode.code.statements.clear()
         methodNode.code.statements.addAll(stmt)
 
@@ -38,26 +43,48 @@ class MemoizeASTTransformation implements ASTTransformation {
         }
     }
 
-    private boolean validateMemoizeKey(annotationExpression) {
-        if(annotationExpression.class != ClosureExpression) {
-            addError("Internal Error: annotation doesn't contain key closure", astNodes[0], sourceUnit)
-            return false
+    /**
+     * method to add the key and expires and options if they exist
+     * @param astNodes the ast nodes
+     * @param sourceUnit the source unit
+     * @param memoizeProperties map to put data in
+     * @return
+     */
+    private Map generateMemoizeProperties(ASTNode[] astNodes, SourceUnit sourceUnit, Map memoizeProperties) {
+        def expire = astNodes[0]?.members?.expire?.text
+        def keyString = astNodes[0]?.members?.key?.text
+        def keyClosure = astNodes[0]?.members?.value
+
+        //do some validation on the key for closure or key property ****************
+        if(keyClosure?.class != ClosureExpression && keyString.class != String) {
+            addError("Internal Error: annotation doesn't contain key closure or key property", astNodes[0], sourceUnit)
+            return
         }
 
-        if(annotationExpression?.code?.statements[0]?.expression?.value?.class != String) {
+        if(keyClosure && keyClosure.code?.statements[0]?.expression?.value?.class != String) {
             addError("Internal Error: annotation doesn't contain string key closure", astNodes[0], sourceUnit)
-            return false
+            return
         }
-        return true
+
+        if(expire && expire.class != String && !Integer.parseInt(expire)) {
+            addError("Internal Error: provided expire is not an String (in millis)", astNodes[0], sourceUnit)
+            return
+        }
+        //***************************************************************************
+
+        memoizeProperties.put(KEY, (keyClosure) ? keyClosure?.code?.statements[0]?.expression?.value : keyString)
+        if(expire) {
+            memoizeProperties.put(EXPIRE, expire)
+        }
     }
 
-    private List<Statement> memoizeMethod(MethodNode methodNode, ClosureExpression annotationExpression) {
+    private List<Statement> memoizeMethod(MethodNode methodNode, Map memoizeProperties) {
         BlockStatement body = new BlockStatement()
 
         // todo: remove this call after development
         createInterceptionLogging(body, 'memoized method')
 
-        createRedisServiceMemoizeInvocation(body, methodNode, annotationExpression)
+        createRedisServiceMemoizeInvocation(body, methodNode, memoizeProperties)
         return body.statements
     }
 
@@ -80,16 +107,23 @@ class MemoizeASTTransformation implements ASTTransformation {
         )
     }
 
-    private void createRedisServiceMemoizeInvocation(BlockStatement body, MethodNode methodNode, ClosureExpression annotationExpression) {
+    private void createRedisServiceMemoizeInvocation(BlockStatement body, MethodNode methodNode, Map memoizeProperties) {
+
+        //todo: refactor this to new method? *************************
+        ArgumentListExpression argumentListExpression = new ArgumentListExpression()
+        argumentListExpression.addExpression(createConstantExpression(methodNode, memoizeProperties.get(KEY).toString().replace('#', '\$')))
+        if(memoizeProperties.containsKey(EXPIRE)){
+            argumentListExpression.addExpression(createConstantExpression(methodNode, Integer.parseInt(memoizeProperties.get(EXPIRE).toString())))
+        }
+        argumentListExpression.addExpression(createClosureExpression(methodNode))
+        //**************************************************************
+
         body.addStatement(
                 new ReturnStatement(
                         new MethodCallExpression(
                                 new VariableExpression("redisService"),
                                 new ConstantExpression("memoize"),
-                                new ArgumentListExpression(
-                                        generateMemoizeKey(methodNode, annotationExpression),
-                                        createClosureExpression(methodNode)
-                                )
+                                argumentListExpression
                         )
                 )
         )
@@ -106,10 +140,8 @@ class MemoizeASTTransformation implements ASTTransformation {
     }
 
     //todo generate a better key here
-    private ConstantExpression generateMemoizeKey(MethodNode methodNode, ClosureExpression annotationExpression) {
-        String key = annotationExpression.code?.statements[0]?.expression?.value
-//        println key.replace('#','\$')
-        return new ConstantExpression(key.replace('#','\$'))
+    private ConstantExpression createConstantExpression(MethodNode methodNode, constantExpression) {
+        return new ConstantExpression(constantExpression)
     }
 
     public void addError(String msg, ASTNode node, SourceUnit source) {

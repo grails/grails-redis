@@ -9,20 +9,33 @@ class BookService {
     RedisService redisService
 
     @Memoize({"#{text}"})
-    def getAnnotatedText(String text, Date date) {
-        println 'called getTextDate'
+    def getAnnotatedTextUsingClosure(String text, Date date) {
+        println 'called getAnnotatedTextUsingClosure'
+        return "$text $date"
+    }
+
+    @Memoize(key='#text')
+    def getAnnotatedTextUsingKey(String text, Date date) {
+        println 'called getAnnotatedTextUsingKey'
+        return "$text $date"
+    }
+
+    //exire this extremely fast to test that it works
+    @Memoize(key='#text',expire='1')
+    def getAnnotatedTextUsingKeyAndExpire(String text, Date date) {
+        println 'called getAnnotatedTextUsingKeyAndExpire'
         return "$text $date"
     }
 
     @Memoize({"#{book.title}:#{book.id}"})
     def getAnnotatedBook(Book book, Date date) {
-        println 'called getBookTitle'
+        println 'called getAnnotatedBook'
         return "$book $date"
     }
 
     def getMemoizedTextDate(String text, Date date) {
         return redisService.memoize(text) {
-            println "cache miss"
+            println "called getMemoizedTextDate"
             return "$text $date"
         }
     }

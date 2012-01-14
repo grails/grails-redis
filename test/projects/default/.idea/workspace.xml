@@ -33,6 +33,47 @@
     <disable_hints />
   </component>
   <component name="DebuggerManager">
+    <line_breakpoints>
+      <breakpoint url="file://$PROJECT_DIR$/../../../src/groovy/org/codehaus/groovy/grails/compiler/MemoizeASTTransformation.groovy" line="26" class="org.codehaus.groovy.grails.compiler.MemoizeASTTransformation" package="">
+        <option name="ENABLED" value="true" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="false" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
+      <breakpoint url="file://$PROJECT_DIR$/../../../src/groovy/org/codehaus/groovy/grails/compiler/MemoizeASTTransformation.groovy" line="58" class="org.codehaus.groovy.grails.compiler.MemoizeASTTransformation" package="">
+        <option name="ENABLED" value="true" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="false" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
+      <breakpoint url="file://$PROJECT_DIR$/../../../src/groovy/org/codehaus/groovy/grails/compiler/MemoizeASTTransformation.groovy" line="27" class="org.codehaus.groovy.grails.compiler.MemoizeASTTransformation" package="">
+        <option name="ENABLED" value="true" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="false" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
+    </line_breakpoints>
     <breakpoint_any>
       <breakpoint>
         <option name="NOTIFY_CAUGHT" value="true" />
@@ -76,7 +117,43 @@
       <file leaf-file-name="MemoizeASTTransformation.groovy" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/../../../src/groovy/org/codehaus/groovy/grails/compiler/MemoizeASTTransformation.groovy">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="109" column="59" selection-start="4532" selection-end="4532" vertical-scroll-proportion="0.0">
+            <state line="70" column="18" selection-start="3049" selection-end="3049" vertical-scroll-proportion="-12.56">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Integer.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="jar://C:/Program Files/Java/jdk1.6.0_21/src.zip!/java/lang/Integer.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="498" column="16" selection-start="17974" selection-end="17974" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ArgumentListExpression.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://C:/apps/groovy-1.8.4/src/main/org/codehaus/groovy/ast/expr/ArgumentListExpression.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="35" column="11" selection-start="1177" selection-end="1177" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="TupleExpression.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://C:/apps/groovy-1.8.4/src/main/org/codehaus/groovy/ast/expr/TupleExpression.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="29" column="13" selection-start="982" selection-end="982" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ASTNode.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://C:/apps/groovy-1.8.4/src/main/org/codehaus/groovy/ast/ASTNode.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="42" column="13" selection-start="2046" selection-end="2069" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -109,10 +186,19 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="BookService.groovy" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="BookService.groovy" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/grails-app/services/com.example/BookService.groovy">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="22" column="8" selection-start="513" selection-end="513" vertical-scroll-proportion="0.0">
+            <state line="22" column="53" selection-start="592" selection-end="592" vertical-scroll-proportion="0.48731884">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Memoize.groovy" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../../../src/groovy/org/codehaus/groovy/grails/compiler/Memoize.groovy">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="16" column="20" selection-start="556" selection-end="556" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -145,10 +231,19 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="RedisMemoizeSpec.groovy" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="RedisMemoizeSpec.groovy" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/test/integration/grails/plugin/redis/RedisMemoizeSpec.groovy">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="54" column="31" selection-start="1616" selection-end="1616" vertical-scroll-proportion="0.057361376">
+            <state line="44" column="55" selection-start="1300" selection-end="1300" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="RedisService.groovy" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../../../grails-app/services/grails/plugin/redis/RedisService.groovy">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="20" column="6" selection-start="742" selection-end="742" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -195,9 +290,10 @@
         <option value="$PROJECT_DIR$/grails-app/conf/BuildConfig.groovy" />
         <option value="$PROJECT_DIR$/test/integration/grails/plugin/redis/RedisMemoizeTests.groovy" />
         <option value="$PROJECT_DIR$/grails-app/domain/com/example/Book.groovy" />
+        <option value="$PROJECT_DIR$/../../../src/groovy/org/codehaus/groovy/grails/compiler/Memoize.groovy" />
         <option value="$PROJECT_DIR$/../../../src/groovy/org/codehaus/groovy/grails/compiler/MemoizeASTTransformation.groovy" />
-        <option value="$PROJECT_DIR$/grails-app/services/com.example/BookService.groovy" />
         <option value="$PROJECT_DIR$/test/integration/grails/plugin/redis/RedisMemoizeSpec.groovy" />
+        <option value="$PROJECT_DIR$/grails-app/services/com.example/BookService.groovy" />
       </list>
     </option>
   </component>
@@ -470,6 +566,11 @@
       </server>
     </servers>
   </component>
+  <component name="RecentsManager">
+    <key name="GrIntroduceConstantDialog.RECENTS_KEY">
+      <recent name="org.codehaus.groovy.grails.compiler.MemoizeASTTransformation" />
+    </key>
+  </component>
   <component name="RunManager" selected="Grails.Test App - Integration">
     <configuration default="true" type="GrailsRunConfigurationType" factoryName="Grails">
       <module name="" />
@@ -579,7 +680,7 @@
     <configuration default="false" name="Test App - Integration" type="GrailsRunConfigurationType" factoryName="Grails">
       <module name="grails-redis-example" />
       <setting name="vmparams" value="" />
-      <setting name="cmdLine" value="test-app :integration" />
+      <setting name="cmdLine" value="test-app" />
       <setting name="depsClasspath" value="true" />
       <setting name="passParentEnv" value="true" />
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
@@ -644,13 +745,14 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-4" y="-4" width="1608" height="1148" extended-state="6" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Phing Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3297561" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="IDEtalk Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3297561" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Grails View" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
@@ -665,11 +767,10 @@
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25" sideWeight="0.55414635" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.44585365" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25" sideWeight="0.6" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.44585365" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
     </layout>
@@ -780,23 +881,65 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../../../src/groovy/org/codehaus/groovy/grails/compiler/MemoizeASTTransformation.groovy">
+    <entry file="file://C:/apps/groovy-1.8.4/src/main/org/codehaus/groovy/ast/ASTNode.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="109" column="59" selection-start="4532" selection-end="4532" vertical-scroll-proportion="0.0">
+        <state line="42" column="13" selection-start="2046" selection-end="2069" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/grails-app/services/com.example/BookService.groovy">
+    <entry file="file://$PROJECT_DIR$/../../../grails-app/services/grails/plugin/redis/RedisService.groovy">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="22" column="8" selection-start="513" selection-end="513" vertical-scroll-proportion="0.0">
+        <state line="20" column="6" selection-start="742" selection-end="742" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/apps/groovy-1.8.4/src/main/org/codehaus/groovy/ast/expr/TupleExpression.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="29" column="13" selection-start="982" selection-end="982" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/apps/groovy-1.8.4/src/main/org/codehaus/groovy/ast/expr/ArgumentListExpression.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="35" column="11" selection-start="1177" selection-end="1177" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../../src/groovy/org/codehaus/groovy/grails/compiler/Memoize.groovy">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="16" column="20" selection-start="556" selection-end="556" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://C:/Program Files/Java/jdk1.6.0_21/src.zip!/java/lang/Integer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="498" column="16" selection-start="17974" selection-end="17974" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../../src/groovy/org/codehaus/groovy/grails/compiler/MemoizeASTTransformation.groovy">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="70" column="18" selection-start="3049" selection-end="3049" vertical-scroll-proportion="-12.56">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/test/integration/grails/plugin/redis/RedisMemoizeSpec.groovy">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="54" column="31" selection-start="1616" selection-end="1616" vertical-scroll-proportion="0.057361376">
+        <state line="44" column="55" selection-start="1300" selection-end="1300" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/grails-app/services/com.example/BookService.groovy">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="22" column="53" selection-start="592" selection-end="592" vertical-scroll-proportion="0.48731884">
           <folding />
         </state>
       </provider>

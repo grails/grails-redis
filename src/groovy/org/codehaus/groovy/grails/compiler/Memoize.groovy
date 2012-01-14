@@ -13,4 +13,6 @@ import java.lang.annotation.Retention
 @GroovyASTTransformationClass(["org.codehaus.groovy.grails.compiler.MemoizeASTTransformation"])
 public @interface Memoize {
     Class value() default {true};
+    String key() default 'bad:key';
+    String expire();
 }
