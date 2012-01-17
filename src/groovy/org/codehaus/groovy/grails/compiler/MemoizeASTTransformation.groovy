@@ -111,7 +111,7 @@ class MemoizeASTTransformation implements ASTTransformation {
 
         //todo: refactor this to new method? *************************
         ArgumentListExpression argumentListExpression = new ArgumentListExpression()
-        argumentListExpression.addExpression(createConstantExpression(methodNode, methodNode.name + ":" + memoizeProperties.get(KEY).toString().replace('#', '\$')))
+        argumentListExpression.addExpression(createConstantExpression(methodNode, memoizeProperties.get(KEY).toString().replace('#', '\$')))
         if(memoizeProperties.containsKey(EXPIRE)){
             argumentListExpression.addExpression(createConstantExpression(methodNode, Integer.parseInt(memoizeProperties.get(EXPIRE).toString())))
         }
