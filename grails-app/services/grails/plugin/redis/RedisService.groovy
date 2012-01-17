@@ -76,7 +76,7 @@ class RedisService {
 
     // SET/GET a value on a Redis key
     def memoize(String key, Map options = [:], Closure closure) {
-        println "caching $key"
+        println "using key $key"
         def result = withRedis { Jedis redis ->
             redis.get(key)
         }
