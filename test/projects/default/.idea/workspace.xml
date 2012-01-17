@@ -215,7 +215,7 @@
       <file leaf-file-name="RedisMemoizeSpec.groovy" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/../../integration/grails/plugin/redis/RedisMemoizeSpec.groovy">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="28" column="63" selection-start="768" selection-end="768" vertical-scroll-proportion="0.5236524">
+            <state line="7" column="3" selection-start="118" selection-end="118" vertical-scroll-proportion="0.1309131">
               <folding />
             </state>
           </provider>
@@ -1143,7 +1143,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/../../integration/grails/plugin/redis/RedisMemoizeSpec.groovy">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="28" column="63" selection-start="768" selection-end="768" vertical-scroll-proportion="0.5236524">
+        <state line="7" column="3" selection-start="118" selection-end="118" vertical-scroll-proportion="0.1309131">
           <folding />
         </state>
       </provider>
