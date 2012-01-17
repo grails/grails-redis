@@ -30,8 +30,10 @@ grails.project.dependency.resolution = {
         // runtime 'mysql:mysql-connector-java:5.1.13'
     }
     plugins {
-        runtime ':build-test-data:1.1.1'
-        test ':spock:0.6-SNAPSHOT'
+        test(':spock:0.6-SNAPSHOT') {
+            export = false
+        }
+        runtime(':build-test-data:1.1.1')
     }
 }
 

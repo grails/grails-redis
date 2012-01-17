@@ -1,40 +1,55 @@
 package com.example
 
-import grails.plugin.redis.RedisService
 import grails.plugin.redis.Memoize
+import grails.plugin.redis.MemoizeDomainList
+import grails.plugin.redis.RedisService
 
 class BookService {
 
     RedisService redisService
 
-    @Memoize({"#{text}"})
+    @MemoizeDomainList(key = "getDomainListWithKeyClass:#title", clazz = Book.class)
+    def getDomainListWithKeyClass(String title, Date date) {
+        redisService.getDomainListWithKeyClass = "$title $date"
+        println 'cache miss getDomainListWithKeyClass'
+        Book.findAllByTitle(title)
+    }
+
+    @Memoize(key="#{text}")
     def getAnnotatedTextUsingClosure(String text, Date date) {
-        println 'called getAnnotatedTextUsingClosure'
+        println 'cache miss getAnnotatedTextUsingClosure'
         return "$text $date"
     }
 
-    @Memoize(key='#text')
+    @Memoize(key = 'text')
     def getAnnotatedTextUsingKey(String text, Date date) {
-        println 'called getAnnotatedTextUsingKey'
+        println 'cache miss getAnnotatedTextUsingKey'
         return "$text $date"
     }
 
     //exire this extremely fast to test that it works
-    @Memoize(key='#text',expire='1')
+    @Memoize(key = 'text', expire = '1')
     def getAnnotatedTextUsingKeyAndExpire(String text, Date date) {
-        println 'called getAnnotatedTextUsingKeyAndExpire'
+        println 'cache miss getAnnotatedTextUsingKeyAndExpire'
         return "$text $date"
     }
 
-    @Memoize({"#{book.title}:#{book.id}"})
+    @Memoize(key = "#{book.title}:#{book.id}")
     def getAnnotatedBook(Book book, Date date) {
-        println 'called getAnnotatedBook'
+        println 'cache miss getAnnotatedBook'
         return "$book $date"
+    }
+
+    def getMemoizedBook(Book book, Date date) {
+        return redisService.memoize("${book.title}:${book.id}") {
+            println "cache miss getMemoizedTextDate"
+            return "$text $date"
+        }
     }
 
     def getMemoizedTextDate(String text, Date date) {
         return redisService.memoize(text) {
-            println "called getMemoizedTextDate"
+            println "cache miss getMemoizedTextDate"
             return "$text $date"
         }
     }

@@ -3,6 +3,7 @@ package grails.plugin.redis
 import com.example.Book
 import com.example.BookService
 import grails.plugin.spock.IntegrationSpec
+import spock.lang.Unroll
 
 /**
  */
@@ -11,10 +12,38 @@ class RedisMemoizeSpec extends IntegrationSpec {
     RedisService redisService
     BookService bookService
 
-    def setup(){
+    def setup() {
         redisService.flushDB()
     }
 
+    def "get AST transformed domain list using key and class"() {
+        given:
+        def title = 'narwhals'
+        def books = []
+        def date1 = new Date(), date2 = new Date()+1
+        10.times {
+            books << Book.build(title: title)
+        }
+
+        when:
+        def list1 = bookService.getDomainListWithKeyClass(title, date1)
+
+        then:
+        redisService.getDomainListWithKeyClass == "$title $date1"
+        list1.size() == 10
+        list1.containsAll(books)
+
+
+        when: 'calling again should not invoke cache miss and key should remain unchanged'
+        def list2 = bookService.getDomainListWithKeyClass(title, date2)
+
+        then:
+        redisService.getDomainListWithKeyClass == "$title $date1"
+        list2.size() == 10
+        list2.containsAll(books)
+    }
+
+    @Unroll()
     def "get AST transformed method using object property key"() {
         given:
         def title = 'narwhals'
@@ -36,7 +65,6 @@ class RedisMemoizeSpec extends IntegrationSpec {
 
     def "get AST transformed method using simple string key property and expire"() {
         given:
-        redisService.flushDB()
         def text = 'hello'
         def date = new Date()
         def date2 = new Date() + 1
@@ -51,9 +79,8 @@ class RedisMemoizeSpec extends IntegrationSpec {
         value2 == "$text $date2"
     }
 
- def "get AST transformed method using simple string key property"() {
+    def "get AST transformed method using simple string key property"() {
         given:
-        redisService.flushDB()
         def text = 'hello'
         def date = new Date()
         def date2 = new Date() + 1
@@ -70,7 +97,6 @@ class RedisMemoizeSpec extends IntegrationSpec {
 
     def "get AST transformed method using simple key closure"() {
         given:
-        redisService.flushDB()
         def text = 'hello'
         def date = new Date()
         def date2 = new Date() + 1
@@ -87,7 +113,6 @@ class RedisMemoizeSpec extends IntegrationSpec {
 
     def "make sure redis is bahving correctly on non-annotated methods"() {
         given:
-        redisService.flushDB()
         def text = 'hello'
         def date = new Date()
         def date2 = new Date() + 1

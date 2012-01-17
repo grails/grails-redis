@@ -37,10 +37,13 @@ class RedisGrailsPlugin {
     ]
 
     def pluginExcludes = [
+            "grails-app/conf/DataSource.groovy",
+            "grails-app/conf/redis-codenarc.groovy",
             "grails-app/views/**",
             "grails-app/domain/**",
             "grails-app/services/test/**",
             "test/**"
+
     ]
 
     def scm = [ url: "https://github.com/grails-plugins/grails-redis" ]

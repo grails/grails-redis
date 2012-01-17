@@ -43,6 +43,7 @@ class RedisService {
     }
 
     def methodMissing(String name, args) {
+        println "methodMissing $name"
         withRedis { Jedis redis ->
             redis.invokeMethod(name, args)
         }
@@ -70,12 +71,12 @@ class RedisService {
     }
 
     def memoize(String key, Integer expire, Closure closure) {
-        println "caching $key"
         memoize(key, [expire: expire], closure)
     }
 
     // SET/GET a value on a Redis key
     def memoize(String key, Map options = [:], Closure closure) {
+        println "caching $key"
         def result = withRedis { Jedis redis ->
             redis.get(key)
         }

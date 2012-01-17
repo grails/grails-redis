@@ -19,10 +19,16 @@ grails.project.dependency.resolution = {
         compile 'redis.clients:jedis:2.0.0'
     }
 
-    plugins {
-        test ":spock:0.6-SNAPSHOT"
-        test ":code-coverage:1.2.5"
-        test ":codenarc:0.16.1"
+     plugins {
+         test(':spock:0.6-SNAPSHOT') {
+            export = false
+        }
+        test(':code-coverage:1.2.5') {
+            export = false
+        }
+        test(':codenarc:0.16.1') {
+            export = false
+        }
     }
 }
 
