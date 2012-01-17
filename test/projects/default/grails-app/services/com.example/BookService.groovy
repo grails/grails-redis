@@ -1,8 +1,7 @@
 package com.example
 
 import grails.plugin.redis.RedisService
-import org.codehaus.groovy.grails.compiler.Memoize
-import com.example.Book
+import grails.plugin.redis.Memoize
 
 class BookService {
 
