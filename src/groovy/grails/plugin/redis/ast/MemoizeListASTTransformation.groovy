@@ -5,10 +5,9 @@ import org.codehaus.groovy.control.CompilePhase
 import org.codehaus.groovy.transform.GroovyASTTransformation
 
 @GroovyASTTransformation(phase = CompilePhase.CANONICALIZATION)
-class MemoizeDomainListASTTransformation extends MemoizeDomainObjectASTTransformation {
-
+class MemoizeListASTTransformation extends MemoizeASTTransformation {
     @Override
     protected ConstantExpression createRedisServiceConstantExpression() {
-        return new ConstantExpression("memoizeDomainList")
+        return new ConstantExpression("memoizeList")
     }
 }

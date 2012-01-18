@@ -1,21 +1,35 @@
 package com.example
 
-import grails.plugin.redis.Memoize
-import grails.plugin.redis.MemoizeDomainList
-import grails.plugin.redis.RedisService
+import grails.plugin.redis.*
 
 class BookService {
 
     RedisService redisService
 
-    @MemoizeDomainList(key = "getDomainListWithKeyClass:#title", clazz = Book.class)
+    @MemoizeList(key = "#{list[0]}")
+    def getAnnotatedList(List list) {
+        return list
+    }
+
+    @MemoizeHash(key = "#{map.foo}")
+    def getAnnotatedHash(Map map) {
+        return map
+    }
+
+    @MemoizeDomainObject(key = "#{title}", clazz = Book.class)
+    def createDomainObject(String title, Date date) {
+        println 'cache miss createDomainObject'
+        Book.build(title: title, createDate: date)
+    }
+
+    @MemoizeDomainList(key = "getDomainListWithKeyClass:#{title}", clazz = Book.class)
     def getDomainListWithKeyClass(String title, Date date) {
         redisService.getDomainListWithKeyClass = "$title $date"
         println 'cache miss getDomainListWithKeyClass'
         Book.findAllByTitle(title)
     }
 
-    @Memoize(key="#{text}")
+    @Memoize(key = "#{text}")
     def getAnnotatedTextUsingClosure(String text, Date date) {
         println 'cache miss getAnnotatedTextUsingClosure'
         return "$text $date"
@@ -35,9 +49,9 @@ class BookService {
     }
 
     @Memoize(key = "#{book.title}:#{book.id}")
-    def getAnnotatedBook(Book book, Date date) {
+    def getAnnotatedBook(Book book) {
         println 'cache miss getAnnotatedBook'
-        return "$book $date"
+        return book.toString()
     }
 
     def getMemoizedBook(Book book, Date date) {

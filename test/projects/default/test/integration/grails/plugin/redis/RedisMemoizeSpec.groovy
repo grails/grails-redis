@@ -16,6 +16,90 @@ class RedisMemoizeSpec extends IntegrationSpec {
         redisService.flushDB()
     }
 
+     def "get AST transformed list using item 0 as key"() {
+        given:
+        def list = ['one','two','three']
+        def list2 = ['one','three','four']
+
+        when:
+        def aList = bookService.getAnnotatedList(list)
+
+        then:
+        redisService.lrange('one', 0, -1) == list
+        aList == list
+        aList[0] == 'one'
+        aList[1] == 'two'
+        aList[2] == 'three'
+
+        when:
+        def aList2 = bookService.getAnnotatedList(list2)
+
+        then:
+        redisService.lrange('one', 0, -1) == list
+        redisService.lrange('one', 0, -1) != list2
+        aList2 == list
+        aList2[0] == 'one'
+        aList2[1] == 'two'
+        aList2[2] == 'three'
+    }
+
+
+    def "get AST transformed hash using maps foo as key"() {
+        given:
+        def map = [foo:'foo',bar:'bar']
+        def map2 = [foo:'foo',bar:'bar2']
+
+        when:
+        def hash = bookService.getAnnotatedHash(map)
+
+        then:
+        redisService.hgetAll('foo') == map
+        hash == map
+        hash.foo == 'foo'
+        hash.bar == 'bar'
+
+        when:
+        def hash2 = bookService.getAnnotatedHash(map2)
+
+        then:
+        redisService.hgetAll('foo') == map
+        redisService.hgetAll('foo') != map2
+        hash2 == map
+        hash2.foo == 'foo'
+        hash2.bar == 'bar'
+    }
+
+    def "get AST transformed domain object using title"() {
+        given:
+        def title = 'ted'
+        def date = new Date()
+
+        when:
+        Book book = bookService.createDomainObject(title, date)
+
+        then:
+        redisService.ted == book.id.toString()
+        book.title == title
+        book.createDate == date
+
+        when:
+        Book book2 = bookService.createDomainObject(title, date + 1)
+
+        then:
+        book2.title == title
+        book2.createDate == date
+        book2.createDate != date + 1
+
+        when: 'change the title and it should get a new book'
+        Book book3 = bookService.createDomainObject(title+'2', date)
+
+        then:
+        redisService.ted2 == book3.id.toString()
+        book3.title == title+'2'
+        book3.createDate == date
+
+    }
+
     def "get AST transformed domain list using key and class"() {
         given:
         def title = 'narwhals'
@@ -33,7 +117,6 @@ class RedisMemoizeSpec extends IntegrationSpec {
         list1.size() == 10
         list1.containsAll(books)
 
-
         when: 'calling again should not invoke cache miss and key should remain unchanged'
         def list2 = bookService.getDomainListWithKeyClass(title, date2)
 
@@ -43,23 +126,27 @@ class RedisMemoizeSpec extends IntegrationSpec {
         list2.containsAll(books)
     }
 
-    @Unroll()
     def "get AST transformed method using object property key"() {
         given:
         def title = 'narwhals'
         def date = new Date()
-        def date2 = new Date() + 1
-        def book = Book.build(title: title, createDate: date)
-        def book2 = Book.build(title: title, createDate: date2)
+        Book book = Book.build(title: title, createDate: date)
+        def bookString1 = book.toString()
 
         when: 'get the initial value and cache it'
-        def value1 = bookService.getAnnotatedBook(book, date)
-        def value2 = bookService.getAnnotatedBook(book2, date2)
+        def value1 = bookService.getAnnotatedBook(book)
 
-        then: 'value should be the same as first call due to overlapping titles'
-        value1 == "$book $date"
-        value2 == "$book $date"
-        value2 != "$book2 $date2"
+        then:
+        value1 == bookString1
+
+        when: 'change some non-key prop on book and get again'
+        book.createDate += 1
+        def bookString2 = book.toString()
+        def value2 = bookService.getAnnotatedBook(book)
+
+        then: 'value should be the same as first call due to overlapping keys'
+        value2 == bookString1
+        value2 != bookString2
     }
 
 

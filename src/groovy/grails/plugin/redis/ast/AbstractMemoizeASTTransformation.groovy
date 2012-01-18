@@ -18,6 +18,7 @@ import org.codehaus.groovy.syntax.Types
 import org.codehaus.groovy.transform.ASTTransformation
 import org.codehaus.groovy.transform.GroovyASTTransformation
 import org.codehaus.groovy.ast.expr.*
+import org.codehaus.groovy.ast.builder.AstBuilder
 
 /**
  */
@@ -28,6 +29,11 @@ abstract class AbstractMemoizeASTTransformation implements ASTTransformation {
     protected static final String MEMOIZE_KEY = 'memKey'
     protected static final String EXPIRE = 'expire'
     protected static final String CLAZZ = 'clazz'
+    private static final String HASH_CODE = '#'
+    private static final String GSTRING = '$'
+    private static final String REDIS_SERVICE = "redisService"
+    protected static final String THIS = "this"
+    protected static final String PRINTLN = "println"
 
     void visit(ASTNode[] astNodes, SourceUnit sourceUnit) {
         try {
@@ -82,8 +88,8 @@ abstract class AbstractMemoizeASTTransformation implements ASTTransformation {
         body.addStatement(
                 new ExpressionStatement(
                         new MethodCallExpression(
-                                new VariableExpression("this"),
-                                new ConstantExpression("println"),
+                                new VariableExpression(THIS),
+                                new ConstantExpression(PRINTLN),
                                 new ArgumentListExpression(
                                         new ConstantExpression(message)
                                 )
@@ -99,12 +105,23 @@ abstract class AbstractMemoizeASTTransformation implements ASTTransformation {
         body.addStatement(
                 new ReturnStatement(
                         new MethodCallExpression(
-                                new VariableExpression("redisService"),
+                                new VariableExpression(REDIS_SERVICE),
                                 createRedisServiceConstantExpression(),
                                 argumentListExpression
                         )
                 )
         )
+    }
+
+     protected void createRedisServiceMemoizeKeyExpression(Map memoizeProperties, ArgumentListExpression argumentListExpression) {
+        if(memoizeProperties.get(KEY).toString().contains(HASH_CODE)) {
+            def ast = new AstBuilder().buildFromString("""
+                "${memoizeProperties.get(KEY).toString().replace(HASH_CODE, GSTRING).toString()}"
+           """)
+            argumentListExpression.addExpression(ast[0].statements[0].expression)
+        } else {
+            argumentListExpression.addExpression(new VariableExpression(memoizeProperties.get(KEY).toString()))
+        }
     }
 
     protected ClosureExpression createClosureExpression(MethodNode methodNode) {
@@ -123,7 +140,7 @@ abstract class AbstractMemoizeASTTransformation implements ASTTransformation {
     protected void addError(String msg, ASTNode node, SourceUnit source) {
         int line = node.lineNumber
         int col = node.columnNumber
-        SyntaxException se = new SyntaxException(msg + '\n', line, col)
+        SyntaxException se = new SyntaxException("${msg}\n", line, col)
         SyntaxErrorMessage sem = new SyntaxErrorMessage(se, source)
         source.errorCollector.addErrorAndContinue(sem)
     }

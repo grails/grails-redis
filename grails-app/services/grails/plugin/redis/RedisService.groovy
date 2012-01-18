@@ -232,22 +232,32 @@ class RedisService {
         return []
     }
 
+    def memoizeDomainObject(Class domainClass, String key, Integer expire, Closure closure){
+        memoizeDomainList(domainClass, key, [expire: expire], closure)
+    }
+
     // closure can return either a domain object or a Long id of a domain object
     // it will be persisted into redis as the Long
-    def memoizeDomainObject(Class domainClass, String key, Closure closure) {
+    def memoizeDomainObject(Class domainClass, String key, Map options = [:], Closure closure) {
         Long domainId = withRedis { redis ->
             redis.get(key)?.toLong()
         }
-        if (!domainId) domainId = persistDomainId(closure(), key)
+        if (!domainId) domainId = persistDomainId(closure()?.id as Long, key, options.expire)
         return domainClass.load(domainId)
     }
 
-    Long persistDomainId(Object domainInstance, String key) {
-        return persistDomainId(domainInstance?.id as Long, key)
-    }
+//    Long persistDomainId(Object domainInstance, String key, Map options) {
+//        return persistDomainId(domainInstance?.id as Long, key, options.expire)
+//    }
 
-    Long persistDomainId(Long domainId, String key) {
-        if (domainId) withRedis { Jedis redis -> redis.set(key, domainId.toString()) }
+    Long persistDomainId(Long domainId, String key, Integer expire) {
+        if(domainId){
+            withPipeline { pipeline ->
+                pipeline.set(key, domainId.toString())
+                if (expire) pipeline.expire(key, expire)
+            }
+        }
+//        if (domainId) withRedis { Jedis redis -> redis.set(key, domainId.toString()) }
         return domainId
     }
 
