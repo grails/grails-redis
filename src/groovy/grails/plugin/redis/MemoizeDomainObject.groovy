@@ -13,6 +13,6 @@ import org.codehaus.groovy.transform.GroovyASTTransformationClass
 @GroovyASTTransformationClass(["grails.plugin.redis.ast.MemoizeDomainObjectASTTransformation"])
 public @interface MemoizeDomainObject {
     Class clazz() default {};
-    String key() default 'memoizeDomainObject:null:key';
+    String key() default '';
     String expire() default '';
 }

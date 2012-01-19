@@ -13,6 +13,6 @@ import org.codehaus.groovy.transform.GroovyASTTransformationClass
 @GroovyASTTransformationClass(["grails.plugin.redis.ast.MemoizeListASTTransformation"])
 public @interface MemoizeList {
     Class value() default {true};
-    String key() default 'memoizeList:null:key';
+    String key() default '';
     String expire() default '';
 }

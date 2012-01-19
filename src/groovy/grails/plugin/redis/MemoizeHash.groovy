@@ -13,6 +13,6 @@ import org.codehaus.groovy.transform.GroovyASTTransformationClass
 @GroovyASTTransformationClass(["grails.plugin.redis.ast.MemoizeHashASTTransformation"])
 public @interface MemoizeHash {
     Class value() default {true};
-    String key() default 'memoizeHash:null:key';
+    String key() default '';
     String expire() default '';
 }

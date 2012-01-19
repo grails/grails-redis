@@ -10,9 +10,9 @@ import org.codehaus.groovy.transform.GroovyASTTransformationClass
  */
 @Retention(RetentionPolicy.SOURCE)
 @Target([ElementType.METHOD])
-@GroovyASTTransformationClass(["grails.plugin.redis.ast.MemoizeASTTransformation"])
-public @interface Memoize {
-    Class value() default {true};
+@GroovyASTTransformationClass(["grails.plugin.redis.ast.MemoizeHashFieldASTTransformation"])
+public @interface MemoizeHashField {
     String key() default '';
+    String member() default '';
     String expire() default '';
 }

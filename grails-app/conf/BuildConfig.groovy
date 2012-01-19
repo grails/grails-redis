@@ -12,17 +12,17 @@ grails.project.dependency.resolution = {
         grailsHome()
         grailsCentral()
         mavenCentral()
-        mavenRepo "http://m2repo.spockframework.org/snapshots"
+//        mavenRepo "http://m2repo.spockframework.org/snapshots"
     }
 
     dependencies {
         compile 'redis.clients:jedis:2.0.0'
     }
 
-     plugins {
-         test(':spock:0.6-SNAPSHOT') {
-            export = false
-        }
+    plugins {
+//         test(':spock:0.6-SNAPSHOT') {
+        //            export = false
+        //        }
         test(':code-coverage:1.2.5') {
             export = false
         }

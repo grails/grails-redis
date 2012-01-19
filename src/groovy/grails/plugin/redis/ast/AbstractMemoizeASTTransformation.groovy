@@ -29,6 +29,7 @@ abstract class AbstractMemoizeASTTransformation implements ASTTransformation {
     protected static final String MEMOIZE_KEY = 'memKey'
     protected static final String EXPIRE = 'expire'
     protected static final String CLAZZ = 'clazz'
+    protected static final String MEMBER = 'member'
     private static final String HASH_CODE = '#'
     private static final String GSTRING = '$'
     private static final String REDIS_SERVICE = "redisService"

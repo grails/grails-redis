@@ -16,6 +16,24 @@ class RedisMemoizeSpec extends IntegrationSpec {
         redisService.flushDB()
     }
 
+    def "get AST transformed score using map key"() {
+        given:
+        Map map = [key:'key', foo: 100]
+
+        when:
+        def score = bookService.getAnnotatedScore(map)
+
+        then:
+        score == 100
+
+        when:
+        map.foo = 200
+        def score2 = bookService.getAnnotatedScore(map)
+
+        then:
+        score2 == 100
+    }
+
      def "get AST transformed list using item 0 as key"() {
         given:
         def list = ['one','two','three']

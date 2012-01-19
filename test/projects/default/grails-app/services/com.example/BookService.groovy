@@ -6,6 +6,11 @@ class BookService {
 
     RedisService redisService
 
+    @MemoizeScore(key = "#{map.key}", member="foo")
+    def getAnnotatedScore(Map map) {
+        return map.foo
+    }
+
     @MemoizeList(key = "#{list[0]}")
     def getAnnotatedList(List list) {
         return list
