@@ -3,11 +3,8 @@ package grails.plugin.redis
 import com.example.Book
 import com.example.BookService
 import grails.plugin.spock.IntegrationSpec
-import spock.lang.Unroll
 
-/**
- */
-class RedisMemoizeSpec extends IntegrationSpec {
+class RedisMemoizeServiceSpec extends IntegrationSpec {
 
     RedisService redisService
     BookService bookService
