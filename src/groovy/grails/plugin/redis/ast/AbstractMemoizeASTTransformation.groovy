@@ -173,7 +173,7 @@ abstract class AbstractMemoizeASTTransformation implements ASTTransformation {
            """)
             argumentListExpression.addExpression(ast[0].statements[0].expression)
         } else {
-            argumentListExpression.addExpression(new VariableExpression(memoizeProperties.get(KEY).toString()))
+            argumentListExpression.addExpression(new ConstantExpression(memoizeProperties.get(KEY).toString()))
         }
     }
 

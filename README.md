@@ -179,26 +179,58 @@ In addition to using the concrete and finite redisService.memoize* methods, as o
 
 The following are available as annotations:
 
-<table>
-    <tr><td>@Memoize</td><td>asdf</td></tr>
+<table width="100%">
+    <tr><td><b>Annotation</b></td><td><b>Parameters</b></td><td><b>Description</b></td></tr>
+    <tr><td>@Memoize</td><td>key<br></td><td></td></tr>
+    <tr><td>@MemoizeDomainObject</td><td>asdf</td><td></td></tr>
+    <tr><td>@MemoizeList</td><td>asdf</td><td></td></tr>
+    <tr><td>@MemoizeHash</td><td>asdf</td><td></td></tr>
+    <tr><td>@MemoizeHashField</td><td>asdf</td><td></td></tr>
+    <tr><td>@MemoizeList</td><td>asdf</td><td></td></tr>
+    <tr><td>@MemoizeSet</td><td>asdf</td><td></td></tr>
+    <tr><td>@MemoizeScore</td><td>asdf</td><td></td></tr>
 </table>
 
-#### @Memoize ####
+There are integration usage tests written in spock for services at [RedisMemoizeServiceSpec.groovy][redisannotationservicespeccode] and for domains at [RedisMemoizeDomainSpec.groovy][redisannotationdomainspeccode]
 
-     @Memoize(key = "#{text}")
+### Memoization Annotation Keys ###
+
+Since the value of the key must be passed in but will also be transformed by AST, we can not use the `$` style gstring values in the keys.  Instead you will use the `#` sign to represent a gstring value such as `@Memoize(key = "#{book.title}:#{book.id}")`.
+
+During the AST tranformation these will be replaced with the `$` character and will evaluate correctly during runtime as `redisService.memoize("${book.title}:${book.id}"){...}`.
+
+Anything that is not in the format `key='#text'` or `key="${text}"` will be treated as a string literal.  Meaning that `key="text"` would be the same as using the literal string `"text"` as the memoize key `redisService.memoize("text"){...}` instead of the variable `$text`.
+
+Any variable that you use in the key property of the annotation will need to be in scope for this to work correctly.  You will only get a RUNTIME error if you use a variable reference that is out of scope.
+
+### Memoization Annotation Notes ###
+
+You are not required to import the `import grails.plugin.redis.RedisService` namespace or declare the service `def redisService` on any objects you wish to use this annotation with as the AST transform will detect whether this field is on your object and add it for you.  You may certainly have either the import or def statements if you would like, but they are not required if you use the @Memoize* annotations.
+
+### @Memoize ###
+
+The @Memoize annotation is to be used when dealing with objects that are stored in Redis as strings.  This annotation takes the following parameters:
+
+    value   - A closure in the following format
+    key     - A unique key for the data cache
+    expire  - Expire time in ms.  Will default to never so only pass a value like 3600 if you want value to expire.
+
+You can either specify a closure OR a key and expire.  When using the closure style key `@Memoize({"#{text}"})` you may not pass a key or expire to the annotation as the closure will be evaluated directly and used as the key value.  This is due to a limitation on how Java deals with closure annotation parameters.
+
+    @Memoize({"#{text}"})
     def getAnnotatedTextUsingClosure(String text, Date date) {
         println 'cache miss getAnnotatedTextUsingClosure'
         return "$text $date"
     }
 
-    @Memoize(key = 'text')
+    @Memoize(key = '#{text}')
     def getAnnotatedTextUsingKey(String text, Date date) {
         println 'cache miss getAnnotatedTextUsingKey'
         return "$text $date"
     }
 
-    //exire this extremely fast to test that it works
-    @Memoize(key = 'text', expire = '1')
+    //expire this extremely fast
+    @Memoize(key = '#{text}', expire = '1')
     def getAnnotatedTextUsingKeyAndExpire(String text, Date date) {
         println 'cache miss getAnnotatedTextUsingKeyAndExpire'
         return "$text $date"
@@ -211,6 +243,23 @@ The following are available as annotations:
     }
 
 
+
+### @MemoizeDomainObject ###
+
+    @MemoizeDomainObject(key = "#{title}", clazz = Book.class)
+    def createDomainObject(String title, Date date) {
+        println 'cache miss createDomainObject'
+        Book.build(title: title, createDate: date)
+    }
+
+### @MemoizeDomainList ###
+
+    @MemoizeDomainList(key = "getDomainListWithKeyClass:#{title}", clazz = Book.class)
+    def getDomainListWithKeyClass(String title, Date date) {
+        redisService.getDomainListWithKeyClass = "$title $date"
+        println 'cache miss getDomainListWithKeyClass'
+        Book.findAllByTitle(title)
+    }
 
     @MemoizeScore(key = "#{map.key}", member="foo")
     def getAnnotatedScore(Map map) {
@@ -227,18 +276,8 @@ The following are available as annotations:
         return map
     }
 
-    @MemoizeDomainObject(key = "#{title}", clazz = Book.class)
-    def createDomainObject(String title, Date date) {
-        println 'cache miss createDomainObject'
-        Book.build(title: title, createDate: date)
-    }
 
-    @MemoizeDomainList(key = "getDomainListWithKeyClass:#{title}", clazz = Book.class)
-    def getDomainListWithKeyClass(String title, Date date) {
-        redisService.getDomainListWithKeyClass = "$title $date"
-        println 'cache miss getDomainListWithKeyClass'
-        Book.findAllByTitle(title)
-    }
+
 
 
 
@@ -305,3 +344,5 @@ Release Notes
 [jedispoolconfig]:https://github.com/xetorthio/jedis/blob/master/src/main/java/redis/clients/jedis/JedisPoolConfig.java
 [genericobjectpool]:http://commons.apache.org/pool/apidocs/org/apache/commons/pool/impl/GenericObjectPool.html
 [redisservicecode]:https://github.com/grails-plugins/grails-redis/blob/master/grails-app/services/grails/plugin/redis/RedisService.groovy
+[redisannotationservicespeccode]:https://github.com/grails-plugins/grails-redis/blob/master/test/projects/default/test/integration/grails/plugin/redis/RedisMemoizeServiceSpec.groovy
+[redisannotationdomainspeccode]:https://github.com/grails-plugins/grails-redis/blob/master/test/projects/default/test/integration/grails/plugin/redis/RedisMemoizeDomainSpec.groovy

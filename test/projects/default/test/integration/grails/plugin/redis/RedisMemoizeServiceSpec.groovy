@@ -15,7 +15,7 @@ class RedisMemoizeServiceSpec extends IntegrationSpec {
 
     def "get AST transformed score using map key"() {
         given:
-        Map map = [key:'key', foo: 100]
+        Map map = [key: 'key', foo: 100]
 
         when:
         def score = bookService.getAnnotatedScore(map)
@@ -31,10 +31,10 @@ class RedisMemoizeServiceSpec extends IntegrationSpec {
         score2 == 100
     }
 
-     def "get AST transformed list using item 0 as key"() {
+    def "get AST transformed list using item 0 as key"() {
         given:
-        def list = ['one','two','three']
-        def list2 = ['one','three','four']
+        def list = ['one', 'two', 'three']
+        def list2 = ['one', 'three', 'four']
 
         when:
         def aList = bookService.getAnnotatedList(list)
@@ -58,11 +58,10 @@ class RedisMemoizeServiceSpec extends IntegrationSpec {
         aList2[2] == 'three'
     }
 
-
     def "get AST transformed hash using maps foo as key"() {
         given:
-        def map = [foo:'foo',bar:'bar']
-        def map2 = [foo:'foo',bar:'bar2']
+        def map = [foo: 'foo', bar: 'bar']
+        def map2 = [foo: 'foo', bar: 'bar2']
 
         when:
         def hash = bookService.getAnnotatedHash(map)
@@ -77,6 +76,40 @@ class RedisMemoizeServiceSpec extends IntegrationSpec {
         def hash2 = bookService.getAnnotatedHash(map2)
 
         then:
+        redisService.hgetAll('foo') == map
+        redisService.hgetAll('foo') != map2
+        hash2 == map
+        hash2.foo == 'foo'
+        hash2.bar == 'bar'
+    }
+
+
+    def "get AST transformed hash field using maps foo as key"() {
+        given:
+        def map = [foo: 'foo', bar: 'bar']
+        def map2 = [foo: 'foo', bar: 'bar2']
+
+        when:
+        def hash = bookService.getAnnotatedHash(map)
+        def fieldValue = bookService.getAnnotatedHashField(map)
+
+        then:
+        redisService.hget('foo', 'foo') == 'foo'
+        redisService.hget('foo', 'bar') == 'bar'
+        redisService.hgetAll('foo') == map
+        fieldValue == 'foo'
+        hash == map
+        hash.foo == 'foo'
+        hash.bar == 'bar'
+
+        when:
+        def fieldValue2 = bookService.getAnnotatedHashField(map2)
+        def hash2 = bookService.getAnnotatedHash(map2)
+
+        then:
+        redisService.hget('foo', 'foo') == 'foo'
+        redisService.hget('foo','bar') == 'bar'
+        fieldValue2 == 'foo'
         redisService.hgetAll('foo') == map
         redisService.hgetAll('foo') != map2
         hash2 == map
@@ -106,11 +139,11 @@ class RedisMemoizeServiceSpec extends IntegrationSpec {
         book2.createDate != date + 1
 
         when: 'change the title and it should get a new book'
-        Book book3 = bookService.createDomainObject(title+'2', date)
+        Book book3 = bookService.createDomainObject(title + '2', date)
 
         then:
         redisService.ted2 == book3.id.toString()
-        book3.title == title+'2'
+        book3.title == title + '2'
         book3.createDate == date
 
     }
@@ -119,7 +152,7 @@ class RedisMemoizeServiceSpec extends IntegrationSpec {
         given:
         def title = 'narwhals'
         def books = []
-        def date1 = new Date(), date2 = new Date()+1
+        def date1 = new Date(), date2 = new Date() + 1
         10.times {
             books << Book.build(title: title)
         }

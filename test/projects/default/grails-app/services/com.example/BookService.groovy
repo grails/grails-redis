@@ -6,18 +6,28 @@ class BookService {
 
     @MemoizeScore(key = "#{map.key}", member="foo")
     def getAnnotatedScore(Map map) {
+        println 'cache miss getAnnotatedScore'
         return map.foo
     }
 
     @MemoizeList(key = "#{list[0]}")
     def getAnnotatedList(List list) {
+        println 'cache miss getAnnotatedList'
         return list
     }
 
     @MemoizeHash(key = "#{map.foo}")
     def getAnnotatedHash(Map map) {
+        println 'cache miss getAnnotatedHash'
         return map
     }
+
+    @MemoizeHashField(key = "#{map.foo}", member="foo")
+    def getAnnotatedHashField(Map map) {
+        println 'cache miss getAnnotatedHashField'
+        return map.foo
+    }
+
 
     @MemoizeDomainObject(key = "#{title}", clazz = Book.class)
     def createDomainObject(String title, Date date) {
@@ -32,20 +42,20 @@ class BookService {
         Book.findAllByTitle(title)
     }
 
-    @Memoize(key = "#{text}")
+    @Memoize({"#{text}"})
     def getAnnotatedTextUsingClosure(String text, Date date) {
         println 'cache miss getAnnotatedTextUsingClosure'
         return "$text $date"
     }
 
-    @Memoize(key = 'text')
+    @Memoize(key = '#{text}')
     def getAnnotatedTextUsingKey(String text, Date date) {
         println 'cache miss getAnnotatedTextUsingKey'
         return "$text $date"
     }
 
-    //exire this extremely fast to test that it works
-    @Memoize(key = 'text', expire = '1')
+    //expire this extremely fast to test that it works
+    @Memoize(key = '#{text}', expire = '1')
     def getAnnotatedTextUsingKeyAndExpire(String text, Date date) {
         println 'cache miss getAnnotatedTextUsingKeyAndExpire'
         return "$text $date"
