@@ -12,7 +12,6 @@ The best definition of Redis that I've heard is that it is a "collection of data
 
 Redis is an [insanely fast][redisfast] key/value store, in some ways similar to [memcached][memcached], but the values it stores aren't just dumb blobs of data.  Redis values are data structures like [strings][redisstring], [lists][redislist], [hash maps][redishash], [sets][redisset], and [sorted sets][redissortedset].  Redis also can act as a lightweight pub/sub or message queueing system.
 
-
 Redis is used in production today by a [number of very popular][redisusing] websites including Craigslist, StackOverflow, GitHub, The Guardian, and Digg.
 
 It's commonly lumped in with other NoSQL technologies and is commonly used as a caching layerhas some similarities to Memcached or Tokyo Tyrant.  Because Redis provides network-available data structures, it's very flexible and it's able to solve all kinds of problems.  The creator of Redis, Salvatore Sanfilippo, has a nice post on his blog showing [how to take advantage of Redis by just adding it to your stack][addredisstack].  With the Grails Redis plugin, adding Redis to your grails app is very easy.
@@ -180,15 +179,15 @@ In addition to using the concrete and finite redisService.memoize* methods, as o
 The following are available as annotations:
 
 <table width="100%">
-    <tr><td><b>Annotation</b></td><td><b>Parameters</b></td><td><b>Description</b></td></tr>
-    <tr><td>@Memoize</td><td>key<br></td><td></td></tr>
-    <tr><td>@MemoizeDomainObject</td><td>asdf</td><td></td></tr>
-    <tr><td>@MemoizeList</td><td>asdf</td><td></td></tr>
-    <tr><td>@MemoizeHash</td><td>asdf</td><td></td></tr>
-    <tr><td>@MemoizeHashField</td><td>asdf</td><td></td></tr>
-    <tr><td>@MemoizeList</td><td>asdf</td><td></td></tr>
-    <tr><td>@MemoizeSet</td><td>asdf</td><td></td></tr>
-    <tr><td>@MemoizeScore</td><td>asdf</td><td></td></tr>
+    <tr><td><b>Annotation</b></td><td><b>Description</b></td></tr>
+    <tr><td>@Memoize</td><td>Used to memoize methods that return a "string" - redisService.memoize</td></tr>
+    <tr><td>@MemoizeDomainObject</td><td>Used to memoize methods that return a domain object - redisService.memoizeDomain</td></tr>
+    <tr><td>@MemoizeDomainList</td><td>Used to memoize methods that return a domain object list - redisService.memoizeDomainList</td></tr>
+    <tr><td>@MemoizeHash</td><td>Used to memoize methods that return a hash - redisService.memoizeHash</td></tr>
+    <tr><td>@MemoizeHashField</td>Used to memoize methods that return a hash field - redisService.memoizeHashField<td></td></tr>
+    <tr><td>@MemoizeList</td><td>Used to memoize methods that return a list - redisService.memoizeList</td></tr>
+    <tr><td>@MemoizeSet</td><td>Used to memoize methods that return a set - redisService.memoizeSet</td></tr>
+    <tr><td>@MemoizeScore</td><td>Used to memoize methods that returns a score from a hash - redisService.memoizeScore</td></tr>
 </table>
 
 There are integration usage tests written in spock for services at [RedisMemoizeServiceSpec.groovy][redisannotationservicespeccode] and for domains at [RedisMemoizeDomainSpec.groovy][redisannotationdomainspeccode]
@@ -242,8 +241,6 @@ You can either specify a closure OR a key and expire.  When using the closure st
         return book.toString()
     }
 
-
-
 ### @MemoizeDomainObject ###
 
     @MemoizeDomainObject(key = "#{title}", clazz = Book.class)
@@ -261,15 +258,24 @@ You can either specify a closure OR a key and expire.  When using the closure st
         Book.findAllByTitle(title)
     }
 
+
+### @MemoizeScore ###
+
     @MemoizeScore(key = "#{map.key}", member="foo")
     def getAnnotatedScore(Map map) {
         return map.foo
     }
 
+### @MemoizeList ###
+
+
     @MemoizeList(key = "#{list[0]}")
     def getAnnotatedList(List list) {
         return list
     }
+
+### @MemoizeHash ###
+
 
     @MemoizeHash(key = "#{map.foo}")
     def getAnnotatedHash(Map map) {
