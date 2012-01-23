@@ -244,6 +244,8 @@ Any variable that you use in the key property of the annotation will need to be 
 
 You are not required to import the `import grails.plugin.redis.RedisService` namespace or declare the service `def redisService` on any objects you wish to use this annotation with as the AST transform will detect whether this field is on your object and add it for you.  You may certainly have either the import or def statements if you would like, but they are not required if you use the @Memoize* annotations.
 
+The user should be aware that any annotated method will be completely wrapped in the redis service call so any calculations that are contained within will also be wrapped and not executed of the key is in scope and not expired.
+
 ### @Memoize ###
 
 The @Memoize annotation is to be used when dealing with objects that are stored in Redis as strings.  This annotation takes the following parameters:
