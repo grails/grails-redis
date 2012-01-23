@@ -96,7 +96,11 @@ The `withTransaction` template method automatically opens and closes the transac
 
 Memoization is a write-through caching technique.  The plugin gives a number of methods that take a key name, and a closure as parameters.  These methods first check Redis to see if the key exists.  If it does, it returns the value of the key and does not execute the closure.  If it does not exist in Redis, it executes the closure and saves the result in Redis under the key.  Subsequent calls will then be served the cached value from Redis rather than recalculating.
 
-This technique is very useful for caching values that are frequently requested but expensive to calculate.   There are methods for the basic Redis data types:
+This technique is very useful for caching values that are frequently requested but expensive to calculate.
+
+As of version 1.2 you may also use the new memoize annotations. See the Memization Annotation section for usage and examples.
+
+There are methods for the basic Redis data types:
 
 ### String Memoization ###
 
@@ -169,6 +173,74 @@ There are other memoization methods that the plugin provides, check out the [Red
     // Redis Sorted Set memoize method
     redisService.memoizeScore("saved-sorted-set", "set-item") { return score }
 
+### Memoization Annotations ###
+
+In addition to using the concrete and finite redisService.memoize* methods, as of version 1.2 you may now also annotation a method with an appropriate @Memoize* annotation.  This will perform an AST transformation at compile time and wrap the entire body of the method with the corresponding memoization method.  The parameters such as key and expire are passed into the annotation.
+
+The following are available as annotations:
+
+<table>
+    <tr><td>@Memoize</td><td>asdf</td></tr>
+</table>
+
+#### @Memoize ####
+
+     @Memoize(key = "#{text}")
+    def getAnnotatedTextUsingClosure(String text, Date date) {
+        println 'cache miss getAnnotatedTextUsingClosure'
+        return "$text $date"
+    }
+
+    @Memoize(key = 'text')
+    def getAnnotatedTextUsingKey(String text, Date date) {
+        println 'cache miss getAnnotatedTextUsingKey'
+        return "$text $date"
+    }
+
+    //exire this extremely fast to test that it works
+    @Memoize(key = 'text', expire = '1')
+    def getAnnotatedTextUsingKeyAndExpire(String text, Date date) {
+        println 'cache miss getAnnotatedTextUsingKeyAndExpire'
+        return "$text $date"
+    }
+
+    @Memoize(key = "#{book.title}:#{book.id}")
+    def getAnnotatedBook(Book book) {
+        println 'cache miss getAnnotatedBook'
+        return book.toString()
+    }
+
+
+
+    @MemoizeScore(key = "#{map.key}", member="foo")
+    def getAnnotatedScore(Map map) {
+        return map.foo
+    }
+
+    @MemoizeList(key = "#{list[0]}")
+    def getAnnotatedList(List list) {
+        return list
+    }
+
+    @MemoizeHash(key = "#{map.foo}")
+    def getAnnotatedHash(Map map) {
+        return map
+    }
+
+    @MemoizeDomainObject(key = "#{title}", clazz = Book.class)
+    def createDomainObject(String title, Date date) {
+        println 'cache miss createDomainObject'
+        Book.build(title: title, createDate: date)
+    }
+
+    @MemoizeDomainList(key = "getDomainListWithKeyClass:#{title}", clazz = Book.class)
+    def getDomainListWithKeyClass(String title, Date date) {
+        redisService.getDomainListWithKeyClass = "$title $date"
+        println 'cache miss getDomainListWithKeyClass'
+        Book.findAllByTitle(title)
+    }
+
+
 
 ### Other Methods ###
 
@@ -213,6 +285,7 @@ Release Notes
 * 1.0.0.M8 - released 8/15/2011 - bugfix release mostly around the JedisTemplate that was ported from redis-gorm
 * 1.0.0.M9 - released 8/16/2011 - removal of the Jedis/RedisTemplate stuff from redis-gorm as it's needed by things that can't rely on grails plugins, minor bugfixes for tests.
 * 1.1 - released 12/10/2011 - removed hibernate & tomcat plugin dependency, added memoizeSet, memoizeList, memoizeDomainObject, and deleteKeysWithPattern methods, significantly reduced amount of time redis connections were used by plugin during memoization, BREAKING CHANGE: memoize methods no longer pass a Jedis connection object into the closure, they must be created on demand within the closure code.
+* 1.2 - released 2/1/2012 - added memoize annotations to support spring-cache like support on domain, service, and controller classes.
 
 [redisgorm]: http://grails.github.com/inconsequential/redis/
 [redis]: http://redis.io

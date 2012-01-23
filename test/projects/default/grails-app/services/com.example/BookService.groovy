@@ -4,8 +4,6 @@ import grails.plugin.redis.*
 
 class BookService {
 
-    RedisService redisService
-
     @MemoizeScore(key = "#{map.key}", member="foo")
     def getAnnotatedScore(Map map) {
         return map.foo

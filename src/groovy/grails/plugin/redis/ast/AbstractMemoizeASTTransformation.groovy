@@ -81,10 +81,14 @@ abstract class AbstractMemoizeASTTransformation implements ASTTransformation {
      * @param sourceUnit SourceUnit to detect and/or inject service into
      */
     private void injectRedisService(SourceUnit sourceUnit) {
-        if(!((ClassNode) sourceUnit.ast.classes.toArray()[0]).properties?.any { it?.field?.name == REDIS_SERVICE }) {
-            println "Adding redisService to class ${sourceUnit.ast.classes[0].name} since it is missing..."
-            sourceUnit.AST.addImport("RedisService", ClassHelper.make(RedisService))
-            addRedisServiceProperty((ClassNode) sourceUnit.ast.classes.toArray()[0], REDIS_SERVICE)
+        if(!((ClassNode) sourceUnit.AST.classes.toArray()[0]).properties?.any { it?.field?.name == REDIS_SERVICE }) {
+            println "Adding redisService to class ${sourceUnit.AST.classes[0].name}."
+            if(!sourceUnit.AST.imports.any {it.className == ClassHelper.make(RedisService).name}
+                    && !sourceUnit.AST.starImports.any {it.packageName == "${ClassHelper.make(RedisService).packageName}."}) {
+                println "Adding namespace ${ClassHelper.make(RedisService).packageName} to class ${sourceUnit.AST.classes[0].name}."
+                sourceUnit.AST.addImport("RedisService", ClassHelper.make(RedisService))
+            }
+            addRedisServiceProperty((ClassNode) sourceUnit.AST.classes.toArray()[0], REDIS_SERVICE)
         }
     }
 
