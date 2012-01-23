@@ -51,7 +51,6 @@ The poolConfig section will let you tweak any of the [setter values made availab
 Plugin Usage
 ------------
 
-
 ### RedisService Bean ###
 
     def redisService
@@ -172,6 +171,45 @@ There are other memoization methods that the plugin provides, check out the [Red
     // Redis Sorted Set memoize method
     redisService.memoizeScore("saved-sorted-set", "set-item") { return score }
 
+### Other Methods ###
+
+The plugin also provides a few utility methods such as:
+
+    redisService.flushDB() // dangerous!!!! should probably only be used for test cleanup
+
+    // deletes all keys in the database matching a pattern, this is fairly expensive
+    // as it uses the <code>keys</code> operation.  If you're doing this a lot and
+    // have many keys in redis, you should be aggregating your own set of keys that
+    // you'll later want to delete
+    redisService.deleteKeysWithPattern("key:pattern:*")
+
+### Redis Pool Bean ###
+
+You can have direct access to the pool of Redis connection objects by injecting `redisPool` into your code.   Normally, you won't want to directly work with the pool, and instead interact with the `redisService` bean, but you have the option to manually work with the pool if desired.
+
+    def redisPool
+
+
+### Redis Taglib ###
+
+The `redis:memoize` TagLib lets you leverage memoization within your GSP files.  Wrap it around any expensive to generate text and it will cache it and quickly serve it from Redis.
+
+    <redis:memoize key="mykey" expire="3600">
+        <!--
+            insert expensive to generate GSP content here
+
+            taglib body will be executed once, subsequent calls
+            will pull from redis till the key expires
+        -->
+        <div id='header'>
+            ... expensive header stuff here that can be cached ...
+        </div>
+    </redis:memoize>
+
+
+Memoization Annotations
+------------
+
 ### Memoization Annotations ###
 
 In addition to using the concrete and finite redisService.memoize* methods, as of version 1.2 you may now also annotation a method with an appropriate @Memoize* annotation.  This will perform an AST transformation at compile time and wrap the entire body of the method with the corresponding memoization method.  The parameters such as key and expire are passed into the annotation.
@@ -184,7 +222,7 @@ The following are available as annotations:
     <tr><td>@MemoizeDomainObject</td><td>Used to memoize methods that return a domain object - redisService.memoizeDomain</td></tr>
     <tr><td>@MemoizeDomainList</td><td>Used to memoize methods that return a domain object list - redisService.memoizeDomainList</td></tr>
     <tr><td>@MemoizeHash</td><td>Used to memoize methods that return a hash - redisService.memoizeHash</td></tr>
-    <tr><td>@MemoizeHashField</td>Used to memoize methods that return a hash field - redisService.memoizeHashField<td></td></tr>
+    <tr><td>@MemoizeHashField</td><td>Used to memoize methods that return a hash field - redisService.memoizeHashField</td></tr>
     <tr><td>@MemoizeList</td><td>Used to memoize methods that return a list - redisService.memoizeList</td></tr>
     <tr><td>@MemoizeSet</td><td>Used to memoize methods that return a set - redisService.memoizeSet</td></tr>
     <tr><td>@MemoizeScore</td><td>Used to memoize methods that returns a score from a hash - redisService.memoizeScore</td></tr>
@@ -214,7 +252,9 @@ The @Memoize annotation is to be used when dealing with objects that are stored 
     key     - A unique key for the data cache
     expire  - Expire time in ms.  Will default to never so only pass a value like 3600 if you want value to expire.
 
-You can either specify a closure OR a key and expire.  When using the closure style key `@Memoize({"#{text}"})` you may not pass a key or expire to the annotation as the closure will be evaluated directly and used as the key value.  This is due to a limitation on how Java deals with closure annotation parameters.
+*You can either specify a closure OR a key and expire.  When using the closure style key `@Memoize({"#{text}"})` you may not pass a key or expire to the annotation as the closure will be evaluated directly and used as the key value.  This is due to a limitation on how Java deals with closure annotation parameters.*
+
+Here is an example of usage:
 
     @Memoize({"#{text}"})
     def getAnnotatedTextUsingClosure(String text, Date date) {
@@ -243,6 +283,14 @@ You can either specify a closure OR a key and expire.  When using the closure st
 
 ### @MemoizeDomainObject ###
 
+TODO: Fill me in
+
+    key     - A unique key for the data cache
+    expire  - Expire time in ms.  Will default to never so only pass a value like 3600 if you want value to expire.
+    clazz   - The class of the object to be memoizing.
+
+Here is an example of usage:
+
     @MemoizeDomainObject(key = "#{title}", clazz = Book.class)
     def createDomainObject(String title, Date date) {
         println 'cache miss createDomainObject'
@@ -250,6 +298,14 @@ You can either specify a closure OR a key and expire.  When using the closure st
     }
 
 ### @MemoizeDomainList ###
+
+TODO: Fill me in
+
+    key     - A unique key for the data cache
+    expire  - Expire time in ms.  Will default to never so only pass a value like 3600 if you want value to expire.
+    clazz   - The class of the object to be memoizing.
+
+Here is an example of usage:
 
     @MemoizeDomainList(key = "getDomainListWithKeyClass:#{title}", clazz = Book.class)
     def getDomainListWithKeyClass(String title, Date date) {
@@ -259,68 +315,55 @@ You can either specify a closure OR a key and expire.  When using the closure st
     }
 
 
-### @MemoizeScore ###
-
-    @MemoizeScore(key = "#{map.key}", member="foo")
-    def getAnnotatedScore(Map map) {
-        return map.foo
-    }
-
 ### @MemoizeList ###
 
+TODO: Fill me in
+
+    value   - A closure in the following format
+    key     - A unique key for the data cache
+    expire  - Expire time in ms.  Will default to never so only pass a value like 3600 if you want value to expire.
+
+*You can either specify a closure OR a key and expire.  When using the closure style key `@Memoize({"#{text}"})` you may not pass a key or expire to the annotation as the closure will be evaluated directly and used as the key value.  This is due to a limitation on how Java deals with closure annotation parameters.*
+
+Here is an example of usage:
 
     @MemoizeList(key = "#{list[0]}")
     def getAnnotatedList(List list) {
         return list
     }
 
+
+### @MemoizeScore ###
+
+TODO: Fill me in
+
+    key     - A unique key for the data cache
+    expire  - Expire time in ms.  Will default to never so only pass a value like 3600 if you want value to expire.
+    member  - The hash property to store.
+
+Here is an example of usage:
+
+    @MemoizeScore(key = "#{map.key}", member="foo")
+    def getAnnotatedScore(Map map) {
+        return map.foo
+    }
+
 ### @MemoizeHash ###
 
+TODO: Fill me in
+
+    value   - A closure in the following format
+    key     - A unique key for the data cache
+    expire  - Expire time in ms.  Will default to never so only pass a value like 3600 if you want value to expire.
+
+*You can either specify a closure OR a key and expire.  When using the closure style key `@Memoize({"#{text}"})` you may not pass a key or expire to the annotation as the closure will be evaluated directly and used as the key value.  This is due to a limitation on how Java deals with closure annotation parameters.*
+
+Here is an example of usage:
 
     @MemoizeHash(key = "#{map.foo}")
     def getAnnotatedHash(Map map) {
         return map
     }
-
-
-
-
-
-
-### Other Methods ###
-
-The plugin also provides a few utility methods such as:
-
-    redisService.flushDB() // dangerous!!!! should probably only be used for test cleanup
-
-    // deletes all keys in the database matching a pattern, this is fairly expensive
-    // as it uses the <code>keys</code> operation.  If you're doing this a lot and
-    // have many keys in redis, you should be aggregating your own set of keys that
-    // you'll later want to delete
-    redisService.deleteKeysWithPattern("key:pattern:*") 
-
-### Redis Pool Bean ###
-
-You can have direct access to the pool of Redis connection objects by injecting `redisPool` into your code.   Normally, you won't want to directly work with the pool, and instead interact with the `redisService` bean, but you have the option to manually work with the pool if desired.
-
-    def redisPool
-
-
-### Redis Taglib ###
-
-The `redis:memoize` TagLib lets you leverage memoization within your GSP files.  Wrap it around any expensive to generate text and it will cache it and quickly serve it from Redis.
-
-    <redis:memoize key="mykey" expire="3600">
-        <!-- 
-            insert expensive to generate GSP content here 
-
-            taglib body will be executed once, subsequent calls 
-            will pull from redis till the key expires
-        -->
-        <div id='header'>
-            ... expensive header stuff here that can be cached ...
-        </div>
-    </redis:memoize>
 
 
 Release Notes
