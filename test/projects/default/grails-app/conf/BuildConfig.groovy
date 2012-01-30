@@ -16,7 +16,7 @@ grails.project.dependency.resolution = {
 
         // uncomment the below to enable remote dependency resolution
         // from public Maven repositories
-        //mavenLocal()
+        mavenLocal()
         mavenCentral()
         //mavenRepo "http://snapshots.repository.codehaus.org"
         //mavenRepo "http://repository.codehaus.org"
@@ -31,8 +31,8 @@ grails.project.dependency.resolution = {
         // runtime 'mysql:mysql-connector-java:5.1.13'
     }
     plugins {
-        test(":spock:0.6-SNAPSHOT")
-        runtime(":build-test-data:1.1.1")
+        test ":spock:0.6-SNAPSHOT"
+        runtime ":build-test-data:1.1.1"
     }
 }
 
