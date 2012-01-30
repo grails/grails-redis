@@ -45,7 +45,7 @@ abstract class AbstractMemoizeASTTransformation implements ASTTransformation {
             if(!memoizeProperties.containsKey(KEY) || !memoizeProperties.get(KEY)) {
                 return
             }
-            makeMemoizedStatements((MethodNode) astNodes[1], memoizeProperties)
+            addMemoizedStatements((MethodNode) astNodes[1], memoizeProperties)
             visitVariableScopes(sourceUnit)
         } catch (Exception e) {
             addError("Error during Memoize AST Transformation: ${e}", astNodes[0], sourceUnit)
@@ -58,7 +58,7 @@ abstract class AbstractMemoizeASTTransformation implements ASTTransformation {
      * @param methodNode The MethodNode we will be clearing and replacing with the redisService.memoize[?] method call with.
      * @param memoizeProperties The map of properties to use for the service invocation
      */
-    private void makeMemoizedStatements(MethodNode methodNode, LinkedHashMap memoizeProperties) {
+    private void addMemoizedStatements(MethodNode methodNode, LinkedHashMap memoizeProperties) {
         def stmt = memoizeMethod(methodNode, memoizeProperties)
         methodNode.code.statements.clear()
         methodNode.code.statements.addAll(stmt)
