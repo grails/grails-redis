@@ -378,10 +378,6 @@ Here is an example of usage:
         return map
     }
 
-### Additional Memoize Notes ###
-
-There is
-
 Release Notes
 =============
 
