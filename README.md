@@ -246,6 +246,16 @@ You are not required to import the `import grails.plugin.redis.RedisService` nam
 
 The user should be aware that any annotated method will be completely wrapped in the redis service call so any calculations that are contained within will also be wrapped and not executed of the key is in scope and not expired.
 
+If the compile succeeds but runtime fails or throws an exception, make sure the following are valid:
+    * Your key OR value is configured correctly.
+    * The key uses a #{} for all variables you want referenced.
+
+If the compile does NOT succeed make sure check the stack trace as some validation is done on the AST transform for each annotation type:
+    * Required annotation properties are provided.
+    * When using `expire` it is a valid Integer type variable.
+    * When using `value` it is a valid closure.
+    * When using `key` it is a valid String.
+
 ### @Memoize ###
 
 The @Memoize annotation is to be used when dealing with objects that are stored in Redis as strings.  This annotation takes the following parameters:
@@ -329,6 +339,7 @@ Here is an example of usage:
 
     @MemoizeList(key = "#{list[0]}")
     def getAnnotatedList(List list) {
+        println 'cache miss getAnnotatedList'
         return list
     }
 
@@ -345,6 +356,7 @@ Here is an example of usage:
 
     @MemoizeScore(key = "#{map.key}", member="foo")
     def getAnnotatedScore(Map map) {
+        println 'cache miss getAnnotatedScore'
         return map.foo
     }
 
@@ -362,9 +374,13 @@ Here is an example of usage:
 
     @MemoizeHash(key = "#{map.foo}")
     def getAnnotatedHash(Map map) {
+        println 'cache miss getAnnotatedHash'
         return map
     }
 
+### Additional Memoize Notes ###
+
+There is
 
 Release Notes
 =============
