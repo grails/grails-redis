@@ -18,18 +18,7 @@ class MemoizeDomainObjectASTTransformation extends AbstractMemoizeASTTransformat
         def clazz = astNodes[0]?.members?.clazz
         def expire = astNodes[0]?.members?.expire?.text
 
-        if(!clazz?.class == ClassExpression) {
-            addError('Internal Error: annotation does not contain clazz property', astNodes[0], sourceUnit)
-            return
-        }
-
-        if(keyString?.class != String) {
-            addError('Internal Error: annotation does not contain key String', astNodes[0], sourceUnit)
-            return
-        }
-
-        if(expire && expire.class != String && !Integer.parseInt(expire)) {
-            addError('Internal Error: provided expire is not an String (in millis)', astNodes[0], sourceUnit)
+        if(!validateMemoizeProperties(clazz, astNodes, sourceUnit, keyString, expire)) {
             return
         }
 
@@ -40,6 +29,24 @@ class MemoizeDomainObjectASTTransformation extends AbstractMemoizeASTTransformat
         if(expire) {
             memoizeProperties.put(EXPIRE, expire)
         }
+    }
+
+    private Boolean validateMemoizeProperties(clazz, ASTNode[] astNodes, SourceUnit sourceUnit, keyString, expire) {
+        if(!clazz?.class == ClassExpression) {
+            addError('Internal Error: annotation does not contain clazz property', astNodes[0], sourceUnit)
+            return false
+        }
+
+        if(keyString?.class != String) {
+            addError('Internal Error: annotation does not contain key String', astNodes[0], sourceUnit)
+            return false
+        }
+
+        if(expire && expire.class != String && !Integer.parseInt(expire)) {
+            addError('Internal Error: provided expire is not an String (in millis)', astNodes[0], sourceUnit)
+            return false
+        }
+        true
     }
 
     @Override

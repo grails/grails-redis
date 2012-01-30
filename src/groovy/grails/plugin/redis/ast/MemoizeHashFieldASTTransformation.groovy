@@ -18,12 +18,12 @@ class MemoizeHashFieldASTTransformation extends MemoizeASTTransformation {
             addError('Internal Error: member is required for score', astNodes[0], sourceUnit)
             return
         }
-        
+
         memoizeProperties.put(MEMBER, member)
     }
 
     @Override
     protected ConstantExpression makeRedisServiceConstantExpression() {
-        return new ConstantExpression('memoizeHashField')
+        new ConstantExpression('memoizeHashField')
     }
 }

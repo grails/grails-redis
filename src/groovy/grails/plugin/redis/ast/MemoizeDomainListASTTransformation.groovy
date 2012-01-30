@@ -9,6 +9,6 @@ class MemoizeDomainListASTTransformation extends MemoizeDomainObjectASTTransform
 
     @Override
     protected ConstantExpression makeRedisServiceConstantExpression() {
-        return new ConstantExpression('memoizeDomainList')
+        new ConstantExpression('memoizeDomainList')
     }
 }
