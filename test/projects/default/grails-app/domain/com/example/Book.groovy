@@ -9,7 +9,7 @@ class Book {
     String title
     Date createDate
 
-    @Memoize(key = "#{title}")
+    @Memoize(key = '#{title}')
     def getMemoizedTitle(Date date) {
         "$title $date"
     }

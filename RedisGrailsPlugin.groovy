@@ -37,6 +37,7 @@ class RedisGrailsPlugin {
     ]
 
     def pluginExcludes = [
+            "codenarc.properties",
             "grails-app/conf/DataSource.groovy",
             "grails-app/conf/redis-codenarc.groovy",
             "grails-app/views/**",
