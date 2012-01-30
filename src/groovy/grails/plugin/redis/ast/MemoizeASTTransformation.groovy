@@ -54,7 +54,7 @@ class MemoizeASTTransformation extends AbstractMemoizeASTTransformation {
     @Override
     protected ArgumentListExpression makeRedisServiceArgumentListExpression(Map memoizeProperties) {
         ArgumentListExpression argumentListExpression = new ArgumentListExpression()
-        makeRedisServiceMemoizeKeyExpression(memoizeProperties, argumentListExpression)
+        addRedisServiceMemoizeKeyExpression(memoizeProperties, argumentListExpression)
         if(memoizeProperties.containsKey(MEMBER)) {
             argumentListExpression.addExpression(makeConstantExpression(memoizeProperties.get(MEMBER).toString()))
         }

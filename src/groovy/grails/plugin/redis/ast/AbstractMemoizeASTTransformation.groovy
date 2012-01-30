@@ -45,7 +45,7 @@ abstract class AbstractMemoizeASTTransformation implements ASTTransformation {
             if(!memoizeProperties.containsKey(KEY) || !memoizeProperties.get(KEY)) {
                 return
             }
-            createMemoizedStatements((MethodNode) astNodes[1], memoizeProperties)
+            makeMemoizedStatements((MethodNode) astNodes[1], memoizeProperties)
             visitVariableScopes(sourceUnit)
         } catch (Exception e) {
             addError("Error during Memoize AST Transformation: ${e}", astNodes[0], sourceUnit)
@@ -58,7 +58,7 @@ abstract class AbstractMemoizeASTTransformation implements ASTTransformation {
      * @param methodNode The MethodNode we will be clearing and replacing with the redisService.memoize[?] method call with.
      * @param memoizeProperties The map of properties to use for the service invocation
      */
-    private void createMemoizedStatements(MethodNode methodNode, LinkedHashMap memoizeProperties) {
+    private void makeMemoizedStatements(MethodNode methodNode, LinkedHashMap memoizeProperties) {
         def stmt = memoizeMethod(methodNode, memoizeProperties)
         methodNode.code.statements.clear()
         methodNode.code.statements.addAll(stmt)
@@ -126,8 +126,8 @@ abstract class AbstractMemoizeASTTransformation implements ASTTransformation {
 
     protected List<Statement> memoizeMethod(MethodNode methodNode, Map memoizeProperties) {
         BlockStatement body = new BlockStatement()
-        createInterceptionLogging(body, 'memoized method')
-        makeRedisServiceMemoizeInvocation(body, methodNode, memoizeProperties)
+        addInterceptionLogging(body, 'memoized method')
+        addRedisServiceMemoizeInvocation(body, methodNode, memoizeProperties)
         body.statements
     }
 
@@ -136,7 +136,7 @@ abstract class AbstractMemoizeASTTransformation implements ASTTransformation {
      * todo: remove this after all things are flushed out
      * @param body
      */
-    protected void createInterceptionLogging(BlockStatement body, String message) {
+    protected void addInterceptionLogging(BlockStatement body, String message) {
         body.addStatement(
                 new ExpressionStatement(
                         new MethodCallExpression(
@@ -150,7 +150,7 @@ abstract class AbstractMemoizeASTTransformation implements ASTTransformation {
         )
     }
 
-    protected void makeRedisServiceMemoizeInvocation(BlockStatement body, MethodNode methodNode, Map memoizeProperties) {
+    protected void addRedisServiceMemoizeInvocation(BlockStatement body, MethodNode methodNode, Map memoizeProperties) {
         ArgumentListExpression argumentListExpression = makeRedisServiceArgumentListExpression(memoizeProperties)
         argumentListExpression.addExpression(makeClosureExpression(methodNode))
 
@@ -165,7 +165,7 @@ abstract class AbstractMemoizeASTTransformation implements ASTTransformation {
         )
     }
 
-    protected void makeRedisServiceMemoizeKeyExpression(Map memoizeProperties, ArgumentListExpression argumentListExpression) {
+    protected void addRedisServiceMemoizeKeyExpression(Map memoizeProperties, ArgumentListExpression argumentListExpression) {
         if(memoizeProperties.get(KEY).toString().contains(HASH_CODE)) {
             def ast = new AstBuilder().buildFromString("""
                 "${memoizeProperties.get(KEY).toString().replace(HASH_CODE, GSTRING).toString()}"
