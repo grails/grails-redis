@@ -4,10 +4,13 @@ package grails.plugin.redis
 import grails.plugin.spock.IntegrationSpec
 import test.BookService
 import test.Book
+import spock.lang.Shared
 
 class RedisMemoizeServiceSpec extends IntegrationSpec {
 
+    @Shared
     RedisService redisService
+    @Shared
     BookService bookService
 
     def setup() {

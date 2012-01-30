@@ -2,9 +2,11 @@ package grails.plugin.redis
 
 import grails.plugin.spock.IntegrationSpec
 import test.Book
+import spock.lang.Shared
 
 class RedisMemoizeDomainSpec extends IntegrationSpec {
 
+    @Shared
     RedisService redisService
 
     def setup() {
