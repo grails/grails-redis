@@ -37,3 +37,16 @@ grails.project.dependency.resolution = {
 }
 
 grails.plugin.location.redis = "../../.."
+
+codenarc {
+    processTestUnit = false
+    processTestIntegration = false
+    propertiesFile = 'codenarc.properties'
+    ruleSetFiles = "file:grails-app/conf/redis-codenarc.groovy"
+    reports = {
+        RedisDefaultProjectReport('xml') {                    // The report name "MyXmlReport" is user-defined; Report type is 'xml'
+            outputFile = 'target/codenarc.xml'  // Set the 'outputFile' property of the (XML) Report
+            title = 'Grails Redis Default Project'             // Set the 'title' property of the (XML) Report
+        }
+    }
+}
