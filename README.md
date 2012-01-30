@@ -311,11 +311,9 @@ Here is an example of usage:
 
     @MemoizeDomainList(key = "getDomainListWithKeyClass:#{title}", clazz = Book.class)
     def getDomainListWithKeyClass(String title, Date date) {
-        redisService.getDomainListWithKeyClass = "$title $date"
         println 'cache miss getDomainListWithKeyClass'
         Book.findAllByTitle(title)
     }
-
 
 ### @MemoizeList ###
 

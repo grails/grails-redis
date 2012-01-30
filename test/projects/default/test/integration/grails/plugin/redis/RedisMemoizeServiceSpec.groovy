@@ -161,7 +161,7 @@ class RedisMemoizeServiceSpec extends IntegrationSpec {
         def list1 = bookService.getDomainListWithKeyClass(title, date1)
 
         then:
-        redisService.getDomainListWithKeyClass == "$title $date1"
+        redisService.domainListWithKeyClassKey == "$title $date1"
         list1.size() == 10
         list1.containsAll(books)
 
@@ -169,7 +169,7 @@ class RedisMemoizeServiceSpec extends IntegrationSpec {
         def list2 = bookService.getDomainListWithKeyClass(title, date2)
 
         then:
-        redisService.getDomainListWithKeyClass == "$title $date1"
+        redisService.domainListWithKeyClassKey == "$title $date1"
         list2.size() == 10
         list2.containsAll(books)
     }

@@ -37,7 +37,7 @@ class BookService {
 
     @MemoizeDomainList(key = "getDomainListWithKeyClass:#{title}", clazz = Book.class)
     def getDomainListWithKeyClass(String title, Date date) {
-        redisService.getDomainListWithKeyClass = "$title $date"
+        redisService.domainListWithKeyClassKey = "$title $date"
         println 'cache miss getDomainListWithKeyClass'
         Book.findAllByTitle(title)
     }
