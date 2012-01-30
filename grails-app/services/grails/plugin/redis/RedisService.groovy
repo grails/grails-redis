@@ -43,7 +43,7 @@ class RedisService {
     }
 
     def methodMissing(String name, args) {
-        println "methodMissing $name"
+        log.debug "methodMissing $name"
         withRedis { Jedis redis ->
             redis.invokeMethod(name, args)
         }
@@ -62,7 +62,7 @@ class RedisService {
     }
 
     def withRedis(Closure closure) {
-        Jedis redis = redisPool.getResource()
+        Jedis redis = redisPool.resource
         try {
             return closure(redis)
         } finally {
@@ -76,7 +76,7 @@ class RedisService {
 
     // SET/GET a value on a Redis key
     def memoize(String key, Map options = [:], Closure closure) {
-        println "using key $key"
+        log.debug "using key $key"
         def result = withRedis { Jedis redis ->
             redis.get(key)
         }
@@ -94,7 +94,7 @@ class RedisService {
         } else {
             log.debug "cache hit : $key = $result"
         }
-        return result
+        result
     }
 
     def memoizeHash(String key, Integer expire, Closure closure) {
@@ -116,7 +116,7 @@ class RedisService {
         } else {
             log.debug "cache hit : $key = $hash"
         }
-        return hash
+        hash
     }
 
     def memoizeHashField(String key, String field, Integer expire, Closure closure) {
@@ -141,7 +141,7 @@ class RedisService {
         } else {
             log.debug "cache hit : $key.$field = $result"
         }
-        return result
+        result
     }
 
     def memoizeScore(String key, String member, Integer expire, Closure closure) {
@@ -166,7 +166,7 @@ class RedisService {
         } else {
             log.debug "cache hit : $key.$member = $score"
         }
-        return score
+        score
     }
 
     List memoizeDomainList(Class domainClass, String key, Integer expire, Closure closure) {
@@ -199,7 +199,7 @@ class RedisService {
 
         saveIdListTo(key, domainList, options.expire)
 
-        return getIdListFor(key)
+        getIdListFor(key)
     }
 
     protected List<Long> getIdListFor(String key) {
@@ -229,7 +229,7 @@ class RedisService {
             //return domainClass.findAllByIdInList(idList, [cache: true])
             return idList.collect { id -> domainClass.load(id) }
         }
-        return []
+        []
     }
 
     def memoizeDomainObject(Class domainClass, String key, Integer expire, Closure closure){
@@ -243,7 +243,7 @@ class RedisService {
             redis.get(key)?.toLong()
         }
         if (!domainId) domainId = persistDomainId(closure()?.id as Long, key, options.expire)
-        return domainClass.load(domainId)
+        domainClass.load(domainId)
     }
 
 //    Long persistDomainId(Object domainInstance, String key, Map options) {
@@ -258,7 +258,7 @@ class RedisService {
             }
         }
 //        if (domainId) withRedis { Jedis redis -> redis.set(key, domainId.toString()) }
-        return domainId
+        domainId
     }
 
     // deletes all keys matching a pattern (see redis "keys" documentation for more)
@@ -285,14 +285,14 @@ class RedisService {
         if (!list) {
             log.debug "cache miss: $key"
             list = closure()
-            if (list) withPipeline { pipeline -> 
+            if (list) withPipeline { pipeline ->
                 for ( obj in list ) pipeline.rpush(key, obj)
                 if (options?.expire) pipeline.expire(key, options.expire)
             }
         } else {
             log.debug "cach hit: $key"
         }
-        return list
+        list
     }
 
     def memoizeSet(String key, Integer expire, Closure closure) {
@@ -314,11 +314,11 @@ class RedisService {
         } else {
             log.debug "cach hit: $key"
         }
-        return set
+        set
     }
     // should ONLY Be used from tests unless we have a really good reason to clear out the entire redis db
     def flushDB() {
-        log.warn("flushDB called!")
+        log.warn('flushDB called!')
         withRedis { Jedis redis ->
             redis.flushDB()
         }
