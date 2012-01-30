@@ -85,10 +85,10 @@ class RedisService {
             log.debug "cache miss: $key"
             result = closure()
             if(result) withRedis { Jedis redis ->
-                if(!options?.expire) {
-                    redis.set(key, result as String)
-                } else {
+                if(options?.expire) {
                     redis.setex(key, options.expire, result as String)
+                } else {
+                    redis.set(key, result as String)
                 }
             }
         } else {
@@ -183,7 +183,7 @@ class RedisService {
 
         saveIdListTo(key, domainList, options.expire)
 
-        return domainList
+        domainList
     }
 
     List<Long> memoizeDomainIdList(Class domainClass, String key, Integer expire, Closure closure) {
@@ -209,7 +209,7 @@ class RedisService {
 
         if(idList) {
             log.debug "$key cache hit, returning ${idList.size()} ids"
-            List<Long> idLongList = idList.collect { String id -> id.toLong() }
+            List<Long> idLongList = idList*.toLong()
             return idLongList
         }
     }
@@ -286,7 +286,7 @@ class RedisService {
             log.debug "cache miss: $key"
             list = closure()
             if(list) withPipeline { pipeline ->
-                for(obj in list) pipeline.rpush(key, obj)
+                for(obj in list) { pipeline.rpush(key, obj) }
                 if(options?.expire) pipeline.expire(key, options.expire)
             }
         } else {

@@ -18,14 +18,14 @@ class RedisTagLib {
 
     def redisService
 
-    static namespace = "redis"
+    static namespace = 'redis'
 
     def memoize = { attrs, body ->
         String key = attrs.key
-        if (!key) throw new IllegalArgumentException("[key] attribute must be specified for memoize!")
+        if (!key) throw new IllegalArgumentException('[key] attribute must be specified for memoize!')
 
         Integer expire = attrs.expire?.toInteger()
 
-        out << redisService.memoize(key, expire) { body() ?: "" }
+        out << redisService.memoize(key, expire) { body() ?: '' }
     }
 }
