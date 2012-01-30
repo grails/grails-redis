@@ -43,17 +43,17 @@ class MemoizeDomainObjectASTTransformation extends AbstractMemoizeASTTransformat
     }
 
     @Override
-    protected ConstantExpression createRedisServiceConstantExpression() {
+    protected ConstantExpression makeRedisServiceConstantExpression() {
         return new ConstantExpression("memoizeDomainObject")
     }
 
     @Override
-    protected ArgumentListExpression createRedisServiceArgumentListExpression(Map memoizeProperties) {
+    protected ArgumentListExpression makeRedisServiceArgumentListExpression(Map memoizeProperties) {
         ArgumentListExpression argumentListExpression = new ArgumentListExpression()
         argumentListExpression.addExpression((Expression)memoizeProperties.get(CLAZZ))
-        createRedisServiceMemoizeKeyExpression(memoizeProperties, argumentListExpression)
+        makeRedisServiceMemoizeKeyExpression(memoizeProperties, argumentListExpression)
         if(memoizeProperties.containsKey(EXPIRE)) {
-            argumentListExpression.addExpression(createConstantExpression(Integer.parseInt(memoizeProperties.get(EXPIRE).toString())))
+            argumentListExpression.addExpression(makeConstantExpression(Integer.parseInt(memoizeProperties.get(EXPIRE).toString())))
         }
         return argumentListExpression
     }

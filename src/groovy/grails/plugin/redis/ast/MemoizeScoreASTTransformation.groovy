@@ -23,7 +23,7 @@ class MemoizeScoreASTTransformation extends MemoizeASTTransformation {
     }
 
     @Override
-    protected ConstantExpression createRedisServiceConstantExpression() {
+    protected ConstantExpression makeRedisServiceConstantExpression() {
         return new ConstantExpression("memoizeScore")
     }
 }

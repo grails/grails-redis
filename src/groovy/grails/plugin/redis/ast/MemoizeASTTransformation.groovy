@@ -1,11 +1,11 @@
 package grails.plugin.redis.ast
 
 import org.codehaus.groovy.ast.ASTNode
-import org.codehaus.groovy.ast.builder.AstBuilder
+
 import org.codehaus.groovy.ast.expr.ArgumentListExpression
 import org.codehaus.groovy.ast.expr.ClosureExpression
 import org.codehaus.groovy.ast.expr.ConstantExpression
-import org.codehaus.groovy.ast.expr.VariableExpression
+
 import org.codehaus.groovy.control.CompilePhase
 import org.codehaus.groovy.control.SourceUnit
 import org.codehaus.groovy.transform.GroovyASTTransformation
@@ -42,19 +42,19 @@ class MemoizeASTTransformation extends AbstractMemoizeASTTransformation {
     }
 
     @Override
-    protected ConstantExpression createRedisServiceConstantExpression() {
+    protected ConstantExpression makeRedisServiceConstantExpression() {
         return new ConstantExpression("memoize")
     }
 
     @Override
-    protected ArgumentListExpression createRedisServiceArgumentListExpression(Map memoizeProperties) {
+    protected ArgumentListExpression makeRedisServiceArgumentListExpression(Map memoizeProperties) {
         ArgumentListExpression argumentListExpression = new ArgumentListExpression()
-        createRedisServiceMemoizeKeyExpression(memoizeProperties, argumentListExpression)
+        makeRedisServiceMemoizeKeyExpression(memoizeProperties, argumentListExpression)
         if(memoizeProperties.containsKey(MEMBER)) {
-            argumentListExpression.addExpression(createConstantExpression(memoizeProperties.get(MEMBER).toString()))
+            argumentListExpression.addExpression(makeConstantExpression(memoizeProperties.get(MEMBER).toString()))
         }
         if(memoizeProperties.containsKey(EXPIRE)) {
-            argumentListExpression.addExpression(createConstantExpression(Integer.parseInt(memoizeProperties.get(EXPIRE).toString())))
+            argumentListExpression.addExpression(makeConstantExpression(Integer.parseInt(memoizeProperties.get(EXPIRE).toString())))
         }
         return argumentListExpression
     }

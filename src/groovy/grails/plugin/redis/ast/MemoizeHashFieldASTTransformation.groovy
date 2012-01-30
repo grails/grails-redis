@@ -23,7 +23,7 @@ class MemoizeHashFieldASTTransformation extends MemoizeASTTransformation {
     }
 
     @Override
-    protected ConstantExpression createRedisServiceConstantExpression() {
+    protected ConstantExpression makeRedisServiceConstantExpression() {
         return new ConstantExpression("memoizeHashField")
     }
 }

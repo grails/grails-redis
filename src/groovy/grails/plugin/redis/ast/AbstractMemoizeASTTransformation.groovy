@@ -30,9 +30,9 @@ abstract class AbstractMemoizeASTTransformation implements ASTTransformation {
     protected static final String MEMBER = 'member'
     protected static final String HASH_CODE = '#'
     protected static final String GSTRING = '$'
-    protected static final String REDIS_SERVICE = "redisService"
-    protected static final String THIS = "this"
-    protected static final String PRINTLN = "println"
+    protected static final String REDIS_SERVICE = 'redisService'
+    protected static final String THIS = 'this'
+    protected static final String PRINTLN = 'println'
 
     void visit(ASTNode[] astNodes, SourceUnit sourceUnit) {
         //map to hold the params we will pass to the memoize[?] method
@@ -56,10 +56,9 @@ abstract class AbstractMemoizeASTTransformation implements ASTTransformation {
     /**
      * Create the statements for the memoized method, clear the node and then readd the memoized code back to the method.
      * @param methodNode The MethodNode we will be clearing and replacing with the redisService.memoize[?] method call with.
-     * @param memoizeProperties The map of properties to use for th
-     * @return
+     * @param memoizeProperties The map of properties to use for the service invocation
      */
-    private def createMemoizedStatements(MethodNode methodNode, LinkedHashMap memoizeProperties) {
+    private void createMemoizedStatements(MethodNode methodNode, LinkedHashMap memoizeProperties) {
         def stmt = memoizeMethod(methodNode, memoizeProperties)
         methodNode.code.statements.clear()
         methodNode.code.statements.addAll(stmt)
@@ -82,11 +81,11 @@ abstract class AbstractMemoizeASTTransformation implements ASTTransformation {
      */
     private void injectRedisService(SourceUnit sourceUnit) {
         if(!((ClassNode) sourceUnit.AST.classes.toArray()[0]).properties?.any { it?.field?.name == REDIS_SERVICE }) {
-            println "Adding redisService to class ${sourceUnit.AST.classes[0].name}."
+//            println "Adding redisService to class ${sourceUnit.AST.classes[0].name}."
             if(!sourceUnit.AST.imports.any {it.className == ClassHelper.make(RedisService).name}
                     && !sourceUnit.AST.starImports.any {it.packageName == "${ClassHelper.make(RedisService).packageName}."}) {
-                println "Adding namespace ${ClassHelper.make(RedisService).packageName} to class ${sourceUnit.AST.classes[0].name}."
-                sourceUnit.AST.addImport("RedisService", ClassHelper.make(RedisService))
+//                println "Adding namespace ${ClassHelper.make(RedisService).packageName} to class ${sourceUnit.AST.classes[0].name}."
+                sourceUnit.AST.addImport('RedisService', ClassHelper.make(RedisService))
             }
             addRedisServiceProperty((ClassNode) sourceUnit.AST.classes.toArray()[0], REDIS_SERVICE)
         }
@@ -121,15 +120,15 @@ abstract class AbstractMemoizeASTTransformation implements ASTTransformation {
      */
     protected abstract void generateMemoizeProperties(ASTNode[] astNodes, SourceUnit sourceUnit, Map memoizeProperties)
 
-    protected abstract ConstantExpression createRedisServiceConstantExpression()
+    protected abstract ConstantExpression makeRedisServiceConstantExpression()
 
-    protected abstract ArgumentListExpression createRedisServiceArgumentListExpression(Map memoizeProperties)
+    protected abstract ArgumentListExpression makeRedisServiceArgumentListExpression(Map memoizeProperties)
 
     protected List<Statement> memoizeMethod(MethodNode methodNode, Map memoizeProperties) {
         BlockStatement body = new BlockStatement()
         createInterceptionLogging(body, 'memoized method')
-        createRedisServiceMemoizeInvocation(body, methodNode, memoizeProperties)
-        return body.statements
+        makeRedisServiceMemoizeInvocation(body, methodNode, memoizeProperties)
+        body.statements
     }
 
     /**
@@ -151,22 +150,22 @@ abstract class AbstractMemoizeASTTransformation implements ASTTransformation {
         )
     }
 
-    protected void createRedisServiceMemoizeInvocation(BlockStatement body, MethodNode methodNode, Map memoizeProperties) {
-        ArgumentListExpression argumentListExpression = createRedisServiceArgumentListExpression(memoizeProperties)
-        argumentListExpression.addExpression(createClosureExpression(methodNode))
+    protected void makeRedisServiceMemoizeInvocation(BlockStatement body, MethodNode methodNode, Map memoizeProperties) {
+        ArgumentListExpression argumentListExpression = makeRedisServiceArgumentListExpression(memoizeProperties)
+        argumentListExpression.addExpression(makeClosureExpression(methodNode))
 
         body.addStatement(
                 new ReturnStatement(
                         new MethodCallExpression(
                                 new VariableExpression(REDIS_SERVICE),
-                                createRedisServiceConstantExpression(),
+                                makeRedisServiceConstantExpression(),
                                 argumentListExpression
                         )
                 )
         )
     }
 
-    protected void createRedisServiceMemoizeKeyExpression(Map memoizeProperties, ArgumentListExpression argumentListExpression) {
+    protected void makeRedisServiceMemoizeKeyExpression(Map memoizeProperties, ArgumentListExpression argumentListExpression) {
         if(memoizeProperties.get(KEY).toString().contains(HASH_CODE)) {
             def ast = new AstBuilder().buildFromString("""
                 "${memoizeProperties.get(KEY).toString().replace(HASH_CODE, GSTRING).toString()}"
@@ -177,17 +176,17 @@ abstract class AbstractMemoizeASTTransformation implements ASTTransformation {
         }
     }
 
-    protected ClosureExpression createClosureExpression(MethodNode methodNode) {
+    protected ClosureExpression makeClosureExpression(MethodNode methodNode) {
         ClosureExpression closureExpression = new ClosureExpression(
                 [] as Parameter[],
                 new BlockStatement(methodNode.code.statements as Statement[], new VariableScope())
         )
         closureExpression.variableScope = methodNode.variableScope.copy()
-        return closureExpression
+        closureExpression
     }
 
-    protected ConstantExpression createConstantExpression(constantExpression) {
-        return new ConstantExpression(constantExpression)
+    protected ConstantExpression makeConstantExpression(constantExpression) {
+        new ConstantExpression(constantExpression)
     }
 
     protected void addError(String msg, ASTNode node, SourceUnit source) {

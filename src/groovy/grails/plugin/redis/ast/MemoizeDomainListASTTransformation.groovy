@@ -8,7 +8,7 @@ import org.codehaus.groovy.transform.GroovyASTTransformation
 class MemoizeDomainListASTTransformation extends MemoizeDomainObjectASTTransformation {
 
     @Override
-    protected ConstantExpression createRedisServiceConstantExpression() {
+    protected ConstantExpression makeRedisServiceConstantExpression() {
         return new ConstantExpression("memoizeDomainList")
     }
 }

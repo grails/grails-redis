@@ -81,11 +81,11 @@ class RedisService {
             redis.get(key)
         }
 
-        if (!result) {
+        if(!result) {
             log.debug "cache miss: $key"
             result = closure()
-            if (result) withRedis { Jedis redis ->
-                if (!options?.expire) {
+            if(result) withRedis { Jedis redis ->
+                if(!options?.expire) {
                     redis.set(key, result as String)
                 } else {
                     redis.setex(key, options.expire, result as String)
@@ -106,12 +106,12 @@ class RedisService {
             redis.hgetAll(key)
         }
 
-        if (!hash) {
+        if(!hash) {
             log.debug "cache miss: $key"
             hash = closure()
-            if (hash) withRedis { Jedis redis ->
+            if(hash) withRedis { Jedis redis ->
                 redis.hmset(key, hash)
-                if (options?.expire) redis.expire(key, options.expire)
+                if(options?.expire) redis.expire(key, options.expire)
             }
         } else {
             log.debug "cache hit : $key = $hash"
@@ -131,12 +131,12 @@ class RedisService {
             redis.hget(key, field)
         }
 
-        if (!result) {
+        if(!result) {
             log.debug "cache miss: $key.$field"
             result = closure()
-            if (result) withRedis { Jedis redis ->
+            if(result) withRedis { Jedis redis ->
                 redis.hset(key, field, result as String)
-                if (options?.expire && redis.ttl(key) == NO_EXPIRATION_TTL) redis.expire(key, options.expire)
+                if(options?.expire && redis.ttl(key) == NO_EXPIRATION_TTL) redis.expire(key, options.expire)
             }
         } else {
             log.debug "cache hit : $key.$field = $result"
@@ -156,12 +156,12 @@ class RedisService {
             redis.zscore(key, member)
         }
 
-        if (!score) {
+        if(!score) {
             log.debug "cache miss: $key.$member"
             score = closure()
-            if (score) withRedis { Jedis redis ->
+            if(score) withRedis { Jedis redis ->
                 redis.zadd(key, score, member)
-                if (options?.expire && redis.ttl(key) == NO_EXPIRATION_TTL) redis.expire(key, options.expire)
+                if(options?.expire && redis.ttl(key) == NO_EXPIRATION_TTL) redis.expire(key, options.expire)
             }
         } else {
             log.debug "cache hit : $key.$member = $score"
@@ -175,7 +175,7 @@ class RedisService {
 
     List memoizeDomainList(Class domainClass, String key, Map options = [:], Closure closure) {
         List<Long> idList = getIdListFor(key)
-        if (idList) return hydrateDomainObjectsFrom(domainClass, idList)
+        if(idList) return hydrateDomainObjectsFrom(domainClass, idList)
 
         def domainList = withRedis { Jedis redis ->
             closure(redis)
@@ -193,7 +193,7 @@ class RedisService {
     // used when we just want the list of Ids back rather than hydrated objects
     List<Long> memoizeDomainIdList(Class domainClass, String key, Map options = [:], Closure closure) {
         List<Long> idList = getIdListFor(key)
-        if (idList) return idList
+        if(idList) return idList
 
         def domainList = closure()
 
@@ -207,7 +207,7 @@ class RedisService {
             redis.lrange(key, 0, -1)
         }
 
-        if (idList) {
+        if(idList) {
             log.debug "$key cache hit, returning ${idList.size()} ids"
             List<Long> idLongList = idList.collect { String id -> id.toLong() }
             return idLongList
@@ -217,22 +217,22 @@ class RedisService {
     protected void saveIdListTo(String key, List domainList, Integer expire = null) {
         log.debug "$key cache miss, memoizing ${domainList?.size() ?: 0} ids"
         withPipeline { pipeline ->
-            for (domain in domainList) {
+            for(domain in domainList) {
                 pipeline.rpush(key, domain.id as String)
             }
-            if (expire) pipeline.expire(key, expire)
+            if(expire) pipeline.expire(key, expire)
         }
     }
 
     protected List hydrateDomainObjectsFrom(Class domainClass, List<Long> idList) {
-        if (domainClass && idList) {
+        if(domainClass && idList) {
             //return domainClass.findAllByIdInList(idList, [cache: true])
             return idList.collect { id -> domainClass.load(id) }
         }
         []
     }
 
-    def memoizeDomainObject(Class domainClass, String key, Integer expire, Closure closure){
+    def memoizeDomainObject(Class domainClass, String key, Integer expire, Closure closure) {
         memoizeDomainList(domainClass, key, [expire: expire], closure)
     }
 
@@ -242,19 +242,19 @@ class RedisService {
         Long domainId = withRedis { redis ->
             redis.get(key)?.toLong()
         }
-        if (!domainId) domainId = persistDomainId(closure()?.id as Long, key, options.expire)
+        if(!domainId) domainId = persistDomainId(closure()?.id as Long, key, options.expire)
         domainClass.load(domainId)
     }
 
 //    Long persistDomainId(Object domainInstance, String key, Map options) {
-//        return persistDomainId(domainInstance?.id as Long, key, options.expire)
-//    }
+    //        return persistDomainId(domainInstance?.id as Long, key, options.expire)
+    //    }
 
     Long persistDomainId(Long domainId, String key, Integer expire) {
-        if(domainId){
+        if(domainId) {
             withPipeline { pipeline ->
                 pipeline.set(key, domainId.toString())
-                if (expire) pipeline.expire(key, expire)
+                if(expire) pipeline.expire(key, expire)
             }
         }
 //        if (domainId) withRedis { Jedis redis -> redis.set(key, domainId.toString()) }
@@ -269,7 +269,7 @@ class RedisService {
         log.info("Cleaning all redis keys with pattern  [${keyPattern}]")
         withRedis { Jedis redis ->
             String[] keys = redis.keys(keyPattern)
-            if (keys) redis.del(keys)
+            if(keys) redis.del(keys)
         }
     }
 
@@ -282,12 +282,12 @@ class RedisService {
             redis.lrange(key, 0, -1)
         }
 
-        if (!list) {
+        if(!list) {
             log.debug "cache miss: $key"
             list = closure()
-            if (list) withPipeline { pipeline ->
-                for ( obj in list ) pipeline.rpush(key, obj)
-                if (options?.expire) pipeline.expire(key, options.expire)
+            if(list) withPipeline { pipeline ->
+                for(obj in list) pipeline.rpush(key, obj)
+                if(options?.expire) pipeline.expire(key, options.expire)
             }
         } else {
             log.debug "cach hit: $key"
@@ -304,12 +304,12 @@ class RedisService {
             redis.smembers(key)
         }
 
-        if (!set) {
+        if(!set) {
             log.debug "cache miss: $key"
             set = closure()
-            if (set) withPipeline { pipeline ->
-                for (obj in set) pipeline.sadd(key, obj)
-                if (options?.expire) pipeline.expire(key, options.expire)
+            if(set) withPipeline { pipeline ->
+                for(obj in set) { pipeline.sadd(key, obj) }
+                if(options?.expire) pipeline.expire(key, options.expire)
             }
         } else {
             log.debug "cach hit: $key"
