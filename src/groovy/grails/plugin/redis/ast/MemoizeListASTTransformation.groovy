@@ -8,6 +8,6 @@ import org.codehaus.groovy.transform.GroovyASTTransformation
 class MemoizeListASTTransformation extends MemoizeASTTransformation {
     @Override
     protected ConstantExpression makeRedisServiceConstantExpression() {
-        return new ConstantExpression("memoizeList")
+        return new ConstantExpression('memoizeList')
     }
 }

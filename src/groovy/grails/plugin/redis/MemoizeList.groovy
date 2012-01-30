@@ -10,8 +10,8 @@ import org.codehaus.groovy.transform.GroovyASTTransformationClass
  */
 @Retention(RetentionPolicy.SOURCE)
 @Target([ElementType.METHOD])
-@GroovyASTTransformationClass(["grails.plugin.redis.ast.MemoizeListASTTransformation"])
-public @interface MemoizeList {
+@GroovyASTTransformationClass(['grails.plugin.redis.ast.MemoizeListASTTransformation'])
+@interface MemoizeList {
     Class value() default {true};
     String key() default '';
     String expire() default '';

@@ -12,6 +12,6 @@ import org.codehaus.groovy.transform.GroovyASTTransformation
 class MemoizeHashASTTransformation extends MemoizeASTTransformation {
     @Override
     protected ConstantExpression makeRedisServiceConstantExpression() {
-        return new ConstantExpression("memoizeHash")
+        return new ConstantExpression('memoizeHash')
     }
 }

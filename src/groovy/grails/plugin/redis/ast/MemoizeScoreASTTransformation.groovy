@@ -15,7 +15,7 @@ class MemoizeScoreASTTransformation extends MemoizeASTTransformation {
         def member = astNodes[0]?.members?.member?.value
 
         if(!member || member?.class != String) {
-            addError("Internal Error: member is required for score", astNodes[0], sourceUnit)
+            addError('Internal Error: member is required for score', astNodes[0], sourceUnit)
             return
         }
 
@@ -24,6 +24,6 @@ class MemoizeScoreASTTransformation extends MemoizeASTTransformation {
 
     @Override
     protected ConstantExpression makeRedisServiceConstantExpression() {
-        return new ConstantExpression("memoizeScore")
+        return new ConstantExpression('memoizeScore')
     }
 }
