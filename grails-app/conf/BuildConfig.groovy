@@ -12,9 +12,32 @@ grails.project.dependency.resolution = {
         grailsHome()
         grailsCentral()
         mavenCentral()
+//        mavenRepo "http://m2repo.spockframework.org/snapshots"
     }
 
     dependencies {
         compile 'redis.clients:jedis:2.0.0'
+    }
+
+    plugins {
+        test(':code-coverage:1.2.5') {
+            export = false
+        }
+        test(':codenarc:0.16.1') {
+            export = false
+        }
+    }
+}
+
+codenarc {
+    processTestUnit = false
+    processTestIntegration = false
+    propertiesFile = 'codenarc.properties'
+    ruleSetFiles = "file:grails-app/conf/redis-codenarc.groovy"
+    reports = {
+        RedisReport('xml') {                    // The report name "MyXmlReport" is user-defined; Report type is 'xml'
+            outputFile = 'target/codenarc.xml'  // Set the 'outputFile' property of the (XML) Report
+            title = 'Grails Redis Plugin'             // Set the 'title' property of the (XML) Report
+        }
     }
 }

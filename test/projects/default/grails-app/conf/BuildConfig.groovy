@@ -16,12 +16,14 @@ grails.project.dependency.resolution = {
 
         // uncomment the below to enable remote dependency resolution
         // from public Maven repositories
-        //mavenLocal()
-        //mavenCentral()
+        mavenLocal()
+        mavenCentral()
         //mavenRepo "http://snapshots.repository.codehaus.org"
         //mavenRepo "http://repository.codehaus.org"
         //mavenRepo "http://download.java.net/maven/2/"
         //mavenRepo "http://repository.jboss.com/maven2/"
+        //mavenRepo "http://m2repo.spockframework.org/snapshots"
+        mavenRepo "http://m2repo.spockframework.org/snapshots"
     }
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
@@ -29,8 +31,24 @@ grails.project.dependency.resolution = {
         // runtime 'mysql:mysql-connector-java:5.1.13'
     }
     plugins {
-        runtime ':build-test-data:1.1.1'
+        runtime ":build-test-data:1.1.1"
+        test ":spock:0.6-SNAPSHOT"
+        test ":code-coverage:1.2.5"
+        test ":codenarc:0.16.1"
     }
 }
 
 grails.plugin.location.redis = "../../.."
+
+codenarc {
+    processTestUnit = false
+    processTestIntegration = false
+    propertiesFile = 'codenarc.properties'
+    ruleSetFiles = "file:grails-app/conf/redis-codenarc.groovy"
+    reports = {
+        RedisDefaultProjectReport('xml') {                    // The report name "MyXmlReport" is user-defined; Report type is 'xml'
+            outputFile = 'target/codenarc.xml'  // Set the 'outputFile' property of the (XML) Report
+            title = 'Grails Redis Default Project'             // Set the 'title' property of the (XML) Report
+        }
+    }
+}
