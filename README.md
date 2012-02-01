@@ -12,7 +12,6 @@ The best definition of Redis that I've heard is that it is a "collection of data
 
 Redis is an [insanely fast][redisfast] key/value store, in some ways similar to [memcached][memcached], but the values it stores aren't just dumb blobs of data.  Redis values are data structures like [strings][redisstring], [lists][redislist], [hash maps][redishash], [sets][redisset], and [sorted sets][redissortedset].  Redis also can act as a lightweight pub/sub or message queueing system.
 
-
 Redis is used in production today by a [number of very popular][redisusing] websites including Craigslist, StackOverflow, GitHub, The Guardian, and Digg.
 
 It's commonly lumped in with other NoSQL technologies and is commonly used as a caching layerhas some similarities to Memcached or Tokyo Tyrant.  Because Redis provides network-available data structures, it's very flexible and it's able to solve all kinds of problems.  The creator of Redis, Salvatore Sanfilippo, has a nice post on his blog showing [how to take advantage of Redis by just adding it to your stack][addredisstack].  With the Grails Redis plugin, adding Redis to your grails app is very easy.
@@ -51,7 +50,6 @@ The poolConfig section will let you tweak any of the [setter values made availab
 
 Plugin Usage
 ------------
-
 
 ### RedisService Bean ###
 
@@ -96,7 +94,11 @@ The `withTransaction` template method automatically opens and closes the transac
 
 Memoization is a write-through caching technique.  The plugin gives a number of methods that take a key name, and a closure as parameters.  These methods first check Redis to see if the key exists.  If it does, it returns the value of the key and does not execute the closure.  If it does not exist in Redis, it executes the closure and saves the result in Redis under the key.  Subsequent calls will then be served the cached value from Redis rather than recalculating.
 
-This technique is very useful for caching values that are frequently requested but expensive to calculate.   There are methods for the basic Redis data types:
+This technique is very useful for caching values that are frequently requested but expensive to calculate.
+
+As of version 1.2 you may also use the new memoize annotations. See the Memization Annotation section for usage and examples.
+
+There are methods for the basic Redis data types:
 
 ### String Memoization ###
 
@@ -169,7 +171,6 @@ There are other memoization methods that the plugin provides, check out the [Red
     // Redis Sorted Set memoize method
     redisService.memoizeScore("saved-sorted-set", "set-item") { return score }
 
-
 ### Other Methods ###
 
 The plugin also provides a few utility methods such as:
@@ -180,7 +181,7 @@ The plugin also provides a few utility methods such as:
     // as it uses the <code>keys</code> operation.  If you're doing this a lot and
     // have many keys in redis, you should be aggregating your own set of keys that
     // you'll later want to delete
-    redisService.deleteKeysWithPattern("key:pattern:*") 
+    redisService.deleteKeysWithPattern("key:pattern:*")
 
 ### Redis Pool Bean ###
 
@@ -194,10 +195,10 @@ You can have direct access to the pool of Redis connection objects by injecting 
 The `redis:memoize` TagLib lets you leverage memoization within your GSP files.  Wrap it around any expensive to generate text and it will cache it and quickly serve it from Redis.
 
     <redis:memoize key="mykey" expire="3600">
-        <!-- 
-            insert expensive to generate GSP content here 
+        <!--
+            insert expensive to generate GSP content here
 
-            taglib body will be executed once, subsequent calls 
+            taglib body will be executed once, subsequent calls
             will pull from redis till the key expires
         -->
         <div id='header'>
@@ -206,6 +207,177 @@ The `redis:memoize` TagLib lets you leverage memoization within your GSP files. 
     </redis:memoize>
 
 
+Memoization Annotations
+------------
+
+### Memoization Annotations ###
+
+In addition to using the concrete and finite redisService.memoize* methods, as of version 1.2 you may now also annotate a method with an appropriate @Memoize* annotation.  This will perform an AST transformation at compile time and wrap the entire body of the method with the corresponding memoization method.  The parameters such as key and expire are passed into the annotation and used in the redisService memoize method calls.
+
+The following are available as annotations:
+
+<table width="100%">
+    <tr><td><b>Annotation</b></td><td><b>Description</b></td></tr>
+    <tr><td>@Memoize</td><td>Used to memoize methods that return a "string" - redisService.memoize</td></tr>
+    <tr><td>@MemoizeDomainObject</td><td>Used to memoize methods that return a domain object - redisService.memoizeDomain</td></tr>
+    <tr><td>@MemoizeDomainList</td><td>Used to memoize methods that return a domain object list - redisService.memoizeDomainList</td></tr>
+    <tr><td>@MemoizeHash</td><td>Used to memoize methods that return a hash - redisService.memoizeHash</td></tr>
+    <tr><td>@MemoizeHashField</td><td>Used to memoize methods that return a hash field - redisService.memoizeHashField</td></tr>
+    <tr><td>@MemoizeList</td><td>Used to memoize methods that return a list - redisService.memoizeList</td></tr>
+    <tr><td>@MemoizeSet</td><td>Used to memoize methods that return a set - redisService.memoizeSet</td></tr>
+    <tr><td>@MemoizeScore</td><td>Used to memoize methods that returns a score from a hash - redisService.memoizeScore</td></tr>
+</table>
+
+There are integration usage tests written in spock for services at [RedisMemoizeServiceSpec.groovy][redisannotationservicespeccode] and for domains at [RedisMemoizeDomainSpec.groovy][redisannotationdomainspeccode]
+
+### Memoization Annotation Keys ###
+
+Since the value of the key must be passed in but will also be transformed by AST, we can not use the `$` style gstring values in the keys.  Instead you will use the `#` sign to represent a gstring value such as `@Memoize(key = "#{book.title}:#{book.id}")`.
+
+During the AST tranformation these will be replaced with the `$` character and will evaluate correctly during runtime as `redisService.memoize("${book.title}:${book.id}"){...}`.
+
+Anything that is not in the format `key='#text'` or `key="${text}"` will be treated as a string literal.  Meaning that `key="text"` would be the same as using the literal string `"text"` as the memoize key `redisService.memoize("text"){...}` instead of the variable `$text`.
+
+Any variable that you use in the key property of the annotation will need to be in scope for this to work correctly.  You will only get a RUNTIME error if you use a variable reference that is out of scope.
+
+### Memoization Annotation Notes ###
+
+You are not required to import the `import grails.plugin.redis.RedisService` namespace or declare the service `def redisService` on any objects you wish to use this annotation with as the AST transform will detect whether this field is on your object and add it for you.  You may certainly have either the import or def statements if you would like, but they are not required if you use the @Memoize* annotations.
+
+The user should be aware that any annotated method will be completely wrapped in the redis service call so any calculations that are contained within will also be wrapped and not executed of the key is in scope and not expired.
+
+If the compile succeeds but runtime fails or throws an exception, make sure the following are valid:
+    * Your key OR value is configured correctly.
+    * The key uses a #{} for all variables you want referenced.
+
+If the compile does NOT succeed make sure check the stack trace as some validation is done on the AST transform for each annotation type:
+    * Required annotation properties are provided.
+    * When using `expire` it is a valid Integer type variable.
+    * When using `value` it is a valid closure.
+    * When using `key` it is a valid String.
+
+### @Memoize ###
+
+The @Memoize annotation is to be used when dealing with objects that are stored in Redis as strings.  This annotation takes the following parameters:
+
+    value   - A closure in the following format. (key OR value required)
+    key     - A unique key for the data cache. (key OR value required)
+    expire  - Expire time in ms.  Will default to never so only pass a value like 3600 if you want value to expire.
+
+*You can either specify a closure OR a key and expire.  When using the closure style key `@Memoize({"#{text}"})` you may not pass a key or expire to the annotation as the closure will be evaluated directly and used as the key value.  This is due to a limitation on how Java deals with closure annotation parameters.*
+
+Here is an example of usage:
+
+    @Memoize({"#{text}"})
+    def getAnnotatedTextUsingClosure(String text, Date date) {
+        println 'cache miss getAnnotatedTextUsingClosure'
+        return "$text $date"
+    }
+
+    @Memoize(key = '#{text}')
+    def getAnnotatedTextUsingKey(String text, Date date) {
+        println 'cache miss getAnnotatedTextUsingKey'
+        return "$text $date"
+    }
+
+    //expire this extremely fast
+    @Memoize(key = '#{text}', expire = '1')
+    def getAnnotatedTextUsingKeyAndExpire(String text, Date date) {
+        println 'cache miss getAnnotatedTextUsingKeyAndExpire'
+        return "$text $date"
+    }
+
+    @Memoize(key = "#{book.title}:#{book.id}")
+    def getAnnotatedBook(Book book) {
+        println 'cache miss getAnnotatedBook'
+        return book.toString()
+    }
+
+### @MemoizeDomainObject ###
+
+The @MemoizeDomainObject annotation is to be used when dealing with domain objects that are to have their id's stored in Redis.  See the documentation on Domain Object Memoization above for more details.  This annotation takes the following parameters:
+
+    key     - A unique key for the data cache. (required)
+    expire  - Expire time in ms.  Will default to never so only pass a value like 3600 if you want value to expire.
+    clazz   - The class of the object to be memoizing. (required)
+
+Here is an example of usage:
+
+    @MemoizeDomainObject(key = "#{title}", clazz = Book.class)
+    def createDomainObject(String title, Date date) {
+        println 'cache miss createDomainObject'
+        Book.build(title: title, createDate: date)
+    }
+
+### @MemoizeDomainList ###
+
+The @MemoizeDomainList annotation is to be used when dealing with lists of domain objects that are to have their id's stored in Redis.  See the documentation on Domain List Memoization above for more details.  This annotation takes the following parameters:
+
+    key     - A unique key for the data cache. (required)
+    expire  - Expire time in ms.  Will default to never so only pass a value like 3600 if you want value to expire.
+    clazz   - The class of the object to be memizing. (required)
+
+Here is an example of usage:
+
+    @MemoizeDomainList(key = "getDomainListWithKeyClass:#{title}", clazz = Book.class)
+    def getDomainListWithKeyClass(String title, Date date) {
+        println 'cache miss getDomainListWithKeyClass'
+        Book.findAllByTitle(title)
+    }
+
+### @MemoizeList ###
+
+The @MemoizeList annotation is to be used when dealing with list type objects.  This annotation takes the following parameters:
+
+    value   - A closure in the following format. (key OR value required)
+    key     - A unique key for the data cache. (key OR value required)
+    expire  - Expire time in ms.  Will default to never so only pass a value like 3600 if you want value to expire.
+
+*You can either specify a closure OR a key and expire.  When using the closure style key `@Memoize({"#{text}"})` you may not pass a key or expire to the annotation as the closure will be evaluated directly and used as the key value.  This is due to a limitation on how Java deals with closure annotation parameters.*
+
+Here is an example of usage:
+
+    @MemoizeList(key = "#{list[0]}")
+    def getAnnotatedList(List list) {
+        println 'cache miss getAnnotatedList'
+        return list
+    }
+
+
+### @MemoizeScore ###
+
+The @MemoizeScore annotation is to be used when dealing with scores in hashes.  This annotation takes the following parameters:
+
+    key     - A unique key for the data cache. (required)
+    expire  - Expire time in ms.  Will default to never so only pass a value like 3600 if you want value to expire.
+    member  - The hash property to store. (required)
+
+Here is an example of usage:
+
+    @MemoizeScore(key = "#{map.key}", member="foo")
+    def getAnnotatedScore(Map map) {
+        println 'cache miss getAnnotatedScore'
+        return map.foo
+    }
+
+### @MemoizeHash ###
+
+The @MemoizeHash annotation is to be used when dealing with maps/hash type objects.  This annotation takes the following parameters:
+
+    value   - A closure in the following format. (key OR value required)
+    key     - A unique key for the data cache. (key OR value required)
+    expire  - Expire time in ms.  Will default to never so only pass a value like 3600 if you want value to expire.
+
+*You can either specify a closure OR a key and expire.  When using the closure style key `@Memoize({"#{text}"})` you may not pass a key or expire to the annotation as the closure will be evaluated directly and used as the key value.  This is due to a limitation on how Java deals with closure annotation parameters.*
+
+Here is an example of usage:
+
+    @MemoizeHash(key = "#{map.foo}")
+    def getAnnotatedHash(Map map) {
+        println 'cache miss getAnnotatedHash'
+        return map
+    }
+
 Release Notes
 =============
 
@@ -213,6 +385,7 @@ Release Notes
 * 1.0.0.M8 - released 8/15/2011 - bugfix release mostly around the JedisTemplate that was ported from redis-gorm
 * 1.0.0.M9 - released 8/16/2011 - removal of the Jedis/RedisTemplate stuff from redis-gorm as it's needed by things that can't rely on grails plugins, minor bugfixes for tests.
 * 1.1 - released 12/10/2011 - removed hibernate & tomcat plugin dependency, added memoizeSet, memoizeList, memoizeDomainObject, and deleteKeysWithPattern methods, significantly reduced amount of time redis connections were used by plugin during memoization, BREAKING CHANGE: memoize methods no longer pass a Jedis connection object into the closure, they must be created on demand within the closure code.
+* 1.2 - released 2/1/2012 - added memoize annotations to support spring-cache like support on domain, service, and controller classes.
 
 [redisgorm]: http://grails.github.com/inconsequential/redis/
 [redis]: http://redis.io
@@ -232,3 +405,5 @@ Release Notes
 [jedispoolconfig]:https://github.com/xetorthio/jedis/blob/master/src/main/java/redis/clients/jedis/JedisPoolConfig.java
 [genericobjectpool]:http://commons.apache.org/pool/apidocs/org/apache/commons/pool/impl/GenericObjectPool.html
 [redisservicecode]:https://github.com/grails-plugins/grails-redis/blob/master/grails-app/services/grails/plugin/redis/RedisService.groovy
+[redisannotationservicespeccode]:https://github.com/grails-plugins/grails-redis/blob/master/test/projects/default/test/integration/grails/plugin/redis/RedisMemoizeServiceSpec.groovy
+[redisannotationdomainspeccode]:https://github.com/grails-plugins/grails-redis/blob/master/test/projects/default/test/integration/grails/plugin/redis/RedisMemoizeDomainSpec.groovy
