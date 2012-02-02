@@ -96,7 +96,7 @@ Memoization is a write-through caching technique.  The plugin gives a number of 
 
 This technique is very useful for caching values that are frequently requested but expensive to calculate.
 
-As of version 1.2 you may also use the new memoize annotations. See the Memization Annotation section for usage and examples.
+As of version 1.2 you may also use the new memoize annotations. See the Memoization Annotation section for usage and examples.
 
 There are methods for the basic Redis data types:
 
