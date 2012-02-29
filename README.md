@@ -366,7 +366,7 @@ The @MemoizeHash annotation is to be used when dealing with maps/hash type objec
 
     value   - A closure in the following format. (key OR value required)
     key     - A unique key for the data cache. (key OR value required)
-    expire  - Expire time in ms.  Will default to never so only pass a value like 3600 if you want value to expire.
+    expire  - Expire time in seconds.  Will default to never so only pass a value like 3600 (one hour) if you want value to expire.
 
 *You can either specify a closure OR a key and expire.  When using the closure style key `@Memoize({"#{text}"})` you may not pass a key or expire to the annotation as the closure will be evaluated directly and used as the key value.  This is due to a limitation on how Java deals with closure annotation parameters.*
 
