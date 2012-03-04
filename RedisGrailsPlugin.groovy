@@ -18,7 +18,7 @@ import redis.clients.jedis.JedisPoolConfig
 import redis.clients.jedis.Protocol
 
 class RedisGrailsPlugin {
-    def version = "1.2"
+    def version = "1.3"
     def grailsVersion = "1.3.4 > *"
     def author = "Ted Naleid"
     def authorEmail = "contact@naleid.com"
@@ -44,7 +44,6 @@ class RedisGrailsPlugin {
             "grails-app/domain/**",
             "grails-app/services/test/**",
             "test/**"
-
     ]
 
     def scm = [ url: "https://github.com/grails-plugins/grails-redis" ]
