@@ -36,6 +36,8 @@ class RedisGrailsPlugin {
             [ name: "Christian Oestreich" ]
     ]
 
+    def loadAfter = ['redis-gorm']
+
     def pluginExcludes = [
             "codenarc.properties",
             "grails-app/conf/DataSource.groovy",
