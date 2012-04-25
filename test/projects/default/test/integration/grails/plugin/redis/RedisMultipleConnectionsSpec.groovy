@@ -10,7 +10,7 @@ import static grails.plugin.redis.RedisService.NO_EXPIRATION_TTL
 import com.example.BookService
 
 /**
- * This test will only work if you fire up 3 redis instances on ports 6379, 6380, 6381
+ * This test will only work if you fire up 3 redis instances on different hosts or ports
  * Todo: Start multiple instances of redis and comment out the ignore for these to pass
  */
 @Ignore
