@@ -206,6 +206,96 @@ The `redis:memoize` TagLib lets you leverage memoization within your GSP files. 
         </div>
     </redis:memoize>
 
+### Multiple Redis Servers ###
+
+If you are using multiple redis servers in your environment which are NOT clustered and would like to perform discrete operations on them seperately from a single application, you can accomplish that by by adding some configuration to your application and adding a calling the redisService methods with an explicit connection parameter.  _Note: When multiple seperate connections are not required, the default connection/pool from Config.groovy will be used as normal._
+
+You will need to start in by defining some new connection beans in the resources.groovy file.  The following will setup three seperate redis connections that can be used by the `redisService` bean.
+
+resources.groovy
+``` groovy
+import redis.clients.jedis.JedisPool
+
+// Place your Spring DSL code here
+beans = {
+    redisConn1(JedisPool, ref('redisPoolConfig'), 'localhost', 6379, 2000, '' ) { bean ->
+        bean.destroyMethod = 'destroy'
+    }
+
+    redisConn2(JedisPool, ref('redisPoolConfig'), 'localhost', 6380, 2000, '' ) { bean ->
+        bean.destroyMethod = 'destroy'
+    }
+
+    redisConn3(JedisPool, ref('redisPoolConfig'), 'localhost', 6381, 2000, '' ) { bean ->
+        bean.destroyMethod = 'destroy'
+    }
+}
+```
+
+The above connections are simply reusing the plugins already configured `redisPoolConfig` bean.  You could also create another bean in the resources.groovy file using code similar to the following and filling in the beans properties.
+
+``` groovy
+beans = {
+    redisPoolConfigCustom(JedisPoolConfig) { ... }
+}
+```
+
+You may then use these connections from the `redisService` in the normal fashion by adding `def redisConn1` to your service, controller, or integration test class.
+
+``` groovy
+class FooService {
+
+    def redisConn1
+    def redisConn2
+    def redisConn3
+
+    def doWork(){
+        redisService.withRedis(redisConn1) { Jedis redis ->
+            redis.set("foo", "bar")
+        }
+
+        redisService.withTransaction(redisConn1) { Jedis redis ->
+            redis.set("foo", "bar")
+        }
+
+        redisService.withPipeline(redisConn1) { Jedis redis ->
+            redis.set("foo", "bar")
+        }
+
+        redisService.memoize(redisConn2, "somecachekey") {Jedis redis ->
+            return cacheData
+        }
+
+        redisService.memoizeDomainList(redisConn3, Book, "domainkey"){
+            return Book.findAllByTitleInList(["book1", "book3"])
+        }
+
+        redisService.memoizeDomainIdList(redisConn1, Book, "domainkey"){
+            return Book.findAllByTitleInList(["book1", "book3"])
+        }
+
+        redisService.memoizeDomainObject(redisConn2, Book, "domainkey"){
+            return Book.get(book1.id)
+        }
+
+        redisService.memoizeHash(redisConn3, "domainkey"){
+             return [foo: "bar"]
+        }
+    }
+}
+```
+
+Currently the methodMissing approach when calling `redisService.get("key")` or `redisService.ttl("key")` for example must be converted to the withRedis block if you wish to use a different connection than the default in Config.groovy.
+
+``` groovy
+redisService.withRedis(redisConn1) { Jedis redis ->
+    return redis.get("key")
+}
+
+redisService.withRedis(redisConn1) { Jedis redis ->
+    return redis.ttl("key")
+}
+```
 
 Memoization Annotations
 ------------
