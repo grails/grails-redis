@@ -13,12 +13,14 @@
  * limitations under the License.
  */
 
+import grails.plugin.redis.RedisService
 import redis.clients.jedis.JedisPool
 import redis.clients.jedis.JedisPoolConfig
 import redis.clients.jedis.Protocol
 
 class RedisGrailsPlugin {
-    def version = "1.2"
+
+    def version = "1.3"
     def grailsVersion = "1.3.4 > *"
     def author = "Ted Naleid"
     def authorEmail = "contact@naleid.com"
@@ -26,14 +28,14 @@ class RedisGrailsPlugin {
 
     def description = '''The Redis plugin provides integration with a Redis datastore. Redis is a lightning fast 'data structure server'.  The plugin enables a number of memoization techniques to cache results from complex operations in Redis.
 '''
-    def issueManagement = [ system: 'github', url: 'https://github.com/grails-plugins/grails-redis/issues' ]
+    def issueManagement = [system: 'github', url: 'https://github.com/grails-plugins/grails-redis/issues']
 
     def license = "APACHE"
     def developers = [
-            [ name: "Burt Beckwith" ],
-            [ name: "Brian Coles" ],
-            [ name: "Michael Cameron" ],
-            [ name: "Christian Oestreich" ]
+            [name: "Burt Beckwith"],
+            [name: "Brian Coles"],
+            [name: "Michael Cameron"],
+            [name: "Christian Oestreich"]
     ]
 
     def pluginExcludes = [
@@ -47,28 +49,47 @@ class RedisGrailsPlugin {
 
     ]
 
-    def scm = [ url: "https://github.com/grails-plugins/grails-redis" ]
+    def scm = [url: "https://github.com/grails-plugins/grails-redis"]
 
     def documentation = "http://grails.org/plugin/redis"
 
     def doWithSpring = {
         def redisConfigMap = application.config.grails.redis ?: [:]
+        configureService.delegate = delegate
+        configureService(redisConfigMap, "")
+        redisConfigMap?.connections?.each { connection ->
+            configureService(connection.value, connection?.key?.capitalize())
+        }
+    }
 
-        redisPoolConfig(JedisPoolConfig) {
+    /**
+     * delegate to wire up the required beans.
+     */
+    def configureService = {redisConfigMap, key ->
+        def poolBean = "redisPoolConfig${key}"
+        "${poolBean}"(JedisPoolConfig) {
             // used to set arbitrary config values without calling all of them out here or requiring any of them
             // any property that can be set on RedisPoolConfig can be set here
-            redisConfigMap.poolConfig.each { key, value ->
-                delegate.setProperty(key, value)
+            redisConfigMap.poolConfig.each { configkey, value ->
+                delegate.setProperty(configkey, value)
             }
         }
-        
-        def host = redisConfigMap.host ?: 'localhost'
-        def port = redisConfigMap.port ?: Protocol.DEFAULT_PORT
-        def timeout = redisConfigMap.timeout ?: Protocol.DEFAULT_TIMEOUT
-        def password = redisConfigMap.password ?: null
-        
-        redisPool(JedisPool, ref('redisPoolConfig'), host, port, timeout, password ) { bean ->
+
+        def host = redisConfigMap?.host ?: 'localhost'
+        def port = redisConfigMap?.port ?: Protocol.DEFAULT_PORT
+        def timeout = redisConfigMap?.timeout ?: Protocol.DEFAULT_TIMEOUT
+        def password = redisConfigMap?.password ?: null
+
+        "redisPool${key}"(JedisPool, ref(poolBean), host, port, timeout, password) { bean ->
             bean.destroyMethod = 'destroy'
         }
+
+        //only wire up additional services when key provided for multiple connection support
+        if(key) {
+            "redisService${key}"(RedisService) {
+                redisPool = ref("redisPool${key}")
+            }
+        }
+
     }
 }

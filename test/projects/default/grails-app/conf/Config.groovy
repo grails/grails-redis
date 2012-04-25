@@ -7,6 +7,27 @@ grails {
         }
         port = 6379
         host = "localhost"
+
+        connections {
+            one {
+                poolConfig {
+                    // pool specific tweaks here
+                    // for parms see https://github.com/xetorthio/jedis/blob/master/src/main/java/redis/clients/jedis/JedisPoolConfig.java
+                    // numTestsPerEvictionRun = 4
+                }
+                port = 6380
+                host = "localhost"
+            }
+            two {
+                poolConfig {
+                    // pool specific tweaks here
+                    // for parms see https://github.com/xetorthio/jedis/blob/master/src/main/java/redis/clients/jedis/JedisPoolConfig.java
+                    // numTestsPerEvictionRun = 4
+                }
+                port = 6381
+                host = "localhost"
+            }
+        }
     }
 }
 
