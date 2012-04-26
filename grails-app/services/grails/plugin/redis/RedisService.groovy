@@ -18,14 +18,22 @@ import redis.clients.jedis.Jedis
 import redis.clients.jedis.JedisPool
 import redis.clients.jedis.Pipeline
 import redis.clients.jedis.Transaction
+import org.springframework.context.ApplicationContext
 
 class RedisService {
 
     public static final int NO_EXPIRATION_TTL = -1
 
     def redisPool
+    def grailsApplication
 
     boolean transactional = false
+
+    RedisService withConnection(String connectionName){
+        def bean = grailsApplication.mainContext.getBean("redisService${connectionName}")
+        if(!bean) log.error("Connection with name ${name} could not be found, returning default redis instead")
+        (bean) ?: this
+    }
 
     def withPipeline(JedisPool pool, Closure closure) {
         withRedis pool, pipelineClosure(closure)
