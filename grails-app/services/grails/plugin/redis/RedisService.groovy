@@ -30,9 +30,11 @@ class RedisService {
     boolean transactional = false
 
     RedisService withConnection(String connectionName){
-        def bean = grailsApplication.mainContext.getBean("redisService${connectionName}")
-        if(!bean) log.error("Connection with name ${name} could not be found, returning default redis instead")
-        (bean) ?: this
+        if(grailsApplication.mainContext.containsBean("redisService${connectionName}")){
+            return (RedisService)grailsApplication.mainContext.getBean("redisService${connectionName}")
+        }
+        log.error("Connection with name ${name} could not be found, returning default redis instead")
+        return this
     }
 
     def withPipeline(JedisPool pool, Closure closure) {

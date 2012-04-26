@@ -37,6 +37,9 @@ class RedisMultipleConnectionsConfigSpec extends IntegrationSpec {
         redisService.withRedis {Jedis redis ->
             !redis.get(key)
         }
+        redisService.withConnection('blahblahblah').withRedis {Jedis redis ->
+            !redis.get(key)
+        }
 
         when:
         redisService.withConnection('two').withRedis{Jedis redis ->
@@ -51,6 +54,9 @@ class RedisMultipleConnectionsConfigSpec extends IntegrationSpec {
             redis.get(key) == data
         }
         redisService.withRedis {Jedis redis ->
+            !redis.get(key)
+        }
+        redisService.withConnection('blahblahblah').withRedis {Jedis redis ->
             !redis.get(key)
         }
 
@@ -68,6 +74,11 @@ class RedisMultipleConnectionsConfigSpec extends IntegrationSpec {
             redis.get(key) == data
         }
         redisService.withRedis {Jedis redis ->
+            redis.get(key) == data
+        }
+
+        //will use default connection just lke normal redisService.withRedis since blahblahblah isn't valid
+        redisService.withConnection('blahblahblah').withRedis {Jedis redis ->
             redis.get(key) == data
         }
     }
