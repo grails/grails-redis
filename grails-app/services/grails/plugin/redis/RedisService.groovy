@@ -33,7 +33,7 @@ class RedisService {
         if(grailsApplication.mainContext.containsBean("redisService${connectionName}")){
             return (RedisService)grailsApplication.mainContext.getBean("redisService${connectionName}")
         }
-        log.error("Connection with name ${name} could not be found, returning default redis instead")
+        log.error("Connection with name ${connectionName} could not be found, returning default redis instead")
         return this
     }
 
