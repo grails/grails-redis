@@ -208,92 +208,92 @@ The `redis:memoize` TagLib lets you leverage memoization within your GSP files. 
 
 ### Multiple Redis Servers ###
 
-If you are using multiple redis servers in your environment which are NOT clustered and would like to perform discrete operations on them seperately from a single application, you can accomplish that by by adding some configuration to your application and adding a calling the redisService methods with an explicit connection parameter.  _Note: When multiple seperate connections are not required, the default connection/pool from Config.groovy will be used as normal._
+If you are using multiple redis servers in your environment which are NOT clustered and would like to perform discrete operations on them seperately from a single application, you can accomplish that by by adding some configuration to your application.
 
-You will need to start in by defining some new connection beans in the resources.groovy file.  The following will setup three seperate redis connections that can be used by the `redisService` bean.
+The configuration block for redis accepts the following connections block parameters.
 
-resources.groovy
+Config.groovy
 ``` groovy
-import redis.clients.jedis.JedisPool
+grails {
+    redis {
+        poolConfig {
+            // pool specific tweaks here
+            // for parms see https://github.com/xetorthio/jedis/blob/master/src/main/java/redis/clients/jedis/JedisPoolConfig.java
+            // numTestsPerEvictionRun = 4
+        }
+        port = 6379
+        host = "localhost"
 
-// Place your Spring DSL code here
-beans = {
-    redisConn1(JedisPool, ref('redisPoolConfig'), 'localhost', 6379, 2000, '' ) { bean ->
-        bean.destroyMethod = 'destroy'
-    }
-
-    redisConn2(JedisPool, ref('redisPoolConfig'), 'localhost', 6380, 2000, '' ) { bean ->
-        bean.destroyMethod = 'destroy'
-    }
-
-    redisConn3(JedisPool, ref('redisPoolConfig'), 'localhost', 6381, 2000, '' ) { bean ->
-        bean.destroyMethod = 'destroy'
+        connections {
+            cache {
+                poolConfig {
+                    // pool specific tweaks here
+                    // for parms see https://github.com/xetorthio/jedis/blob/master/src/main/java/redis/clients/jedis/JedisPoolConfig.java
+                    // numTestsPerEvictionRun = 4
+                }
+                port = 6380
+                host = "localhost"
+            }
+            search {
+                poolConfig {
+                    // pool specific tweaks here
+                    // for parms see https://github.com/xetorthio/jedis/blob/master/src/main/java/redis/clients/jedis/JedisPoolConfig.java
+                    // numTestsPerEvictionRun = 4
+                }
+                port = 6381
+                host = "localhost"
+            }
+        }
     }
 }
 ```
 
-The above connections are simply reusing the plugins already configured `redisPoolConfig` bean.  You could also create another bean in the resources.groovy file using code similar to the following and filling in the beans properties.
+The standard config block for the default connection has not changed.  The new configuration is under the `connections` block.  You will need to name your connections.  These names will be used in two capacities.  A new service bean will be wired in addition to the default `redisService` bean with the capitalized connection name appended to it.  For example the above two connections would create a `redisServiceCache` and `redisServiceSearch` bean you can reference from your application code.
 
-``` groovy
-beans = {
-    redisPoolConfigCustom(JedisPoolConfig) { ... }
-}
-```
+In addition to the new beans that are added you may also choose to continue using the standard `redisService` bean and simply refer to the connections by name when invoking targets on the service via `redisService.withConnection('cache').withRedis{...}` or `redisService.withConnection('search').memoize(key){...}` for example.
 
-You may then use these connections from the `redisService` in the normal fashion by adding `def redisConn1` to your service, controller, or integration test class.
+Some example code using the above config block.  _Note: It is up to you if you prefer using the main `redisService` bean and the `withConnection` method or if you want to inject the additional service beans._
 
 ``` groovy
 class FooService {
 
-    def redisConn1
-    def redisConn2
-    def redisConn3
+    def redisService
+    def redisServiceCache
+    def redisServiceSearch
 
     def doWork(){
-        redisService.withRedis(redisConn1) { Jedis redis ->
+        redisService.withRedis { Jedis redis ->
             redis.set("foo", "bar")
         }
 
-        redisService.withTransaction(redisConn1) { Jedis redis ->
+        redisService.withConnection('cache').withTransaction { Jedis redis ->
             redis.set("foo", "bar")
         }
 
-        redisService.withPipeline(redisConn1) { Jedis redis ->
+        redisServiceSearch.withPipeline { Jedis redis ->
             redis.set("foo", "bar")
         }
 
-        redisService.memoize(redisConn2, "somecachekey") {Jedis redis ->
+        redisServiceCache.memoize("somecachekey") {Jedis redis ->
             return cacheData
         }
 
-        redisService.memoizeDomainList(redisConn3, Book, "domainkey"){
+        redisService.withConnection('search').memoizeDomainList(Book, "domainkey"){
             return Book.findAllByTitleInList(["book1", "book3"])
         }
 
-        redisService.memoizeDomainIdList(redisConn1, Book, "domainkey"){
+        redisService.memoizeDomainIdList(Book, "domainkey"){
             return Book.findAllByTitleInList(["book1", "book3"])
         }
 
-        redisService.memoizeDomainObject(redisConn2, Book, "domainkey"){
+        redisServiceCache.memoizeDomainObject(Book, "domainkey"){
             return Book.get(book1.id)
         }
 
-        redisService.memoizeHash(redisConn3, "domainkey"){
+        redisServiceSearch.memoizeHash("domainkey"){
              return [foo: "bar"]
         }
     }
-}
-```
-
-Currently the methodMissing approach when calling `redisService.get("key")` or `redisService.ttl("key")` for example must be converted to the withRedis block if you wish to use a different connection than the default in Config.groovy.
-
-``` groovy
-redisService.withRedis(redisConn1) { Jedis redis ->
-    return redis.get("key")
-}
-
-redisService.withRedis(redisConn1) { Jedis redis ->
-    return redis.ttl("key")
 }
 ```
 
