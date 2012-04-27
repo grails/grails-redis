@@ -58,7 +58,7 @@ class RedisGrailsPlugin {
         configureService.delegate = delegate
         configureService(redisConfigMap, "")
         redisConfigMap?.connections?.each { connection ->
-            configureService(connection.value, connection.key)
+            configureService(connection.value, connection?.key?.capitalize())
         }
     }
 

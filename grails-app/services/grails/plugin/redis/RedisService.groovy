@@ -15,10 +15,8 @@
 package grails.plugin.redis
 
 import redis.clients.jedis.Jedis
-import redis.clients.jedis.JedisPool
 import redis.clients.jedis.Pipeline
 import redis.clients.jedis.Transaction
-import org.springframework.context.ApplicationContext
 
 class RedisService {
 
@@ -30,27 +28,27 @@ class RedisService {
     boolean transactional = false
 
     RedisService withConnection(String connectionName){
-        if(grailsApplication.mainContext.containsBean("redisService${connectionName}")){
-            return (RedisService)grailsApplication.mainContext.getBean("redisService${connectionName}")
+        if(grailsApplication.mainContext.containsBean("redisService${connectionName.capitalize()}")){
+            return (RedisService)grailsApplication.mainContext.getBean("redisService${connectionName.capitalize()}")
         }
-        log.error("Connection with name ${connectionName} could not be found, returning default redis instead")
+        log.error("Connection with name redisService${connectionName.capitalize()} could not be found, returning default redis instead")
         return this
     }
 
-    def withPipeline(JedisPool pool, Closure closure) {
-        withRedis pool, pipelineClosure(closure)
-    }
-
     def withPipeline(Closure closure) {
-        withRedis pipelineClosure(closure)
-    }
-
-    def withTransaction(JedisPool pool, Closure closure) {
-        withRedis pool, transactionClosure(closure)
+        withRedis { Jedis redis ->
+            Pipeline pipeline = redis.pipelined()
+            closure(pipeline)
+            pipeline.sync()
+        }
     }
 
     def withTransaction(Closure closure) {
-        withRedis transactionClosure(closure)
+        withRedis { Jedis redis ->
+            Transaction transaction = redis.multi()
+            closure(transaction)
+            transaction.exec()
+        }
     }
 
     def methodMissing(String name, args) {
@@ -73,61 +71,29 @@ class RedisService {
     }
 
     def withRedis(Closure closure) {
-        withRedis(redisPool, closure)
-    }
-
-    def withRedis(JedisPool pool, Closure closure) {
-        Jedis redis = pool.resource
+        Jedis redis = redisPool.resource
         try {
             return closure(redis)
         } finally {
-            pool.returnResource(redis)
+            redisPool.returnResource(redis)
         }
     }
 
-    /**
-     * Gets the common pipeline closure for both single and multiple
-     * connection setups
-     * @param closure Closure to execute against redis
-     * @return the surrounding closure for pipeline
-     */
-    private pipelineClosure(Closure closure) {
-        return { Jedis redis ->
-            Pipeline pipeline = redis.pipelined()
-            closure(pipeline)
-            pipeline.sync()
-        }
-    }
-
-    /**
-     * Gets the common transaction closure for both single and multiple
-     * connection setups
-     * @param closure Closure to execute against redis
-     * @return the surrounding closure for transaction
-     */
-    private transactionClosure(Closure closure) {
-        return { Jedis redis ->
-            Transaction transaction = redis.multi()
-            closure(transaction)
-            transaction.exec()
-        }
-    }
-
-    def memoize(JedisPool pool = redisPool, String key, Integer expire, Closure closure) {
-        memoize(pool, key, [expire: expire], closure)
+    def memoize(String key, Integer expire, Closure closure) {
+        memoize(key, [expire: expire], closure)
     }
 
     // SET/GET a value on a Redis key
-    def memoize(JedisPool pool = redisPool, String key, Map options = [:], Closure closure) {
+    def memoize(String key, Map options = [:], Closure closure) {
         log.debug "using key $key"
-        def result = withRedis(pool) { Jedis redis ->
+        def result = withRedis { Jedis redis ->
             redis.get(key)
         }
 
         if(!result) {
             log.debug "cache miss: $key"
             result = closure()
-            if(result) withRedis(pool) { Jedis redis ->
+            if(result) withRedis { Jedis redis ->
                 if(options?.expire) {
                     redis.setex(key, options.expire, result as String)
                 } else {
@@ -140,19 +106,19 @@ class RedisService {
         result
     }
 
-    def memoizeHash(JedisPool pool = redisPool, String key, Integer expire, Closure closure) {
-        memoizeHash(pool, key, [expire: expire], closure)
+    def memoizeHash(String key, Integer expire, Closure closure) {
+        memoizeHash(key, [expire: expire], closure)
     }
 
-    def memoizeHash(JedisPool pool = redisPool,String key, Map options = [:],  Closure closure) {
-        def hash = withRedis(pool) { Jedis redis ->
+    def memoizeHash(String key, Map options = [:], Closure closure) {
+        def hash = withRedis { Jedis redis ->
             redis.hgetAll(key)
         }
 
         if(!hash) {
             log.debug "cache miss: $key"
             hash = closure()
-            if(hash) withRedis(pool) { Jedis redis ->
+            if(hash) withRedis { Jedis redis ->
                 redis.hmset(key, hash)
                 if(options?.expire) redis.expire(key, options.expire)
             }
@@ -162,22 +128,22 @@ class RedisService {
         hash
     }
 
-    def memoizeHashField(JedisPool pool = redisPool,String key, String field, Integer expire,Closure closure) {
-        memoizeHashField(pool, key, field, [expire: expire], closure)
+    def memoizeHashField(String key, String field, Integer expire, Closure closure) {
+        memoizeHashField(key, field, [expire: expire], closure)
     }
 
     // HSET/HGET a value on a Redis hash at key.field
     // if expire is not null it will be the expire for the whole hash, not this value
     // and will only be set if there isn't already a TTL on the hash
-    def memoizeHashField(JedisPool pool = redisPool,String key, String field, Map options = [:], Closure closure) {
-        def result = withRedis(pool) { Jedis redis ->
+    def memoizeHashField(String key, String field, Map options = [:], Closure closure) {
+        def result = withRedis { Jedis redis ->
             redis.hget(key, field)
         }
 
         if(!result) {
             log.debug "cache miss: $key.$field"
             result = closure()
-            if(result) withRedis(pool) { Jedis redis ->
+            if(result) withRedis { Jedis redis ->
                 redis.hset(key, field, result as String)
                 if(options?.expire && redis.ttl(key) == NO_EXPIRATION_TTL) redis.expire(key, options.expire)
             }
@@ -187,22 +153,22 @@ class RedisService {
         result
     }
 
-    def memoizeScore(JedisPool pool = redisPool, String key, String member, Integer expire, Closure closure) {
-        memoizeScore(pool, key, member, [expire: expire], closure)
+    def memoizeScore(String key, String member, Integer expire, Closure closure) {
+        memoizeScore(key, member, [expire: expire], closure)
     }
 
     // set/get a 'double' score within a sorted set
     // if expire is not null it will be the expire for the whole zset, not this value
     // and will only be set if there isn't already a TTL on the zset
-    def memoizeScore(JedisPool pool = redisPool,String key, String member, Map options = [:], Closure closure) {
-        def score = withRedis(pool) { Jedis redis ->
+    def memoizeScore(String key, String member, Map options = [:], Closure closure) {
+        def score = withRedis { Jedis redis ->
             redis.zscore(key, member)
         }
 
         if(!score) {
             log.debug "cache miss: $key.$member"
             score = closure()
-            if(score) withRedis(pool) { Jedis redis ->
+            if(score) withRedis { Jedis redis ->
                 redis.zadd(key, score, member)
                 if(options?.expire && redis.ttl(key) == NO_EXPIRATION_TTL) redis.expire(key, options.expire)
             }
@@ -212,41 +178,41 @@ class RedisService {
         score
     }
 
-    List memoizeDomainList(JedisPool pool = redisPool, Class domainClass, String key, Integer expire, Closure closure) {
-        memoizeDomainList(pool, domainClass, key, [expire: expire], closure)
+    List memoizeDomainList(Class domainClass, String key, Integer expire, Closure closure) {
+        memoizeDomainList(domainClass, key, [expire: expire], closure)
     }
 
-    List memoizeDomainList(JedisPool pool = redisPool, Class domainClass, String key, Map options = [:], Closure closure) {
-        List<Long> idList = getIdListFor(key, pool)
+    List memoizeDomainList(Class domainClass, String key, Map options = [:], Closure closure) {
+        List<Long> idList = getIdListFor(key)
         if(idList) return hydrateDomainObjectsFrom(domainClass, idList)
 
-        def domainList = withRedis(pool) { Jedis redis ->
+        def domainList = withRedis { Jedis redis ->
             closure(redis)
         }
 
-        saveIdListTo(key, domainList, options.expire, pool)
+        saveIdListTo(key, domainList, options.expire)
 
         domainList
     }
 
-    List<Long> memoizeDomainIdList(JedisPool pool = redisPool, Class domainClass, String key, Integer expire, Closure closure) {
-        memoizeDomainIdList(pool, domainClass, key, [expire: expire], closure)
+    List<Long> memoizeDomainIdList(Class domainClass, String key, Integer expire, Closure closure) {
+        memoizeDomainIdList(domainClass, key, [expire: expire], closure)
     }
 
     // used when we just want the list of Ids back rather than hydrated objects
-    List<Long> memoizeDomainIdList(JedisPool pool = redisPool, Class domainClass, String key, Map options = [:], Closure closure) {
-        List<Long> idList = getIdListFor(key, pool)
+    List<Long> memoizeDomainIdList(Class domainClass, String key, Map options = [:], Closure closure) {
+        List<Long> idList = getIdListFor(key)
         if(idList) return idList
 
         def domainList = closure()
 
-        saveIdListTo(key, domainList, options.expire, pool)
+        saveIdListTo(key, domainList, options.expire)
 
-        getIdListFor(key, pool)
+        getIdListFor(key)
     }
 
-    protected List<Long> getIdListFor(String key, JedisPool pool = redisPool) {
-        List<String> idList = withRedis(pool) { Jedis redis ->
+    protected List<Long> getIdListFor(String key) {
+        List<String> idList = withRedis { Jedis redis ->
             redis.lrange(key, 0, -1)
         }
 
@@ -257,9 +223,9 @@ class RedisService {
         }
     }
 
-    protected void saveIdListTo(String key, List domainList, Integer expire = null, JedisPool pool) {
+    protected void saveIdListTo(String key, List domainList, Integer expire = null) {
         log.debug "$key cache miss, memoizing ${domainList?.size() ?: 0} ids"
-        withPipeline(pool) { pipeline ->
+        withPipeline { pipeline ->
             for(domain in domainList) {
                 pipeline.rpush(key, domain.id as String)
             }
@@ -275,17 +241,17 @@ class RedisService {
         []
     }
 
-    def memoizeDomainObject(JedisPool pool = redisPool, Class domainClass, String key, Integer expire, Closure closure) {
-        memoizeDomainList(pool, domainClass, key, [expire: expire], closure)
+    def memoizeDomainObject(Class domainClass, String key, Integer expire, Closure closure) {
+        memoizeDomainList(domainClass, key, [expire: expire], closure)
     }
 
     // closure can return either a domain object or a Long id of a domain object
     // it will be persisted into redis as the Long
-    def memoizeDomainObject(JedisPool pool = redisPool, Class domainClass, String key, Map options = [:], Closure closure) {
-        Long domainId = withRedis(pool) { redis ->
+    def memoizeDomainObject(Class domainClass, String key, Map options = [:], Closure closure) {
+        Long domainId = withRedis { redis ->
             redis.get(key)?.toLong()
         }
-        if(!domainId) domainId = persistDomainId(pool, closure()?.id as Long, key, options.expire)
+        if(!domainId) domainId = persistDomainId(closure()?.id as Long, key, options.expire)
         domainClass.load(domainId)
     }
 
@@ -293,9 +259,9 @@ class RedisService {
     //        return persistDomainId(domainInstance?.id as Long, key, options.expire)
     //    }
 
-    Long persistDomainId(JedisPool pool = redisPool, Long domainId, String key, Integer expire) {
+    Long persistDomainId(Long domainId, String key, Integer expire) {
         if(domainId) {
-            withPipeline(pool) { pipeline ->
+            withPipeline { pipeline ->
                 pipeline.set(key, domainId.toString())
                 if(expire) pipeline.expire(key, expire)
             }
@@ -308,27 +274,27 @@ class RedisService {
     // OK for low traffic methods, but expensive compared to other redis commands
     // perf test before relying on this rather than storing your own set of keys to 
     // delete
-    void deleteKeysWithPattern(JedisPool pool = redisPool, keyPattern) {
+    void deleteKeysWithPattern(keyPattern) {
         log.info("Cleaning all redis keys with pattern  [${keyPattern}]")
-        withRedis(pool) { Jedis redis ->
+        withRedis { Jedis redis ->
             String[] keys = redis.keys(keyPattern)
             if(keys) redis.del(keys)
         }
     }
 
-    def memoizeList(JedisPool pool = redisPool, String key, Integer expire, Closure closure) {
-        memoizeList(pool, key, [expire: expire], closure)
+    def memoizeList(String key, Integer expire, Closure closure) {
+        memoizeList(key, [expire: expire], closure)
     }
 
-    def memoizeList(JedisPool pool = redisPool, String key, Map options = [:], Closure closure) {
-        List list = withRedis(pool) { Jedis redis ->
+    def memoizeList(String key, Map options = [:], Closure closure) {
+        List list = withRedis { Jedis redis ->
             redis.lrange(key, 0, -1)
         }
 
         if(!list) {
             log.debug "cache miss: $key"
             list = closure()
-            if(list) withPipeline(pool) { pipeline ->
+            if(list) withPipeline { pipeline ->
                 for(obj in list) { pipeline.rpush(key, obj) }
                 if(options?.expire) pipeline.expire(key, options.expire)
             }
@@ -338,19 +304,19 @@ class RedisService {
         list
     }
 
-    def memoizeSet(JedisPool pool = redisPool, String key, Integer expire, Closure closure) {
+    def memoizeSet(String key, Integer expire, Closure closure) {
         memoizeSet(key, [expire: expire], closure)
     }
 
-    def memoizeSet(JedisPool pool = redisPool, String key, Map options = [:], Closure closure) {
-        def set = withRedis(pool) { Jedis redis ->
+    def memoizeSet(String key, Map options = [:], Closure closure) {
+        def set = withRedis { Jedis redis ->
             redis.smembers(key)
         }
 
         if(!set) {
             log.debug "cache miss: $key"
             set = closure()
-            if(set) withPipeline(pool) { pipeline ->
+            if(set) withPipeline { pipeline ->
                 for(obj in set) { pipeline.sadd(key, obj) }
                 if(options?.expire) pipeline.expire(key, options.expire)
             }
@@ -360,9 +326,9 @@ class RedisService {
         set
     }
     // should ONLY Be used from tests unless we have a really good reason to clear out the entire redis db
-    def flushDB(JedisPool pool = redisPool) {
+    def flushDB() {
         log.warn('flushDB called!')
-        withRedis(pool) { Jedis redis ->
+        withRedis { Jedis redis ->
             redis.flushDB()
         }
     }

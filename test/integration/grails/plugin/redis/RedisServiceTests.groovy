@@ -6,7 +6,6 @@ import redis.clients.jedis.Transaction
 
 class RedisServiceTests extends GroovyTestCase {
     def redisService
-    def redisPool
 
     boolean transactional = false
 
@@ -26,22 +25,6 @@ class RedisServiceTests extends GroovyTestCase {
         redisService.flushDB()
 
         redisService.withRedis { Jedis redis ->
-            assertEquals 0, redis.dbSize()
-        }
-    }
-
-    //just use the default pool as we don't want to create additional connections in plugin config
-    void testCustomConnection(){
-        // actually called as part of setup too, but we can test it here
-        redisService.withRedis(redisPool) { Jedis redis ->
-            assertEquals 0, redis.dbSize()
-            redis.set("foo", "bar")
-            assertEquals 1, redis.dbSize()
-        }
-
-        redisService.flushDB(redisPool)
-
-        redisService.withRedis(redisPool) { Jedis redis ->
             assertEquals 0, redis.dbSize()
         }
     }
