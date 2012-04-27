@@ -248,11 +248,13 @@ grails {
 }
 ```
 
-The standard config block for the default connection has not changed.  The new configuration is under the `connections` block.  You will need to name your connections.  These names will be used in two capacities.  A new service bean will be wired in addition to the default `redisService` bean with the capitalized connection name appended to it.  For example the above two connections would create a `redisServiceCache` and `redisServiceSearch` bean you can reference from your application code.
+The standard config block for the default connection has not changed.  The new configuration is under the `connections` block.  You will need to name your connections ('cache' and 'search' in the above block).  The names must be unique.
 
-In addition to the new beans that are added you may also choose to continue using the standard `redisService` bean and simply refer to the connections by name when invoking targets on the service via `redisService.withConnection('cache').withRedis{...}` or `redisService.withConnection('search').memoize(key){...}` for example.
+A new service bean will be wired in addition to the default `redisService` bean with the capitalized connection name appended to it.  For example the above two connections would create a `redisServiceCache` and `redisServiceSearch` bean you can reference from your application code.
 
-Some example code using the above config block.  _Note: It is up to you if you prefer using the main `redisService` bean and the `withConnection` method or if you want to inject the additional service beans._
+In addition to the newly wired beans, you may also choose to continue using the standard `redisService` bean and simply refer to the connections by name when invoking targets on the service via `redisService.withConnection('cache').withRedis{...}` or `redisService.withConnection('search').memoize(key){...}`.
+
+_Note: It is up to you if you prefer using the main `redisService` bean and the `withConnection` method or if you want to inject the additional service beans.  The end result is the same and the withConnection is simply a pass through to the newly created beans._
 
 ``` groovy
 class FooService {
