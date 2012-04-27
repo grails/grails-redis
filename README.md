@@ -476,6 +476,7 @@ Release Notes
 * 1.0.0.M9 - released 8/16/2011 - removal of the Jedis/RedisTemplate stuff from redis-gorm as it's needed by things that can't rely on grails plugins, minor bugfixes for tests.
 * 1.1 - released 12/10/2011 - removed hibernate & tomcat plugin dependency, added memoizeSet, memoizeList, memoizeDomainObject, and deleteKeysWithPattern methods, significantly reduced amount of time redis connections were used by plugin during memoization, BREAKING CHANGE: memoize methods no longer pass a Jedis connection object into the closure, they must be created on demand within the closure code.
 * 1.2 - released 2/1/2012 - added memoize annotations to support spring-cache like support on domain, service, and controller classes.
+* 1.3 - released 5/1/2012 - added support for additional redis server endpoint wiring via config block.
 
 [redisgorm]: http://grails.github.com/inconsequential/redis/
 [redis]: http://redis.io
