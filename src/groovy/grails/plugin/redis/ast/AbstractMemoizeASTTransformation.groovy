@@ -181,7 +181,7 @@ abstract class AbstractMemoizeASTTransformation implements ASTTransformation {
                 [] as Parameter[],
                 new BlockStatement(methodNode.code.statements as Statement[], new VariableScope())
         )
-        closureExpression.variableScope = methodNode.variableScope.copy()
+        closureExpression.variableScope = new VariableScope()
         closureExpression
     }
 

@@ -206,6 +206,98 @@ The `redis:memoize` TagLib lets you leverage memoization within your GSP files. 
         </div>
     </redis:memoize>
 
+### Multiple Redis Servers ###
+
+If you are using multiple redis servers in your environment which are NOT clustered and would like to perform discrete operations on them seperately from a single application, you can accomplish that by by adding some configuration to your application.
+
+The configuration block for redis accepts the following connections block parameters.
+
+Config.groovy
+``` groovy
+grails {
+    redis {
+        poolConfig {
+            // pool specific tweaks here
+            // for parms see https://github.com/xetorthio/jedis/blob/master/src/main/java/redis/clients/jedis/JedisPoolConfig.java
+            // numTestsPerEvictionRun = 4
+        }
+        port = 6379
+        host = "localhost"
+
+        connections {
+            cache {
+                poolConfig {
+                    // pool specific tweaks here
+                    // for parms see https://github.com/xetorthio/jedis/blob/master/src/main/java/redis/clients/jedis/JedisPoolConfig.java
+                    // numTestsPerEvictionRun = 4
+                }
+                port = 6380
+                host = "localhost"
+            }
+            search {
+                poolConfig {
+                    // pool specific tweaks here
+                    // for parms see https://github.com/xetorthio/jedis/blob/master/src/main/java/redis/clients/jedis/JedisPoolConfig.java
+                    // numTestsPerEvictionRun = 4
+                }
+                port = 6381
+                host = "localhost"
+            }
+        }
+    }
+}
+```
+
+The standard config block for the default connection has not changed.  The new configuration is under the `connections` block.  You will need to name your connections ('cache' and 'search' in the above block).  The names must be unique.
+
+A new service bean will be wired in addition to the default `redisService` bean with the capitalized connection name appended to it.  For example the above two connections would create a `redisServiceCache` and `redisServiceSearch` bean you can reference from your application code.
+
+In addition to the newly wired beans, you may also choose to continue using the standard `redisService` bean and simply refer to the connections by name when invoking targets on the service via `redisService.withConnection('cache').withRedis{...}` or `redisService.withConnection('search').memoize(key){...}`.
+
+_Note: It is up to you if you prefer using the main `redisService` bean and the `withConnection` method or if you want to inject the additional service beans.  The end result is the same and the withConnection is simply a pass through to the newly created beans._
+
+``` groovy
+class FooService {
+
+    def redisService
+    def redisServiceCache
+    def redisServiceSearch
+
+    def doWork(){
+        redisService.withRedis { Jedis redis ->
+            redis.set("foo", "bar")
+        }
+
+        redisService.withConnection('cache').withTransaction { Jedis redis ->
+            redis.set("foo", "bar")
+        }
+
+        redisServiceSearch.withPipeline { Jedis redis ->
+            redis.set("foo", "bar")
+        }
+
+        redisServiceCache.memoize("somecachekey") {Jedis redis ->
+            return cacheData
+        }
+
+        redisService.withConnection('search').memoizeDomainList(Book, "domainkey"){
+            return Book.findAllByTitleInList(["book1", "book3"])
+        }
+
+        redisService.memoizeDomainIdList(Book, "domainkey"){
+            return Book.findAllByTitleInList(["book1", "book3"])
+        }
+
+        redisServiceCache.memoizeDomainObject(Book, "domainkey"){
+            return Book.get(book1.id)
+        }
+
+        redisServiceSearch.memoizeHash("domainkey"){
+             return [foo: "bar"]
+        }
+    }
+}
+```
 
 Memoization Annotations
 ------------
@@ -386,6 +478,7 @@ Release Notes
 * 1.0.0.M9 - released 8/16/2011 - removal of the Jedis/RedisTemplate stuff from redis-gorm as it's needed by things that can't rely on grails plugins, minor bugfixes for tests.
 * 1.1 - released 12/10/2011 - removed hibernate & tomcat plugin dependency, added memoizeSet, memoizeList, memoizeDomainObject, and deleteKeysWithPattern methods, significantly reduced amount of time redis connections were used by plugin during memoization, BREAKING CHANGE: memoize methods no longer pass a Jedis connection object into the closure, they must be created on demand within the closure code.
 * 1.2 - released 2/1/2012 - added memoize annotations to support spring-cache like support on domain, service, and controller classes.
+* 1.3 - released 5/1/2012 - added support for additional redis server endpoint wiring via config block.
 
 [redisgorm]: http://grails.github.com/inconsequential/redis/
 [redis]: http://redis.io

@@ -23,7 +23,7 @@ grails.project.dependency.resolution = {
         test(':code-coverage:1.2.5') {
             export = false
         }
-        test(':codenarc:0.16.1') {
+        test(':codenarc:0.17') {
             export = false
         }
     }

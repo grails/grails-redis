@@ -23,8 +23,17 @@ class RedisService {
     public static final int NO_EXPIRATION_TTL = -1
 
     def redisPool
+    def grailsApplication
 
     boolean transactional = false
+
+    RedisService withConnection(String connectionName){
+        if(grailsApplication.mainContext.containsBean("redisService${connectionName.capitalize()}")){
+            return (RedisService)grailsApplication.mainContext.getBean("redisService${connectionName.capitalize()}")
+        }
+        log.error("Connection with name redisService${connectionName.capitalize()} could not be found, returning default redis instead")
+        return this
+    }
 
     def withPipeline(Closure closure) {
         withRedis { Jedis redis ->
