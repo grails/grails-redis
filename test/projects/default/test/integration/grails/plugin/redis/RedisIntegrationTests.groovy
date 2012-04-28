@@ -5,7 +5,7 @@ import static grails.plugin.redis.RedisService.NO_EXPIRATION_TTL
 
 class RedisIntegrationTests extends GroovyTestCase {
 
-    def redisService
+    RedisService redisService
     def bookService
 
     protected void setUp() {
