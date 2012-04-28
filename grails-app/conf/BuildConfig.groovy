@@ -12,6 +12,7 @@ grails.project.dependency.resolution = {
         grailsHome()
         grailsCentral()
         mavenCentral()
+        grailsRepo "http://grails.org/plugins"
 //        mavenRepo "http://m2repo.spockframework.org/snapshots"
     }
 
@@ -20,6 +21,9 @@ grails.project.dependency.resolution = {
     }
 
     plugins {
+        build ":release:2.0.0", {
+            export = false
+        }
         test(':code-coverage:1.2.5') {
             export = false
         }
