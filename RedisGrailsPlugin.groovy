@@ -21,7 +21,7 @@ import redis.clients.jedis.Protocol
 class RedisGrailsPlugin {
 
     def version = "1.3"
-    def grailsVersion = "1.3.4 > *"
+    def grailsVersion = "2.0.0 > *"
     def author = "Ted Naleid"
     def authorEmail = "contact@naleid.com"
     def title = "Redis Plugin"
@@ -79,8 +79,9 @@ class RedisGrailsPlugin {
         def port = redisConfigMap?.port ?: Protocol.DEFAULT_PORT
         def timeout = redisConfigMap?.timeout ?: Protocol.DEFAULT_TIMEOUT
         def password = redisConfigMap?.password ?: null
+        def database = redisConfigMap?.database ?: Protocol.DEFAULT_DATABASE
 
-        "redisPool${key}"(JedisPool, ref(poolBean), host, port, timeout, password) { bean ->
+        "redisPool${key}"(JedisPool, ref(poolBean), host, port, timeout, passwordi, database) { bean ->
             bean.destroyMethod = 'destroy'
         }
 
