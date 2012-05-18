@@ -81,7 +81,7 @@ class RedisGrailsPlugin {
         def password = redisConfigMap?.password ?: null
         def database = redisConfigMap?.database ?: Protocol.DEFAULT_DATABASE
 
-        "redisPool${key}"(JedisPool, ref(poolBean), host, port, timeout, passwordi, database) { bean ->
+        "redisPool${key}"(JedisPool, ref(poolBean), host, port, timeout, password, database) { bean ->
             bean.destroyMethod = 'destroy'
         }
 
