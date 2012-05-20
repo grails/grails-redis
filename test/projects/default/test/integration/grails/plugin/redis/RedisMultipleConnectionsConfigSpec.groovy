@@ -14,12 +14,23 @@ class RedisMultipleConnectionsConfigSpec extends IntegrationSpec {
 
     def setup() {
         redisService.flushDB()
-        redisService.withConnection('one').flushDB()
-        redisService.withConnection('two').flushDB()
+        try {
+            redisService.withConnection('one').flushDB()
+        } catch(redis.clients.jedis.exceptions.JedisConnectionException e) {
+            throw new Exception("You need to have redis running on port 6380 for this test exercising multiple redis connections to pass", e)
+        }
+
+        try {
+            redisService.withConnection('two').flushDB()
+        } catch(redis.clients.jedis.exceptions.JedisConnectionException e) {
+            throw new Exception("You need to have redis running on port 6381 for this test exercising multiple redis connections to pass", e)
+        }
+        
         redisServiceOne.flushDB() //redundant, but just illustrates another way to do this
         redisServiceTwo.flushDB() //redundant, but just illustrates another way to do this
     }
 
+    // if this test is failing, make sure you've got redis running on ports 6380 and 6381
     def "test multiple redis pools"() {
         given:
         def key = "key"
