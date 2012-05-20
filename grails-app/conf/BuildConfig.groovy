@@ -17,7 +17,7 @@ grails.project.dependency.resolution = {
     }
 
     dependencies {
-        compile 'redis.clients:jedis:2.0.0'
+        compile 'redis.clients:jedis:2.1.0'
     }
 
     plugins {
