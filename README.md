@@ -481,7 +481,7 @@ Release Notes
 * 1.1 - released 12/10/2011 - removed hibernate & tomcat plugin dependency, added memoizeSet, memoizeList, memoizeDomainObject, and deleteKeysWithPattern methods, significantly reduced amount of time redis connections were used by plugin during memoization, BREAKING CHANGE: memoize methods no longer pass a Jedis connection object into the closure, they must be created on demand within the closure code.
 * 1.2 - released 2/1/2012 - added memoize annotations to support spring-cache like support on domain, service, and controller classes.
 * 1.3 - released 4/28/2012 - added support for additional redis server endpoint wiring via config block.
-* 1.3.1 - released 5/20/2012 - addes support for Jedis 2.1 and a database parameter in the config, see #12
+* 1.3.1 - released 5/20/2012 - addes support for Jedis 2.1 and a `database` parameter in the config to pick a redis database
 
 [redisgorm]: http://grails.github.com/inconsequential/redis/
 [redis]: http://redis.io
