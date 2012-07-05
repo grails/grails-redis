@@ -72,7 +72,7 @@ class RedisService {
     }
 
     def withRedis(Closure closure) {
-        Jedis redis = redisPool.getResource()
+        Jedis redis = redisPool.resource
         try {
             def ret = closure(redis)
             redisPool.returnResource(redis)
