@@ -17,6 +17,7 @@ package grails.plugin.redis
 import redis.clients.jedis.Jedis
 import redis.clients.jedis.Pipeline
 import redis.clients.jedis.Transaction
+import redis.clients.jedis.exceptions.JedisConnectionException
 
 class RedisService {
 
@@ -73,9 +74,15 @@ class RedisService {
     def withRedis(Closure closure) {
         Jedis redis = redisPool.resource
         try {
-            return closure(redis)
-        } finally {
+            def ret = closure(redis)
             redisPool.returnResource(redis)
+            return ret
+        } catch(JedisConnectionException jce) {
+            redisPool.returnBrokenResource(redis)
+            throw jce
+        } catch(Exception e) {
+            redisPool.returnResource(redis)
+            throw e
         }
     }
 
