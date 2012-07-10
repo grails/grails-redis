@@ -70,7 +70,7 @@ The service overrides `propertyMissing` and `methodMissing` to delegate any miss
         
 It also provides a template method called `withRedis` that takes a closure as a parameter.  It passes a Jedis connection object to Redis into the closure.  The template method automatically gets an object out of the pool and ensures that it gets returned to the pool after the closure finishes (even if there's an error).
 
-    redisService.withRedis { 
+    redisService.withRedis { Jedis redis ->
         redis.set("foo", "bar")
     }
 
