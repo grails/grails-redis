@@ -47,8 +47,13 @@ class RedisService {
     def withTransaction(Closure closure) {
         withRedis { Jedis redis ->
             Transaction transaction = redis.multi()
-            closure(transaction)
-            transaction.exec()
+            try {
+                closure(transaction)
+                transaction.exec()
+            } catch(Exception exception) {
+                transaction.discard()
+                throw exception
+            }
         }
     }
 
