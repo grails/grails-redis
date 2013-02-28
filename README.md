@@ -483,6 +483,7 @@ Release Notes
 * 1.3 - released 4/28/2012 - added support for additional redis server endpoint wiring via config block.
 * 1.3.1 - released 5/20/2012 - adds support for Jedis 2.1 and a `database` parameter in the config to pick a redis database
 * 1.3.2 - released 7/6/2012 - marks erroring pool connections as invalid so the pool knows to discard and recreate them
+* 1.3.3 - released 2/27/2013 - bugfix for transactions
 
 [redisgorm]: http://grails.github.com/inconsequential/redis/
 [redis]: http://redis.io
