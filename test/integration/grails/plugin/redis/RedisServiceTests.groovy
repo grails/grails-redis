@@ -222,6 +222,23 @@ class RedisServiceTests extends GroovyTestCase {
         }
     }
 
+    def testWithTransactionClosureException() {
+        redisService.withRedis { Jedis redis ->
+            assert redis.get("foo") == null
+        }
+
+        shouldFail{
+            redisService.withTransaction { Transaction transaction ->
+                transaction.set("foo", "bar")
+                throw new Exception("Something bad happened")
+            }
+        }
+
+        redisService.withRedis { Jedis redis ->
+            assert redis.get("foo") == null
+        }
+    }
+
     def testPropertyMissingGetterRetrievesStringValue() {
         assertNull redisService.foo
 
