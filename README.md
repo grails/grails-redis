@@ -39,14 +39,24 @@ Out of the box, the plugin expects that Redis is running on `localhost:6379`.  Y
                 // jedis pool specific tweaks here, see jedis docs & src
                 // ex: testWhileIdle = true
             }
-            port = 6379
-            host = "localhost"
             timeout = 2000 //default in milliseconds
             password = "somepassword" //defaults to no password
+
+            // requires either host & port combo, or a sentinels and masterName combo
+
+            // use a single redis server (use only if nore using sentinel cluster)
+            port = 6379
+            host = "localhost"
+
+            // use redis-sentinel cluster as opposed to a single redis server (use only if not use host/port)
+            sentinels = [ "host1:6379", "host2:6379", "host3:6379" ] // list of sentinel instance host/ports
+            masterName = "mymaster" // the name of a master the sentinel cluster is configured to monitor
         }
     }
 
 The poolConfig section will let you tweak any of the [setter values made available by the JedisPoolConfig][jedispoolconfig].  It implements the Apache Commons [GenericObjectPool][genericobjectpool].
+
+NOTE: Please see [Redis Sentinel - Documentation](http://redis.io/topics/sentinel) for more info on using redis-sentinel for high availability
 
 Plugin Usage
 ------------
@@ -221,8 +231,16 @@ grails {
             // for parms see https://github.com/xetorthio/jedis/blob/master/src/main/java/redis/clients/jedis/JedisPoolConfig.java
             // numTestsPerEvictionRun = 4
         }
+
+        // requires either host & port combo, or a sentinels and masterName combo
+
+        // use a single redis server (use only if nore using sentinel cluster)
         port = 6379
         host = "localhost"
+
+        // use redis-sentinel cluster as opposed to a single redis server (use only if not use host/port)
+        sentinels = [ "host1:6379", "host2:6379", "host3:6379" ] // list of sentinel instance host/ports
+        masterName = "mymaster" // the name of a master the sentinel cluster is configured to monitor
 
         connections {
             cache {
@@ -231,8 +249,16 @@ grails {
                     // for parms see https://github.com/xetorthio/jedis/blob/master/src/main/java/redis/clients/jedis/JedisPoolConfig.java
                     // numTestsPerEvictionRun = 4
                 }
+
+                // requires either host & port combo, or a sentinels and masterName combo
+
+                // use a single redis server (use only if nore using sentinel cluster)
                 port = 6380
                 host = "localhost"
+
+                // use redis-sentinel cluster as opposed to a single redis server (use only if not use host/port)
+                sentinels = [ "host1:6380", "host2:6380", "host3:6380" ] // list of sentinel instance host/ports
+                masterName = "cache" // the name of a master the sentinel cluster is configured to monitor
             }
             search {
                 poolConfig {
@@ -240,8 +266,16 @@ grails {
                     // for parms see https://github.com/xetorthio/jedis/blob/master/src/main/java/redis/clients/jedis/JedisPoolConfig.java
                     // numTestsPerEvictionRun = 4
                 }
+
+                // requires either host & port combo, or a sentinels and masterName combo
+
+                // use a single redis server (use only if nore using sentinel cluster)
                 port = 6381
                 host = "localhost"
+
+                // use redis-sentinel cluster as opposed to a single redis server (use only if not use host/port)
+                sentinels = [ "host1:6381", "host2:6381", "host3:6381" ] // list of sentinel instance host/ports
+                masterName = "search" // the name of a master the sentinel cluster is configured to monitor
             }
         }
     }
