@@ -13,14 +13,16 @@
  * limitations under the License.
  */
 
+
 import grails.plugin.redis.RedisService
 import redis.clients.jedis.JedisPool
 import redis.clients.jedis.JedisPoolConfig
+import redis.clients.jedis.JedisSentinelPool
 import redis.clients.jedis.Protocol
 
 class RedisGrailsPlugin {
 
-    def version = "1.3.3"
+    def version = "1.4-SNAPSHOT"
     def grailsVersion = "2.0.0 > *"
     def author = "Ted Naleid"
     def authorEmail = "contact@naleid.com"
@@ -57,11 +59,12 @@ class RedisGrailsPlugin {
 
     def doWithSpring = {
         def redisConfigMap = application.config.grails.redis ?: [:]
-        configureService.delegate = delegate
-        configureService(redisConfigMap, "")
-        redisConfigMap?.connections?.each { connection ->
-            configureService(connection.value, connection?.key?.capitalize())
-        }
+
+		configureService.delegate = delegate
+		configureService(redisConfigMap, "")
+		redisConfigMap?.connections?.each { connection ->
+			configureService(connection.value, connection?.key?.capitalize())
+		}
     }
 
     /**
@@ -82,10 +85,20 @@ class RedisGrailsPlugin {
         def timeout = redisConfigMap?.timeout ?: Protocol.DEFAULT_TIMEOUT
         def password = redisConfigMap?.password ?: null
         def database = redisConfigMap?.database ?: Protocol.DEFAULT_DATABASE
+	    def sentinels = redisConfigMap?.sentinels ?: null
+	    def masterName = redisConfigMap?.masterName ?: null
 
-        "redisPool${key}"(JedisPool, ref(poolBean), host, port, timeout, password, database) { bean ->
-            bean.destroyMethod = 'destroy'
-        }
+	    // If sentinels and a masterName is present, using different pool implementation
+	    if (sentinels && masterName) {
+		    "redisPool${key}"(JedisSentinelPool, masterName, sentinels as Set, ref(poolBean), timeout, password, database) { bean ->
+			    bean.destroyMethod = 'destroy'
+		    }
+	    }
+	    else {
+			"redisPool${key}"(JedisPool, ref(poolBean), host, port, timeout, password, database) { bean ->
+				bean.destroyMethod = 'destroy'
+			}
+	    }
 
         //only wire up additional services when key provided for multiple connection support
         if(key) {

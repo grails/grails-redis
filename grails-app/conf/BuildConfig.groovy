@@ -2,6 +2,12 @@ grails.project.class.dir = "target/classes"
 grails.project.test.class.dir = "target/test-classes"
 grails.project.test.reports.dir = "target/test-reports"
 
+grails.project.repos.spireonSnap.url = "http://nexus.spireon.com/nexus/content/repositories/spireon-snapshot"
+grails.project.repos.spireonSnap.type = "maven"
+grails.project.repos.spireonRel.url = "http://nexus.spireon.com/nexus/content/repositories/spireon-release"
+grails.project.repos.spireonRel.type = "maven"
+grails.project.repos.default = "spireonSnap"
+
 grails.project.dependency.resolution = {
 
     inherits "global"
@@ -17,7 +23,7 @@ grails.project.dependency.resolution = {
     }
 
     dependencies {
-        compile 'redis.clients:jedis:2.1.0'
+	    compile 'redis.clients:jedis:2.2.0'
     }
 
     plugins {

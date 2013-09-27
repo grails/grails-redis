@@ -10,3 +10,4 @@ web-app
 *.iml
 *.ipr
 *.iws
+.idea
