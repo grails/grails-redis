@@ -22,7 +22,7 @@ import redis.clients.jedis.Protocol
 
 class RedisGrailsPlugin {
 
-    def version = "1.4-SNAPSHOT"
+    def version = "1.4"
     def grailsVersion = "2.0.0 > *"
     def author = "Ted Naleid"
     def authorEmail = "contact@naleid.com"
@@ -39,7 +39,8 @@ class RedisGrailsPlugin {
             [name: "Michael Cameron"],
             [name: "Christian Oestreich"],
             [name: "John Engelman"],
-            [name: "David Seiler"]
+            [name: "David Seiler"],
+            [name: "Jordon Saardchit"]
     ]
 
     def pluginExcludes = [
