@@ -32,7 +32,7 @@ class RedisService {
         if(grailsApplication.mainContext.containsBean("redisService${connectionName.capitalize()}")){
             return (RedisService)grailsApplication.mainContext.getBean("redisService${connectionName.capitalize()}")
         }
-        log.error("Connection with name redisService${connectionName.capitalize()} could not be found, returning default redis instead")
+        if (log.errorEnabled) log.error("Connection with name redisService${connectionName.capitalize()} could not be found, returning default redis instead")
         return this
     }
 
@@ -58,7 +58,7 @@ class RedisService {
     }
 
     def methodMissing(String name, args) {
-        log.debug "methodMissing $name"
+        if (log.debugEnabled) log.debug "methodMissing $name"
         withRedis { Jedis redis ->
             redis.invokeMethod(name, args)
         }
@@ -97,13 +97,13 @@ class RedisService {
 
     // SET/GET a value on a Redis key
     def memoize(String key, Map options = [:], Closure closure) {
-        log.debug "using key $key"
+        if (log.debugEnabled) log.debug "using key $key"
         def result = withRedis { Jedis redis ->
             redis.get(key)
         }
 
         if(!result) {
-            log.debug "cache miss: $key"
+            if (log.debugEnabled) log.debug "cache miss: $key"
             result = closure()
             if(result) withRedis { Jedis redis ->
                 if(options?.expire) {
@@ -113,7 +113,7 @@ class RedisService {
                 }
             }
         } else {
-            log.debug "cache hit : $key = $result"
+            if (log.debugEnabled) log.debug "cache hit : $key = $result"
         }
         result
     }
@@ -128,14 +128,14 @@ class RedisService {
         }
 
         if(!hash) {
-            log.debug "cache miss: $key"
+            if (log.debugEnabled) log.debug "cache miss: $key"
             hash = closure()
             if(hash) withRedis { Jedis redis ->
                 redis.hmset(key, hash)
                 if(options?.expire) redis.expire(key, options.expire)
             }
         } else {
-            log.debug "cache hit : $key = $hash"
+            if (log.debugEnabled) log.debug "cache hit : $key = $hash"
         }
         hash
     }
@@ -153,14 +153,14 @@ class RedisService {
         }
 
         if(!result) {
-            log.debug "cache miss: $key.$field"
+            if (log.debugEnabled) log.debug "cache miss: $key.$field"
             result = closure()
             if(result) withRedis { Jedis redis ->
                 redis.hset(key, field, result as String)
                 if(options?.expire && redis.ttl(key) == NO_EXPIRATION_TTL) redis.expire(key, options.expire)
             }
         } else {
-            log.debug "cache hit : $key.$field = $result"
+            if (log.debugEnabled) log.debug "cache hit : $key.$field = $result"
         }
         result
     }
@@ -178,14 +178,14 @@ class RedisService {
         }
 
         if(!score) {
-            log.debug "cache miss: $key.$member"
+            if (log.debugEnabled) log.debug "cache miss: $key.$member"
             score = closure()
             if(score) withRedis { Jedis redis ->
                 redis.zadd(key, score, member)
                 if(options?.expire && redis.ttl(key) == NO_EXPIRATION_TTL) redis.expire(key, options.expire)
             }
         } else {
-            log.debug "cache hit : $key.$member = $score"
+            if (log.debugEnabled) log.debug "cache hit : $key.$member = $score"
         }
         score
     }
@@ -229,14 +229,14 @@ class RedisService {
         }
 
         if(idList) {
-            log.debug "$key cache hit, returning ${idList.size()} ids"
+            if (log.debugEnabled) log.debug "$key cache hit, returning ${idList.size()} ids"
             List<Long> idLongList = idList*.toLong()
             return idLongList
         }
     }
 
     protected void saveIdListTo(String key, List domainList, Integer expire = null) {
-        log.debug "$key cache miss, memoizing ${domainList?.size() ?: 0} ids"
+        if (log.debugEnabled) log.debug "$key cache miss, memoizing ${domainList?.size() ?: 0} ids"
         withPipeline { pipeline ->
             for(domain in domainList) {
                 pipeline.rpush(key, domain.id as String)
@@ -287,7 +287,7 @@ class RedisService {
     // perf test before relying on this rather than storing your own set of keys to 
     // delete
     void deleteKeysWithPattern(keyPattern) {
-        log.info("Cleaning all redis keys with pattern  [${keyPattern}]")
+        if (log.infoEnabled) log.info("Cleaning all redis keys with pattern  [${keyPattern}]")
         withRedis { Jedis redis ->
             String[] keys = redis.keys(keyPattern)
             if(keys) redis.del(keys)
@@ -304,14 +304,14 @@ class RedisService {
         }
 
         if(!list) {
-            log.debug "cache miss: $key"
+            if (log.debugEnabled) log.debug "cache miss: $key"
             list = closure()
             if(list) withPipeline { pipeline ->
                 for(obj in list) { pipeline.rpush(key, obj) }
                 if(options?.expire) pipeline.expire(key, options.expire)
             }
         } else {
-            log.debug "cach hit: $key"
+            if (log.debugEnabled) log.debug "cach hit: $key"
         }
         list
     }
@@ -326,20 +326,20 @@ class RedisService {
         }
 
         if(!set) {
-            log.debug "cache miss: $key"
+            if (log.debugEnabled) log.debug "cache miss: $key"
             set = closure()
             if(set) withPipeline { pipeline ->
                 for(obj in set) { pipeline.sadd(key, obj) }
                 if(options?.expire) pipeline.expire(key, options.expire)
             }
         } else {
-            log.debug "cach hit: $key"
+            if (log.debugEnabled) log.debug "cache hit: $key"
         }
         set
     }
     // should ONLY Be used from tests unless we have a really good reason to clear out the entire redis db
     def flushDB() {
-        log.warn('flushDB called!')
+        if (log.warnEnabled) log.warn('flushDB called!')
         withRedis { Jedis redis ->
             redis.flushDB()
         }
