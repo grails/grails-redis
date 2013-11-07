@@ -254,7 +254,7 @@ class RedisService {
     }
 
     def memoizeDomainObject(Class domainClass, String key, Integer expire, Closure closure) {
-        memoizeDomainList(domainClass, key, [expire: expire], closure)
+        memoizeDomainObject(domainClass, key, [expire: expire], closure)
     }
 
     // closure can return either a domain object or a Long id of a domain object
