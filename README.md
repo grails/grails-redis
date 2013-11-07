@@ -519,6 +519,7 @@ Release Notes
 * 1.3.2 - released 7/6/2012 - marks erroring pool connections as invalid so the pool knows to discard and recreate them
 * 1.3.3 - released 2/27/2013 - bugfix for transactions
 * 1.4.0 - released 9/29/2013 - support for Redis Sentinel and Jedis 2.2
+* 1.4.1 - released 9/29/2013 - bug fixes for `memoizeDomainObject` and checking logging level before calling logging method
 
 [redisgorm]: http://grails.github.com/inconsequential/redis/
 [redis]: http://redis.io
