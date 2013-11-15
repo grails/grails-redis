@@ -36,11 +36,11 @@ class RedisService {
         return this
     }
 
-    def withPipeline(Closure closure) {
+    def withPipeline(Closure closure, Boolean returnAll=false) {
         withRedis { Jedis redis ->
             Pipeline pipeline = redis.pipelined()
             closure(pipeline)
-            pipeline.sync()
+            returnAll ? pipeline.syncAndReturnAll() : pipeline.sync()
         }
     }
 
