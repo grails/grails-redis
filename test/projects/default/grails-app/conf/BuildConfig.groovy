@@ -23,32 +23,22 @@ grails.project.dependency.resolution = {
         //mavenRepo "http://download.java.net/maven/2/"
         //mavenRepo "http://repository.jboss.com/maven2/"
         //mavenRepo "http://m2repo.spockframework.org/snapshots"
-        mavenRepo "http://m2repo.spockframework.org/snapshots"
     }
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
 
+        // needed for spock in grails 2.2
+        test "org.spockframework:spock-grails-support:0.7-groovy-2.0"
+
         // runtime 'mysql:mysql-connector-java:5.1.13'
     }
     plugins {
-        runtime ":build-test-data:1.1.1"
-        test ":spock:0.6"
-        test ":code-coverage:1.2.5"
-        test ":codenarc:0.17"
+        runtime ":build-test-data:2.0.8"
+        test(":spock:0.7") {
+            exclude "spock-grails-support"
+        }
     }
 }
 
 grails.plugin.location.redis = "../../.."
 
-codenarc {
-    processTestUnit = false
-    processTestIntegration = false
-    propertiesFile = 'codenarc.properties'
-    ruleSetFiles = "file:grails-app/conf/redis-codenarc.groovy"
-    reports = {
-        RedisDefaultProjectReport('xml') {                    // The report name "MyXmlReport" is user-defined; Report type is 'xml'
-            outputFile = 'target/codenarc.xml'  // Set the 'outputFile' property of the (XML) Report
-            title = 'Grails Redis Default Project'             // Set the 'title' property of the (XML) Report
-        }
-    }
-}
