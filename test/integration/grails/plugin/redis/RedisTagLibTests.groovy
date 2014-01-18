@@ -11,6 +11,7 @@ class RedisTagLibTests extends TagLibUnitTestCase {
     protected void setUp() {
         super.setUp()
         tagLib.redisService = redisService
+        redisService.flushDB()
     }
 
     void testMemoizeMissingRequiredKey() {
@@ -26,7 +27,8 @@ class RedisTagLibTests extends TagLibUnitTestCase {
         assertTagLibContentsEquals CONTENTS
     }
 
-    void testMemoizedAlreadyInPreviousTest() {
+    void testMemoizedAlready() {
+        redisService.memoize(KEY) {-> CONTENTS }
         tagLib.memoize(createParams([key: KEY])) {-> FAIL_BODY }
 
         assertTagLibContentsEquals CONTENTS
