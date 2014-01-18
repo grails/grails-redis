@@ -520,6 +520,8 @@ Release Notes
 * 1.3.3 - released 2/27/2013 - bugfix for transactions
 * 1.4.0 - released 9/29/2013 - support for Redis Sentinel and Jedis 2.2
 * 1.4.1 - released 9/29/2013 - bug fixes for `memoizeDomainObject` and checking logging level before calling logging method
+* 1.4.3 - released 1/17/2014 - made the memoize methods not throw a JCE when redis is down, just log a warning and pass through the value retrieved live
+
 
 [redisgorm]: http://grails.github.com/inconsequential/redis/
 [redis]: http://redis.io
