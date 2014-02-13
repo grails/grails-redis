@@ -176,6 +176,18 @@ abstract class AbstractMemoizeASTTransformation implements ASTTransformation {
         }
     }
 
+	protected void addRedisServiceMemoizeExpireExpression(Map memoizeProperties, ArgumentListExpression argumentListExpression) {
+		if(memoizeProperties.get(EXPIRE).toString().contains(HASH_CODE)) {
+			def ast = new AstBuilder().buildFromString("""
+                Integer.parseInt("${memoizeProperties.get(EXPIRE).toString().replace(HASH_CODE, GSTRING).toString()}")
+           """)
+			
+			argumentListExpression.addExpression(ast[0].statements[0].expression)
+		} else {
+			argumentListExpression.addExpression(makeConstantExpression(Integer.parseInt(memoizeProperties.get(EXPIRE).toString())))
+		}
+	}
+	
     protected ClosureExpression makeClosureExpression(MethodNode methodNode) {
         ClosureExpression closureExpression = new ClosureExpression(
                 [] as Parameter[],

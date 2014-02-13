@@ -59,7 +59,7 @@ class MemoizeASTTransformation extends AbstractMemoizeASTTransformation {
             argumentListExpression.addExpression(makeConstantExpression(memoizeProperties.get(MEMBER).toString()))
         }
         if(memoizeProperties.containsKey(EXPIRE)) {
-            argumentListExpression.addExpression(makeConstantExpression(Integer.parseInt(memoizeProperties.get(EXPIRE).toString())))
+            addRedisServiceMemoizeExpireExpression(memoizeProperties, argumentListExpression)
         }
         argumentListExpression
     }
