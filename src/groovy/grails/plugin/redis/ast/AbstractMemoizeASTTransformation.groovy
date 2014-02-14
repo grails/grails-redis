@@ -81,7 +81,7 @@ abstract class AbstractMemoizeASTTransformation implements ASTTransformation {
      * @param serviceName name of the service to detect and/or inject
      * @param serviceClass Class of the service
      */
-    private void injectService(SourceUnit sourceUnit, String serviceName, Class serviceClass) {
+    protected void injectService(SourceUnit sourceUnit, String serviceName, Class serviceClass) {
         if(!((ClassNode) sourceUnit.AST.classes.toArray()[0]).properties?.any { it?.field?.name == serviceName }) {
             if(!sourceUnit.AST.imports.any {it.className == ClassHelper.make(serviceClass).name}
                     && !sourceUnit.AST.starImports.any {it.packageName == "${ClassHelper.make(serviceClass).packageName}."}) {
