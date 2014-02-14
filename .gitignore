@@ -11,3 +11,5 @@ web-app
 *.ipr
 *.iws
 .idea
+/.classpath
+/.project

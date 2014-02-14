@@ -30,6 +30,8 @@ grails.project.dependency.resolution = {
         test(':codenarc:0.17') {
             export = false
         }
+		
+		compile ":gson:1.1.4"
     }
 }
 

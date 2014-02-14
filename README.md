@@ -157,7 +157,7 @@ This allows you to still grab the freshest objects from the database, but not re
     def key = "user:$id:friends-books-user-does-not-own"
 
     redisService.memoizeDomainList(Book, key, ONE_HOUR) { redis ->
-        // expensive process to calculate all friend’s books and filter out books
+        // expensive process to calculate all friendâ€™s books and filter out books
         // that the user already owns, this stores the list of determined Book IDs
         // in Redis, but hydrates the Book objects from the DB
     }
@@ -419,6 +419,22 @@ Here is an example of usage:
     def getAnnotatedBook(Book book) {
         println 'cache miss getAnnotatedBook'
         return book.toString()
+    }
+
+### @MemoizeObject ###
+
+The @MemoizeObject annotation is to be used when dealing with simple (non-domain) objects that are to have their contents stored in Redis in JSON form.  The simple object being returned by the return statement will be converted to JSON, stored in Redis, then converted from JSON back to the object. This annotation takes the following parameters:
+
+    key     - A unique key for the data cache. (required)
+    expire  - Expire time in ms.  Will default to never so only pass a value like 3600 if you want value to expire.
+	clazz   - The class of the object to be memoizing. (required)
+
+Here is an example of usage:
+
+    @MemoizeObject(key = "#{title}", expire = "3600", clazz = Book.class)
+    def createObject(String title, Date date) {
+        println 'cache miss createObject'
+        new Book(title: title, createDate: date)
     }
 
 ### @MemoizeDomainObject ###
