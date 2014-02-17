@@ -5,6 +5,13 @@ import grails.test.GrailsMock
 
 class MemoizeAnnotationTests extends GroovyTestCase {
 	
+	def redisService
+	
+	protected void setUp() {
+		super.setUp()
+		redisService.flushDB()
+	}
+	
 	void testMemoizeAnnotationExpire() {
 		 
 		// set up test class
@@ -28,25 +35,18 @@ class TestClass{
 		// create instance of testClass
 		def testInstance = testClass.newInstance()
 		
-		// create redisService mock
-		GrailsMock mockRedisService = new GrailsMock(RedisService)
-		mockRedisService.demand.memoize(1) { key, expire, closure ->
-			assert key == testKey
-			assert expire == Integer.parseInt(testExpire)
-			assert closure
-			return closure()
-		}
-		
 		// inject redis service
 		testInstance.redisService = redisService
 		testInstance.key = testKey
 		testInstance.expire = testExpire
 		
+		assert redisService."$testKey" == null
+		
 		// test method
 		testInstance.testAnnotatedMethod()
 		
-		//verify mock
-		mockRedisService.verify()
+		//verify
+		assert redisService."$testKey" == 'testValue'
 
 	}		
 
