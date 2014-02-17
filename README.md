@@ -521,7 +521,7 @@ Release Notes
 * 1.4.0 - released 9/29/2013 - support for Redis Sentinel and Jedis 2.2
 * 1.4.1 - released 9/29/2013 - bug fixes for `memoizeDomainObject` and checking logging level before calling logging method
 * 1.4.3 - released 1/17/2014 - made the memoize methods not throw a JCE when redis is down, just log a warning and pass through the value retrieved live
-
+* 1.4.4 - released 2/16/2014 - Allow for the 'expire' field to optionally be a variable in annotations instead of a constant string only, just like the 'key' works
 
 [redisgorm]: http://grails.github.com/inconsequential/redis/
 [redis]: http://redis.io
