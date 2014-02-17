@@ -157,7 +157,7 @@ This allows you to still grab the freshest objects from the database, but not re
     def key = "user:$id:friends-books-user-does-not-own"
 
     redisService.memoizeDomainList(Book, key, ONE_HOUR) { redis ->
-        // expensive process to calculate all friendâ€™s books and filter out books
+        // expensive process to calculate all friend’s books and filter out books
         // that the user already owns, this stores the list of determined Book IDs
         // in Redis, but hydrates the Book objects from the DB
     }
