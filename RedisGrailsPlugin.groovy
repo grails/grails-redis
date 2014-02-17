@@ -22,7 +22,7 @@ import redis.clients.jedis.Protocol
 
 class RedisGrailsPlugin {
 
-    def version = "1.4.4.2"
+    def version = "1.4.5.1"
     def grailsVersion = "2.0.0 > *"
     def author = "Ted Naleid"
     def authorEmail = "contact@naleid.com"
@@ -56,6 +56,8 @@ class RedisGrailsPlugin {
 
     ]
 
+	def dependsOn = [gson:'1.1 > *']
+	
     def scm = [url: "https://github.com/grails-plugins/grails-redis"]
 
     def documentation = "http://grails.org/plugin/redis"

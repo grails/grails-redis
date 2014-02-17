@@ -31,7 +31,7 @@ grails.project.dependency.resolution = {
             export = false
         }
 		
-		compile ":gson:1.1.4"
+		compile ':gson:1.1.4'
     }
 }
 
