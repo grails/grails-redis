@@ -39,7 +39,7 @@ abstract class AbstractMemoizeASTTransformation implements ASTTransformation {
         def memoizeProperties = [:]
 
         try {
-            injectRedisService(sourceUnit)
+            injectService(sourceUnit, REDIS_SERVICE, RedisService)
             generateMemoizeProperties(astNodes, sourceUnit, memoizeProperties)
             //if the key is missing there is an issue with the annotation
             if(!memoizeProperties.containsKey(KEY) || !memoizeProperties.get(KEY)) {
@@ -78,16 +78,16 @@ abstract class AbstractMemoizeASTTransformation implements ASTTransformation {
     /**
      * Determine if the user missed injecting the redisService into the class with the @Memoized method.
      * @param sourceUnit SourceUnit to detect and/or inject service into
+     * @param serviceName name of the service to detect and/or inject
+     * @param serviceClass Class of the service
      */
-    private void injectRedisService(SourceUnit sourceUnit) {
-        if(!((ClassNode) sourceUnit.AST.classes.toArray()[0]).properties?.any { it?.field?.name == REDIS_SERVICE }) {
-//            println "Adding redisService to class ${sourceUnit.AST.classes[0].name}."
-            if(!sourceUnit.AST.imports.any {it.className == ClassHelper.make(RedisService).name}
-                    && !sourceUnit.AST.starImports.any {it.packageName == "${ClassHelper.make(RedisService).packageName}."}) {
-//                println "Adding namespace ${ClassHelper.make(RedisService).packageName} to class ${sourceUnit.AST.classes[0].name}."
-                sourceUnit.AST.addImport('RedisService', ClassHelper.make(RedisService))
+    protected void injectService(SourceUnit sourceUnit, String serviceName, Class serviceClass) {
+        if(!((ClassNode) sourceUnit.AST.classes.toArray()[0]).properties?.any { it?.field?.name == serviceName }) {
+            if(!sourceUnit.AST.imports.any {it.className == ClassHelper.make(serviceClass).name}
+                    && !sourceUnit.AST.starImports.any {it.packageName == "${ClassHelper.make(serviceClass).packageName}."}) {
+                sourceUnit.AST.addImport(serviceClass.simpleName, ClassHelper.make(serviceClass))
             }
-            addRedisServiceProperty((ClassNode) sourceUnit.AST.classes.toArray()[0], REDIS_SERVICE)
+            addProperty((ClassNode) sourceUnit.AST.classes.toArray()[0], serviceName)
         }
     }
 
@@ -99,7 +99,7 @@ abstract class AbstractMemoizeASTTransformation implements ASTTransformation {
      * @param propertyType The object class of the property. (defaults to Object.class)
      * @param initialValue Initial value of the property. (defaults null)
      */
-    private void addRedisServiceProperty(ClassNode cNode, String propertyName, Class propertyType = java.lang.Object.class, Expression initialValue = null) {
+    private void addProperty(ClassNode cNode, String propertyName, Class propertyType = java.lang.Object.class, Expression initialValue = null) {
         FieldNode field = new FieldNode(
                 propertyName,
                 ACC_PRIVATE,
@@ -176,6 +176,18 @@ abstract class AbstractMemoizeASTTransformation implements ASTTransformation {
         }
     }
 
+	protected void addRedisServiceMemoizeExpireExpression(Map memoizeProperties, ArgumentListExpression argumentListExpression) {
+		if(memoizeProperties.get(EXPIRE).toString().contains(HASH_CODE)) {
+			def ast = new AstBuilder().buildFromString("""
+                Integer.parseInt("${memoizeProperties.get(EXPIRE).toString().replace(HASH_CODE, GSTRING).toString()}")
+           """)
+			
+			argumentListExpression.addExpression(ast[0].statements[0].expression)
+		} else {
+			argumentListExpression.addExpression(makeConstantExpression(Integer.parseInt(memoizeProperties.get(EXPIRE).toString())))
+		}
+	}
+	
     protected ClosureExpression makeClosureExpression(MethodNode methodNode) {
         ClosureExpression closureExpression = new ClosureExpression(
                 [] as Parameter[],
