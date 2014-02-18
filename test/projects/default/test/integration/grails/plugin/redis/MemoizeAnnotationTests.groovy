@@ -1,6 +1,5 @@
 package grails.plugin.redis
 
-import groovy.util.GroovyTestCase
 import grails.test.GrailsMock
 
 class MemoizeAnnotationTests extends GroovyTestCase {
@@ -36,7 +35,7 @@ class TestClass{
 		def testInstance = testClass.newInstance()
 		
 		// inject redis service
-		testInstance.redisService = redisService
+		testInstance.redisService = mockRedisService.createMock()
 		testInstance.key = testKey
 		testInstance.expire = testExpire
 		
