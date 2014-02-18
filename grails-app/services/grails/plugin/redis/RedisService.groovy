@@ -113,7 +113,7 @@ class RedisService {
     def withOptionalRedis(Closure clos) {
         Jedis redis
         try {
-            redis = redisPool.resource
+			if(!bypassRedis()) redis = redisPool.resource
         }
         catch (JedisConnectionException jce) {
             log.error('Unreachable redis store trying to retrieve redis resource.  Please check redis server and/or config!', jce)
@@ -403,4 +403,9 @@ class RedisService {
             redis.flushDB()
         }
     }
+	
+	private bypassRedis(){
+		def configBypass = grailsApplication.config.grails.redis.bypassServer
+		return configBypass == "true" || configBypass == true
+	}
 }
