@@ -35,7 +35,7 @@ class TestClass{
 		def testInstance = testClass.newInstance()
 		
 		// inject redis service
-		testInstance.redisService = mockRedisService.createMock()
+		testInstance.redisService = redisService
 		testInstance.key = testKey
 		testInstance.expire = testExpire
 		
