@@ -56,8 +56,6 @@ class RedisGrailsPlugin {
 
     ]
 
-	def dependsOn = [gson:'1.1 > *']
-	
     def scm = [url: "https://github.com/grails-plugins/grails-redis"]
 
     def documentation = "http://grails.org/plugin/redis"

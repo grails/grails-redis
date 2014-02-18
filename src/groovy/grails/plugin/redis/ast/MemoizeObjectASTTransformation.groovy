@@ -1,6 +1,7 @@
 package grails.plugin.redis.ast
 
 import java.util.Map;
+
 import org.codehaus.groovy.ast.ASTNode
 import org.codehaus.groovy.ast.ClassHelper;
 import org.codehaus.groovy.ast.ClassNode
@@ -13,6 +14,7 @@ import org.codehaus.groovy.ast.expr.ArgumentListExpression
 import org.codehaus.groovy.ast.expr.ClassExpression;
 import org.codehaus.groovy.ast.expr.ClosureExpression
 import org.codehaus.groovy.ast.expr.ConstantExpression
+import org.codehaus.groovy.ast.expr.ConstructorCallExpression;
 import org.codehaus.groovy.ast.expr.Expression;
 import org.codehaus.groovy.ast.expr.MethodCallExpression
 import org.codehaus.groovy.ast.expr.VariableExpression
@@ -23,7 +25,8 @@ import org.codehaus.groovy.ast.stmt.ExpressionStatement
 import org.codehaus.groovy.ast.stmt.ReturnStatement
 import org.codehaus.groovy.ast.stmt.Statement
 import org.codehaus.groovy.classgen.VariableScopeVisitor
-import com.google.gson.GsonBuilder
+
+import com.google.gson.Gson
 
 import grails.plugin.redis.RedisService
 import static org.springframework.asm.Opcodes.ACC_PRIVATE
@@ -33,7 +36,6 @@ import org.codehaus.groovy.transform.GroovyASTTransformation
 
 @GroovyASTTransformation(phase = CompilePhase.CANONICALIZATION)
 class MemoizeObjectASTTransformation extends AbstractMemoizeASTTransformation {
-	protected static final String GSON_BUILDER = 'gsonBuilder'
 	
 	@Override
 	void visit(ASTNode[] astNodes, SourceUnit sourceUnit) {
@@ -42,7 +44,7 @@ class MemoizeObjectASTTransformation extends AbstractMemoizeASTTransformation {
 
 		try {
 			injectService(sourceUnit, REDIS_SERVICE, RedisService)
-			injectService(sourceUnit, GSON_BUILDER, GsonBuilder)
+			injectImport(sourceUnit, Gson)
 			generateMemoizeProperties(astNodes, sourceUnit, memoizeProperties)
 			//if the key is missing there is an issue with the annotation
 			if(!memoizeProperties.containsKey(KEY) || !memoizeProperties.get(KEY)) {
@@ -76,18 +78,17 @@ class MemoizeObjectASTTransformation extends AbstractMemoizeASTTransformation {
 		body.statements
 	}
 
-	private MethodCallExpression createGson(){ 
-		return new MethodCallExpression(
-			new VariableExpression(GSON_BUILDER),
-			new ConstantExpression('create'),
-			new ArgumentListExpression()
-		)
+	private ConstructorCallExpression createGson(){
+		// new Gson()
+		return new ConstructorCallExpression(
+			new ClassNode(Gson.class), 
+			new ArgumentListExpression())
 	}
 	
 	private void addToJson(MethodNode methodNode){
 		List stmts = methodNode.code.getStatements()
 		
-		// gsonBuilder.create().toJson(...)
+		// new Gson().toJson(...)
 		ReturnStatement toJsonStatment = new ReturnStatement(
 			new MethodCallExpression(
 				createGson(),
@@ -110,7 +111,7 @@ class MemoizeObjectASTTransformation extends AbstractMemoizeASTTransformation {
 		fromJsonArgList.addExpression(stmts[-1].expression)
 		fromJsonArgList.addExpression((Expression) memoizeProperties.get(CLAZZ))
 		
-		// gsonBuilder.create().fromJson(..., <return type>.class)
+		// new Gson().fromJson(..., <return type>.class)
 		ReturnStatement fromJsonStatement = new ReturnStatement(
 			new MethodCallExpression(
 			createGson(),
@@ -182,6 +183,16 @@ class MemoizeObjectASTTransformation extends AbstractMemoizeASTTransformation {
 		}
 	}
 
-	
+	/**
+	 * Determine if the class trying to use MemoizeObject annotation has the needed imports.
+	 * @param sourceUnit SourceUnit to detect and/or inject import into
+	 * @param importClass Class of the import
+	 */
+	private void injectImport(SourceUnit sourceUnit, Class importClass) {
+		if(!sourceUnit.AST.imports.any {it.className == ClassHelper.make(importClass).name}
+				&& !sourceUnit.AST.starImports.any {it.packageName == "${ClassHelper.make(importClass).packageName}."}) {
+			sourceUnit.AST.addImport(importClass.simpleName, ClassHelper.make(importClass))
+		}
+	}
 	
 }
