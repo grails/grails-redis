@@ -41,6 +41,8 @@ class TestClass{
 		
 		assert redisService."$testKey" == null
 		
+		assert redisService."$testKey" == null
+		
 		// test method
 		testInstance.testAnnotatedMethod()
 		

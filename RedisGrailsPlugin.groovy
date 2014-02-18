@@ -42,7 +42,8 @@ class RedisGrailsPlugin {
             [name: "David Seiler"],
             [name: "Jordon Saardchit"],
             [name: "Florian Langenhahn"],
-            [name: "German Sancho"]
+            [name: "German Sancho"],
+            [name: "John Mulhern"]
     ]
 
     def pluginExcludes = [
