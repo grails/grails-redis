@@ -51,9 +51,6 @@ Out of the box, the plugin expects that Redis is running on `localhost:6379`.  Y
             // use redis-sentinel cluster as opposed to a single redis server (use only if not use host/port)
             sentinels = [ "host1:6379", "host2:6379", "host3:6379" ] // list of sentinel instance host/ports
             masterName = "mymaster" // the name of a master the sentinel cluster is configured to monitor
-
-			// optional: disable Redis from config (default is false)
-			bypassServer=true
         }
 		
     }

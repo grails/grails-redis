@@ -92,28 +92,5 @@ class RedisIntegrationTests extends GroovyTestCase {
         assert book1.id == cacheHitBook.id
         assert cacheHitBook.id == cacheMissBook.id
     }
-	
-	def testMemoizeDomainObjectWithBypass(){
-		grailsApplication.config.grails.redis.bypassServer=true
-		Book book1 = Book.build(title: "book1")
-		
-		def calledCount = 0
-		def cacheMissClosure = {
-			calledCount += 1
-			return Book.get(book1.id)
-		}
-
-		def cacheMissBook = redisService.memoizeDomainObject(Book, "domainkey", cacheMissClosure)
-
-		assert 1 == calledCount
-		assert book1.id == cacheMissBook.id
-
-		def cacheHitBook = redisService.memoizeDomainObject(Book, "domainkey", cacheMissClosure)
-
-		// redis bypassed so acts like a cache miss, call closure again
-		assert 2 == calledCount
-		
-		grailsApplication.config.grails.redis.bypassServer=false
-	}
 
 }

@@ -113,10 +113,10 @@ class RedisService {
     def withOptionalRedis(Closure clos) {
         Jedis redis
         try {
-			if(!bypassRedis()) redis = redisPool.resource
+			redis = redisPool.resource
         }
         catch (JedisConnectionException jce) {
-            log.error('Unreachable redis store trying to retrieve redis resource.  Please check redis server and/or config!', jce)
+            log.info('Unreachable redis store trying to retrieve redis resource.  Please check redis server and/or config!')
         }
 
         try {
