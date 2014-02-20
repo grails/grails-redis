@@ -403,9 +403,4 @@ class RedisService {
             redis.flushDB()
         }
     }
-	
-	private bypassRedis(){
-		def configBypass = grailsApplication.config.grails.redis.bypassServer
-		return configBypass == "true" || configBypass == true
-	}
 }
