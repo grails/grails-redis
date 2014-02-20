@@ -290,7 +290,7 @@ In addition to the newly wired beans, you may also choose to continue using the 
 
 _Note: It is up to you if you prefer using the main `redisService` bean and the `withConnection` method or if you want to inject the additional service beans.  The end result is the same and the withConnection is simply a pass through to the newly created beans._
 
-``` groovy
+```groovy
 class FooService {
 
     def redisService
@@ -347,6 +347,7 @@ The following are available as annotations:
 <table width="100%">
     <tr><td><b>Annotation</b></td><td><b>Description</b></td></tr>
     <tr><td>@Memoize</td><td>Used to memoize methods that return a "string" - redisService.memoize</td></tr>
+    <tr><td>@MemoizeObject</td><td>Used to memoize methods that return an object - redisService.memoize</td></tr>
     <tr><td>@MemoizeDomainObject</td><td>Used to memoize methods that return a domain object - redisService.memoizeDomain</td></tr>
     <tr><td>@MemoizeDomainList</td><td>Used to memoize methods that return a domain object list - redisService.memoizeDomainList</td></tr>
     <tr><td>@MemoizeHash</td><td>Used to memoize methods that return a hash - redisService.memoizeHash</td></tr>
@@ -367,6 +368,8 @@ During the AST tranformation these will be replaced with the `$` character and w
 Anything that is not in the format `key='#text'` or `key="${text}"` will be treated as a string literal.  Meaning that `key="text"` would be the same as using the literal string `"text"` as the memoize key `redisService.memoize("text"){...}` instead of the variable `$text`.
 
 Any variable that you use in the key property of the annotation will need to be in scope for this to work correctly.  You will only get a RUNTIME error if you use a variable reference that is out of scope.
+
+This also applies to the `expire` field.
 
 ### Memoization Annotation Notes ###
 
@@ -415,10 +418,33 @@ Here is an example of usage:
         return "$text $date"
     }
 
+    //configurable expire time to live
+    @Memoize(key = '#{text}', expire = '#{grailsApplication.config.cache.ttl}')
+    def getAnnotatedTextUsingKeyAndExpire(String text, Date date) {
+        println 'cache miss getAnnotatedTextUsingKeyAndExpire'
+        return "$text $date"
+    }
+
     @Memoize(key = "#{book.title}:#{book.id}")
     def getAnnotatedBook(Book book) {
         println 'cache miss getAnnotatedBook'
         return book.toString()
+    }
+
+### @MemoizeObject ###
+
+The @MemoizeObject annotation is to be used when dealing with simple (non-domain) objects that are to have their contents stored in Redis in JSON form.  The simple object being returned by the return statement will be converted to JSON, stored in Redis, then converted from JSON back to the object. It is important to ensure that the object class you're using is able to be converted to and from JSON for this annotation to work. This annotation takes the following parameters:
+
+    key     - A unique key for the data cache. (required)
+    expire  - Expire time in ms.  Will default to never so only pass a value like 3600 if you want value to expire.
+	clazz   - The class of the object to be memoizing. (required)
+
+Here is an example of usage:
+
+    @MemoizeObject(key = "#{title}", expire = "#{grailsApplication.config.cache.ttl}", clazz = Book.class)
+    def createObject(String title, Date date) {
+        println 'cache miss createObject'
+        new Book(title: title, createDate: date)
     }
 
 ### @MemoizeDomainObject ###
