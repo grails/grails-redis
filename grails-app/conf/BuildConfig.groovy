@@ -18,6 +18,7 @@ grails.project.dependency.resolution = {
 
     dependencies {
 	    compile 'redis.clients:jedis:2.2.0'
+		compile 'com.google.code.gson:gson:2.2.4'
     }
 
     plugins {
