@@ -7,7 +7,6 @@ class RedisIntegrationTests extends GroovyTestCase {
 
     RedisService redisService
     def bookService
-	def grailsApplication
 	
     protected void setUp() {
         super.setUp()
@@ -92,5 +91,4 @@ class RedisIntegrationTests extends GroovyTestCase {
         assert book1.id == cacheHitBook.id
         assert cacheHitBook.id == cacheMissBook.id
     }
-
 }
