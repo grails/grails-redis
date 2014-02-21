@@ -7,7 +7,7 @@ class RedisIntegrationTests extends GroovyTestCase {
 
     RedisService redisService
     def bookService
-
+	
     protected void setUp() {
         super.setUp()
         redisService.flushDB()
