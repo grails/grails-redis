@@ -549,6 +549,7 @@ Release Notes
 * 1.4.1 - released 9/29/2013 - bug fixes for `memoizeDomainObject` and checking logging level before calling logging method
 * 1.4.3 - released 1/17/2014 - made the memoize methods not throw a JCE when redis is down, just log a warning and pass through the value retrieved live
 * 1.4.4 - released 2/16/2014 - Allow for the 'expire' field to optionally be a variable in annotations instead of a constant string only, just like the 'key' works
+* 1.5.0 - released 2/24/2014 - addition of `@MemoizeObject` annotation which allows for JSON representation to be stored in redis, moved log level of "optional" redis connections down to info, better handling/transformation of config values
 
 [redisgorm]: http://grails.github.com/inconsequential/redis/
 [redis]: http://redis.io
