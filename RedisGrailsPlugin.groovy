@@ -85,7 +85,7 @@ class RedisGrailsPlugin {
         }
 
         def host = redisConfigMap?.host ?: 'localhost'
-        def port = redisConfigMap?.port ?: Protocol.DEFAULT_PORT
+        def port = redisConfigMap?.port ? (redisConfigMap?.port.class == String && redisConfigMap?.port.isInteger() ? redisConfigMap?.port.toInteger() : redisConfigMap?.port) : Protocol.DEFAULT_PORT
         def timeout = redisConfigMap?.timeout ?: Protocol.DEFAULT_TIMEOUT
         def password = redisConfigMap?.password ?: null
         def database = redisConfigMap?.database ?: Protocol.DEFAULT_DATABASE
@@ -110,6 +110,5 @@ class RedisGrailsPlugin {
                 redisPool = ref("redisPool${key}")
             }
         }
-
     }
 }
