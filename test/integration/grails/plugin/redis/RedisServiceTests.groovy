@@ -83,7 +83,7 @@ class RedisServiceTests extends GroovyTestCase {
     }
 
     void testMemoizeKeyWithExpire() {
-        assertEquals NO_EXPIRATION_TTL, redisService.ttl("mykey")
+        assertTrue 0 > redisService.ttl("mykey")
         def result = redisService.memoize("mykey", 60) { "foo" }
         assertEquals "foo", result
         assertTrue NO_EXPIRATION_TTL < redisService.ttl("mykey")
@@ -136,7 +136,7 @@ class RedisServiceTests extends GroovyTestCase {
     }
 
     void testMemoizeHashFieldWithExpire() {
-        assertEquals NO_EXPIRATION_TTL, redisService.ttl("mykey")
+        assertTrue 0 > redisService.ttl("mykey")
         def result = redisService.memoizeHashField("mykey", "first", 60) { "foo" }
         assertEquals "foo", result
         assertTrue NO_EXPIRATION_TTL < redisService.ttl("mykey")
@@ -186,7 +186,7 @@ class RedisServiceTests extends GroovyTestCase {
 
     void testMemoizeHashWithExpire() {
         def expectedHash = [foo: 'bar', baz: 'qux']
-        assertEquals NO_EXPIRATION_TTL, redisService.ttl("mykey")
+        assertTrue 0 > redisService.ttl("mykey")
         def result = redisService.memoizeHash("mykey", 60) { expectedHash }
         assertEquals expectedHash, result
         assertTrue NO_EXPIRATION_TTL < redisService.ttl("mykey")
@@ -248,7 +248,7 @@ class RedisServiceTests extends GroovyTestCase {
 
     def testMemoizeListWithExpire() {
         def book1 = "book1"
-        assertEquals NO_EXPIRATION_TTL, redisService.ttl("mykey")
+        assertTrue 0 > redisService.ttl("mykey")
         def result = redisService.memoizeList("mykey", 60) { [book1] }
         assertEquals([book1], result)
         assertTrue NO_EXPIRATION_TTL < redisService.ttl("mykey")
@@ -310,7 +310,7 @@ class RedisServiceTests extends GroovyTestCase {
 
     def testMemoizeSetWithExpire() {
         def book1 = "book1"
-        assertEquals NO_EXPIRATION_TTL, redisService.ttl("mykey")
+        assertTrue 0 > redisService.ttl("mykey")
         def result = redisService.memoizeSet("mykey", 60) { [book1] as Set }
         assertEquals([book1] as Set, result)
         assertTrue NO_EXPIRATION_TTL < redisService.ttl("mykey")
