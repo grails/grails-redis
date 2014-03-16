@@ -22,7 +22,7 @@ import redis.clients.jedis.Protocol
 
 class RedisGrailsPlugin {
 
-    def version = "1.5.0"
+    def version = "1.5.1"
     def grailsVersion = "2.0.0 > *"
     def author = "Ted Naleid"
     def authorEmail = "contact@naleid.com"
