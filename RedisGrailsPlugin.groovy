@@ -22,7 +22,7 @@ import redis.clients.jedis.Protocol
 
 class RedisGrailsPlugin {
 
-    def version = "1.5.1"
+    def version = "1.5.2"
     def grailsVersion = "2.0.0 > *"
     def author = "Ted Naleid"
     def authorEmail = "contact@naleid.com"
@@ -79,8 +79,12 @@ class RedisGrailsPlugin {
         "${poolBean}"(JedisPoolConfig) {
             // used to set arbitrary config values without calling all of them out here or requiring any of them
             // any property that can be set on RedisPoolConfig can be set here
-            redisConfigMap.poolConfig.each { configkey, value ->
-                delegate.setProperty(configkey, value)
+            redisConfigMap.poolConfig.each { configKey, value ->
+                if( delegate.hasProperty(configKey) ) {
+                    delegate.setProperty(configKey, value)
+                } else {
+                    log.warn "Redis pool configuration parameter ${configKey} does not exist on JedisPoolConfig"
+                }
             }
         }
 
