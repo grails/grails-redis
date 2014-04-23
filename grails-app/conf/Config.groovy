@@ -8,6 +8,8 @@ grails.views.gsp.encoding="UTF-8"
 
 grails {
     redis {
+        //intentionally leaving both a good and a bad config parameter for the plugin config to exercise the
+        //pool configuration code
         poolConfig {
             maxIdle = 10
             doesnotexist = true
