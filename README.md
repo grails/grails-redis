@@ -552,6 +552,7 @@ Release Notes
 * 1.5.0 - released 2/24/2014 - addition of `@MemoizeObject` annotation which allows for JSON representation to be stored in redis, moved log level of "optional" redis connections down to info, better handling/transformation of config values
 * 1.5.1 - released 3/16/2014 - updated to Jedis 2.4.2
 * 1.5.2 - released 4/18/2014 - Do not fail hard on bad poolConfig parameters
+* 1.5.3 - released 4/23/2014 - Fix the implementation on soft setting the poolConfig parameters
 
 [redisgorm]: http://grails.github.com/inconsequential/redis/
 [redis]: http://redis.io
