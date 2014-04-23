@@ -5,3 +5,12 @@ grails.doc.title = 'Redis Plugin'
 grails.release.scm.enabled=false
 grails.views.default.codec="none" // none, html, base64
 grails.views.gsp.encoding="UTF-8"
+
+grails {
+    redis {
+        poolConfig {
+            maxIdle = 10
+            doesnotexist = true
+        }
+    }
+}
