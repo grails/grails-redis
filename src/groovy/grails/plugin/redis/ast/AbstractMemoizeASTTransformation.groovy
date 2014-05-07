@@ -126,28 +126,8 @@ abstract class AbstractMemoizeASTTransformation implements ASTTransformation {
 
     protected List<Statement> memoizeMethod(MethodNode methodNode, Map memoizeProperties) {
         BlockStatement body = new BlockStatement()
-        addInterceptionLogging(body, 'memoized method')
         addRedisServiceMemoizeInvocation(body, methodNode, memoizeProperties)
         body.statements
-    }
-
-    /**
-     * this is just used for debugging during development
-     * todo: remove this after all things are flushed out
-     * @param body
-     */
-    protected void addInterceptionLogging(BlockStatement body, String message) {
-        body.addStatement(
-                new ExpressionStatement(
-                        new MethodCallExpression(
-                                new VariableExpression(THIS),
-                                new ConstantExpression(PRINTLN),
-                                new ArgumentListExpression(
-                                        new ConstantExpression(message)
-                                )
-                        )
-                )
-        )
     }
 
     protected void addRedisServiceMemoizeInvocation(BlockStatement body, MethodNode methodNode, Map memoizeProperties) {
