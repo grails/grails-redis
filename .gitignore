@@ -11,3 +11,4 @@ web-app
 *.ipr
 *.iws
 .idea
+out

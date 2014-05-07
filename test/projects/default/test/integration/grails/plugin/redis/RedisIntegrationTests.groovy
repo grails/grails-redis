@@ -1,6 +1,8 @@
 package grails.plugin.redis
 
 import com.example.Book
+
+import static grails.plugin.redis.RedisService.KEY_DOES_NOT_EXIST
 import static grails.plugin.redis.RedisService.NO_EXPIRATION_TTL
 
 class RedisIntegrationTests extends GroovyTestCase {
@@ -40,7 +42,7 @@ class RedisIntegrationTests extends GroovyTestCase {
 
     def testMemoizeDomainListWithExpire() {
         def book1 = Book.build(title: "book1")
-        assertEquals NO_EXPIRATION_TTL, redisService.ttl("domainkey")
+        assert KEY_DOES_NOT_EXIST == redisService.ttl("domainkey")
         def result = redisService.memoizeDomainList(Book, "domainkey", 60) { [book1] }
         assertEquals([book1], result)
         assertTrue NO_EXPIRATION_TTL < redisService.ttl("domainkey")
