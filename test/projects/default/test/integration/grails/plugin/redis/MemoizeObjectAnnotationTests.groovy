@@ -80,20 +80,20 @@ class TestClass{
 	}		
 
     @Test
-	void testMemoizeSimpleObject() {
-		TestSimpleObject testInstance = new TestSimpleObject(redisService: redisService)
-		assert testInstance.callCount == 0
-		
-		Long testResult = testInstance.testAnnotatedMethod()
+    void testMemoizeSimpleObject() {
+        TestSimpleObject testInstance = new TestSimpleObject(redisService: redisService)
+        assert testInstance.callCount == 0
+
+        Long testResult = testInstance.testAnnotatedMethod()
         assert redisService."${TestSimpleObject.key}" == '''10'''
-		assert testResult == TestSimpleObject.value
+        assert testResult == TestSimpleObject.value
         assert testInstance.callCount == 1
 
         testResult = testInstance.testAnnotatedMethod()
         assert redisService."${TestSimpleObject.key}" == '''10'''
         assert testResult == TestSimpleObject.value
         assert testInstance.callCount == 1
-	}		
+    }
 }
 
 
