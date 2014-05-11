@@ -1,13 +1,13 @@
 package grails.plugin.redis
 
-import grails.plugin.spock.IntegrationSpec
+import spock.lang.Specification
 import spock.lang.Ignore
 import redis.clients.jedis.Jedis
 
 /**
  */
 @Ignore // if not ignored, this spec expects that additional redis instances are running on localhost ports 6380 and 6381 and will fail without them
-class RedisMultipleConnectionsConfigSpec extends IntegrationSpec {
+class RedisMultipleConnectionsConfigSpec extends Specification {
 
     RedisService redisService
     RedisService redisServiceOne

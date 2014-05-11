@@ -1,16 +1,18 @@
 package grails.plugin.redis
 
-import groovy.util.GroovyTestCase
+import org.junit.Before
+import org.junit.Test
 
-class MemoizeAnnotationTests extends GroovyTestCase {
+class MemoizeAnnotationTests {
 	
 	def redisService
-	
-	protected void setUp() {
-		super.setUp()
+
+    @Before
+	public void setUp() {
 		redisService.flushDB()
 	}
-	
+
+    @Test
 	void testMemoizeAnnotationExpire() {
 		 
 		// set up test class

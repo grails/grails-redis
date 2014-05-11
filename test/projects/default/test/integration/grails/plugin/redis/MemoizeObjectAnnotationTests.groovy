@@ -1,18 +1,19 @@
 package grails.plugin.redis
 
-import groovy.util.GroovyTestCase
-import grails.test.GrailsMock
+import org.junit.Before
+import org.junit.Test
 
-class MemoizeObjectAnnotationTests extends GroovyTestCase {
+class MemoizeObjectAnnotationTests {
 	
 	def redisService
 	def gsonBuilder
-	
-	protected void setUp() {
-		super.setUp()
+
+    @Before
+	public void setUp() {
 		redisService.flushDB()
 	}
-	
+
+    @Test
 	void testMemoizeAnnotationExpire() {
 		 
 		// set up test class
@@ -78,4 +79,33 @@ class TestClass{
 		assert testResult.chapters[1].title == "Testing"
 	}		
 
+    @Test
+	void testMemoizeSimpleObject() {
+		TestSimpleObject testInstance = new TestSimpleObject(redisService: redisService)
+		assert testInstance.callCount == 0
+		
+		Long testResult = testInstance.testAnnotatedMethod()
+        assert redisService."${TestSimpleObject.key}" == '''10'''
+		assert testResult == TestSimpleObject.value
+        assert testInstance.callCount == 1
+
+        testResult = testInstance.testAnnotatedMethod()
+        assert redisService."${TestSimpleObject.key}" == '''10'''
+        assert testResult == TestSimpleObject.value
+        assert testInstance.callCount == 1
+	}		
+}
+
+
+class TestSimpleObject {
+    def redisService
+    def callCount = 0
+    public static final key = "TheKey"
+    public static final Long value = 10
+
+    @MemoizeObject(key="#{key}", clazz=Long.class)
+    def testAnnotatedMethod() {
+        callCount += 1
+        return new Long(value)
+    }
 }

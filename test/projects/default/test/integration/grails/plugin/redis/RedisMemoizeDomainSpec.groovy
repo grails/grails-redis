@@ -1,9 +1,9 @@
 package grails.plugin.redis
 
 import com.example.Book
-import grails.plugin.spock.IntegrationSpec
+import spock.lang.Specification
 
-class RedisMemoizeDomainSpec extends IntegrationSpec {
+class RedisMemoizeDomainSpec extends Specification {
 
     RedisService redisService
 

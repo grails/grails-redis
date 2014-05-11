@@ -1,21 +1,23 @@
 package grails.plugin.redis
 
 import com.example.Book
+import org.junit.Before
+import org.junit.Test
 
 import static grails.plugin.redis.RedisService.KEY_DOES_NOT_EXIST
 import static grails.plugin.redis.RedisService.NO_EXPIRATION_TTL
 
-class RedisIntegrationTests extends GroovyTestCase {
+class RedisIntegrationTests {
 
     RedisService redisService
-    def bookService
-	
-    protected void setUp() {
-        super.setUp()
+
+    @Before
+    public void setUp() {
         redisService.flushDB()
     }
 
-    def testMemoizeDomainList() {
+    @Test
+    public void testMemoizeDomainList() {
         def book1 = Book.build(title: "book1")
         def book2 = Book.build(title: "book2")
         def book3 = Book.build(title: "book3")
@@ -28,27 +30,29 @@ class RedisIntegrationTests extends GroovyTestCase {
 
         def cacheMissList = redisService.memoizeDomainList(Book, "domainkey", cacheMissClosure)
 
-        assertEquals 1, calledCount
-        assertEquals([book1, book3], cacheMissList)
-        assertEquals NO_EXPIRATION_TTL, redisService.ttl("domainkey")
+        assert 1 == calledCount
+        assert [book1, book3] == cacheMissList
+        assert NO_EXPIRATION_TTL == redisService.ttl("domainkey")
 
         def cacheHitList = redisService.memoizeDomainList(Book, "domainkey", cacheMissClosure)
 
         // cache hit, don't call closure again
-        assertEquals 1, calledCount
-        assertEquals([book1, book3], cacheHitList)
-        assertEquals cacheMissList, cacheHitList
+        assert 1 == calledCount
+        assert [book1, book3] == cacheHitList
+        assert cacheMissList == cacheHitList
     }
 
-    def testMemoizeDomainListWithExpire() {
+    @Test
+    public void testMemoizeDomainListWithExpire() {
         def book1 = Book.build(title: "book1")
         assert KEY_DOES_NOT_EXIST == redisService.ttl("domainkey")
         def result = redisService.memoizeDomainList(Book, "domainkey", 60) { [book1] }
-        assertEquals([book1], result)
-        assertTrue NO_EXPIRATION_TTL < redisService.ttl("domainkey")
+        assert [book1] == result
+        assert NO_EXPIRATION_TTL < redisService.ttl("domainkey")
     }
 
-    def testMemoizeDomainIdList() {
+    @Test
+    public void testMemoizeDomainIdList() {
         def book1 = Book.build(title: "book1")
         def book2 = Book.build(title: "book2")
         def book3 = Book.build(title: "book3")
@@ -61,18 +65,19 @@ class RedisIntegrationTests extends GroovyTestCase {
 
         def cacheMissList = redisService.memoizeDomainIdList(Book, "domainkey", cacheMissClosure)
 
-        assertEquals 1, calledCount
-        assertEquals([book1.id, book3.id], cacheMissList)
+        assert 1 == calledCount
+        assert [book1.id, book3.id] == cacheMissList
 
         def cacheHitList = redisService.memoizeDomainIdList(Book, "domainkey", cacheMissClosure)
 
         // cache hit, don't call closure again
-        assertEquals 1, calledCount
-        assertEquals([book1.id, book3.id], cacheHitList)
-        assertEquals cacheMissList, cacheHitList
+        assert 1 == calledCount
+        assert [book1.id, book3.id] == cacheHitList
+        assert cacheMissList == cacheHitList
     }
 
-    def testMemoizeDomainObject() {
+    @Test
+    public void testMemoizeDomainObject() {
         Book book1 = Book.build(title: "book1")
 
         def calledCount = 0
