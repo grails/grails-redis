@@ -1,21 +1,23 @@
 package grails.plugin.redis
 
 import grails.spring.BeanBuilder
+import org.junit.Before
+import org.junit.Test
 import redis.clients.jedis.exceptions.JedisConnectionException
 
 import static grails.plugin.redis.RedisService.NO_EXPIRATION_TTL
 import redis.clients.jedis.Jedis
 import redis.clients.jedis.Transaction
 
-class RedisServiceTests extends GroovyTestCase {
+class RedisServiceTests {
     def redisService
     def redisServiceMock
     def grailsApplication
 
     boolean transactional = false
 
-    protected void setUp() {
-        super.setUp()
+    @Before
+    public void setUp() {
         redisServiceMock = mockRedisServiceForFailureTest(getNewInstanceOfBean(RedisService))
 
         try {
@@ -28,25 +30,27 @@ class RedisServiceTests extends GroovyTestCase {
         assert redisService != redisServiceMock
     }
 
-    void testFlushDB() {
+    @Test
+    public void testFlushDB() {
         // actually called as part of setup too, but we can test it here
         redisService.withRedis { Jedis redis ->
-            assertEquals 0, redis.dbSize()
+            assert 0 == redis.dbSize()
             redis.set("foo", "bar")
-            assertEquals 1, redis.dbSize()
+            assert 1 == redis.dbSize()
         }
 
         redisService.flushDB()
 
         redisService.withRedis { Jedis redis ->
-            assertEquals 0, redis.dbSize()
+            assert 0 == redis.dbSize()
         }
     }
 
     /**
      * This test method ensures that memoization method succeeds in the event of an unreachable redis store
      */
-    void testMemoizeKeyWithoutRedis() {
+    @Test
+    public void testMemoizeKeyWithoutRedis() {
         def calledCount = 0
         def cacheMissClosure = {
             calledCount += 1
@@ -54,16 +58,17 @@ class RedisServiceTests extends GroovyTestCase {
         }
         def cacheMissResult = redisServiceMock.memoize("mykey", cacheMissClosure)
 
-        assertEquals 1, calledCount
-        assertEquals "foo", cacheMissResult
+        assert 1 == calledCount
+        assert "foo" == cacheMissResult
 
         cacheMissResult = redisServiceMock.memoize("mykey", cacheMissClosure)
 
-        assertEquals 2, calledCount
-        assertEquals "foo", cacheMissResult
+        assert 2 == calledCount
+        assert "foo" == cacheMissResult
     }
 
-    void testMemoizeKey() {
+    @Test
+    public void testMemoizeKey() {
         def calledCount = 0
         def cacheMissClosure = {
             calledCount += 1
@@ -71,28 +76,30 @@ class RedisServiceTests extends GroovyTestCase {
         }
         def cacheMissResult = redisService.memoize("mykey", cacheMissClosure)
 
-        assertEquals 1, calledCount
-        assertEquals "foo", cacheMissResult
-        assertEquals NO_EXPIRATION_TTL, redisService.ttl("mykey")
+        assert 1 == calledCount
+        assert "foo" == cacheMissResult
+        assert NO_EXPIRATION_TTL == redisService.ttl("mykey")
 
         def cacheHitResult = redisService.memoize("mykey", cacheMissClosure)
 
         // should have hit the cache, not called our method again
-        assertEquals 1, calledCount
-        assertEquals "foo", cacheHitResult
+        assert 1 == calledCount
+        assert "foo" == cacheHitResult
     }
 
-    void testMemoizeKeyWithExpire() {
-        assertTrue 0 > redisService.ttl("mykey")
+    @Test
+    public void testMemoizeKeyWithExpire() {
+        assert 0 > redisService.ttl("mykey")
         def result = redisService.memoize("mykey", 60) { "foo" }
-        assertEquals "foo", result
-        assertTrue NO_EXPIRATION_TTL < redisService.ttl("mykey")
+        assert "foo" == result
+        assert NO_EXPIRATION_TTL < redisService.ttl("mykey")
     }
 
     /**
      * Test hashfield memoization with an unreachable redis store
      */
-    void testMemoizeHashFieldWithoutRedis() {
+    @Test
+    public void testMemoizeHashFieldWithoutRedis() {
         def calledCount = 0
         def cacheMissClosure = {
             calledCount += 1
@@ -100,17 +107,18 @@ class RedisServiceTests extends GroovyTestCase {
         }
         def cacheMissResult = redisServiceMock.memoizeHashField("mykey", "first", cacheMissClosure)
 
-        assertEquals 1, calledCount
-        assertEquals "foo", cacheMissResult
+        assert 1 == calledCount
+        assert "foo" == cacheMissResult
 
         cacheMissResult = redisServiceMock.memoizeHashField("mykey", "first", cacheMissClosure)
 
         // should have hit the cache, not called our method again
-        assertEquals 2, calledCount
-        assertEquals "foo", cacheMissResult
+        assert 2 == calledCount
+        assert "foo" == cacheMissResult
     }
 
-    void testMemoizeHashField() {
+    @Test
+    public void testMemoizeHashField() {
         def calledCount = 0
         def cacheMissClosure = {
             calledCount += 1
@@ -118,34 +126,36 @@ class RedisServiceTests extends GroovyTestCase {
         }
         def cacheMissResult = redisService.memoizeHashField("mykey", "first", cacheMissClosure)
 
-        assertEquals 1, calledCount
-        assertEquals "foo", cacheMissResult
-        assertEquals NO_EXPIRATION_TTL, redisService.ttl("mykey")
+        assert 1 == calledCount
+        assert "foo" == cacheMissResult
+        assert NO_EXPIRATION_TTL == redisService.ttl("mykey")
 
         def cacheHitResult = redisService.memoizeHashField("mykey", "first", cacheMissClosure)
 
         // should have hit the cache, not called our method again
-        assertEquals 1, calledCount
-        assertEquals "foo", cacheHitResult
+        assert 1 == calledCount
+        assert "foo" == cacheHitResult
 
         def cacheMissSecondResult = redisService.memoizeHashField("mykey", "second", cacheMissClosure)
 
         // cache miss because we're using a different field in the same key
-        assertEquals 2, calledCount
-        assertEquals "foo", cacheMissSecondResult
+        assert 2 == calledCount
+        assert "foo" == cacheMissSecondResult
     }
 
-    void testMemoizeHashFieldWithExpire() {
-        assertTrue 0 > redisService.ttl("mykey")
+    @Test
+    public void testMemoizeHashFieldWithExpire() {
+        assert 0 > redisService.ttl("mykey")
         def result = redisService.memoizeHashField("mykey", "first", 60) { "foo" }
-        assertEquals "foo", result
-        assertTrue NO_EXPIRATION_TTL < redisService.ttl("mykey")
+        assert "foo" == result
+        assert NO_EXPIRATION_TTL < redisService.ttl("mykey")
     }
 
     /**
      * Tests hash memoization with an unreachable redis store
      */
-    def testMemoizeHashWithoutRedis() {
+    @Test
+    public void testMemoizeHashWithoutRedis() {
         def calledCount = 0
         def expectedHash = [foo: 'bar', baz: 'qux']
         def cacheMissClosure = {
@@ -154,17 +164,18 @@ class RedisServiceTests extends GroovyTestCase {
         }
         def cacheMissResult = redisServiceMock.memoizeHash("mykey", cacheMissClosure)
 
-        assertEquals 1, calledCount
-        assertEquals expectedHash, cacheMissResult
+        assert 1 == calledCount
+        assert expectedHash == cacheMissResult
 
         def cacheHitResult = redisServiceMock.memoizeHash("mykey", cacheMissClosure)
 
         // should have hit the cache, not called our method again
-        assertEquals 2, calledCount
-        assertEquals expectedHash, cacheHitResult
+        assert 2 == calledCount
+        assert expectedHash == cacheHitResult
     }
 
-    def testMemoizeHash() {
+    @Test
+    public void testMemoizeHash() {
         def calledCount = 0
         def expectedHash = [foo: 'bar', baz: 'qux']
         def cacheMissClosure = {
@@ -173,29 +184,31 @@ class RedisServiceTests extends GroovyTestCase {
         }
         def cacheMissResult = redisService.memoizeHash("mykey", cacheMissClosure)
 
-        assertEquals 1, calledCount
-        assertEquals expectedHash, cacheMissResult
-        assertEquals NO_EXPIRATION_TTL, redisService.ttl("mykey")
+        assert 1 == calledCount
+        assert expectedHash == cacheMissResult
+        assert NO_EXPIRATION_TTL == redisService.ttl("mykey")
 
         def cacheHitResult = redisService.memoizeHash("mykey", cacheMissClosure)
 
         // should have hit the cache, not called our method again
-        assertEquals 1, calledCount
-        assertEquals expectedHash, cacheHitResult
+        assert 1 == calledCount
+        assert expectedHash == cacheHitResult
     }
 
-    void testMemoizeHashWithExpire() {
+    @Test
+    public void testMemoizeHashWithExpire() {
         def expectedHash = [foo: 'bar', baz: 'qux']
-        assertTrue 0 > redisService.ttl("mykey")
+        assert 0 > redisService.ttl("mykey")
         def result = redisService.memoizeHash("mykey", 60) { expectedHash }
-        assertEquals expectedHash, result
-        assertTrue NO_EXPIRATION_TTL < redisService.ttl("mykey")
+        assert expectedHash == result
+        assert NO_EXPIRATION_TTL < redisService.ttl("mykey")
     }
 
     /**
      * testing list memoization with an unreachable redis store
      */
-    def testMemoizeListWithoutRedis() {
+    @Test
+    public void testMemoizeListWithoutRedis() {
         def book1 = "book1"
         def book2 = "book2"
         def book3 = "book3"
@@ -209,18 +222,19 @@ class RedisServiceTests extends GroovyTestCase {
 
         def cacheMissList = redisServiceMock.memoizeList("mykey", cacheMissClosure)
 
-        assertEquals 1, calledCount
-        assertEquals([book1, book2, book3], cacheMissList)
+        assert 1 == calledCount
+        assert [book1, book2, book3] == cacheMissList
 
         List cacheHitList = redisServiceMock.memoizeList("mykey", cacheMissClosure)
 
         // cache hit, don't call closure again
-        assertEquals 2, calledCount
-        assertEquals([book1, book2, book3], cacheHitList)
-        assertEquals cacheMissList, cacheHitList
+        assert 2 == calledCount
+        assert [book1, book2, book3] == cacheHitList
+        assert cacheMissList == cacheHitList
     }
 
-    def testMemoizeList() {
+    @Test
+    public void testMemoizeList() {
         def book1 = "book1"
         def book2 = "book2"
         def book3 = "book3"
@@ -233,31 +247,33 @@ class RedisServiceTests extends GroovyTestCase {
         }
         
         def cacheMissList = redisService.memoizeList("mykey", cacheMissClosure)
-        
-        assertEquals 1, calledCount
-        assertEquals([book1, book2, book3], cacheMissList)
-        assertEquals NO_EXPIRATION_TTL, redisService.ttl("mykey")
+
+        assert 1 == calledCount
+        assert [book1, book2, book3] == cacheMissList
+        assert NO_EXPIRATION_TTL == redisService.ttl("mykey")
         
         List cacheHitList = redisService.memoizeList("mykey", cacheMissClosure)
         
         // cache hit, don't call closure again
-        assertEquals 1, calledCount
-        assertEquals([book1, book2, book3], cacheHitList)
-        assertEquals cacheMissList, cacheHitList
+        assert 1 == calledCount
+        assert [book1, book2, book3] == cacheHitList
+        assert cacheMissList == cacheHitList
     }
 
-    def testMemoizeListWithExpire() {
+    @Test
+    public void testMemoizeListWithExpire() {
         def book1 = "book1"
-        assertTrue 0 > redisService.ttl("mykey")
+        assert 0 > redisService.ttl("mykey")
         def result = redisService.memoizeList("mykey", 60) { [book1] }
-        assertEquals([book1], result)
-        assertTrue NO_EXPIRATION_TTL < redisService.ttl("mykey")
+        assert [book1] == result
+        assert NO_EXPIRATION_TTL < redisService.ttl("mykey")
     }
 
     /**
      * tests set memoization with an unreachable redis store
      */
-    def testMemoizeSetWithoutRedis() {
+    @Test
+    public void testMemoizeSetWithoutRedis() {
         def book1 = "book1"
         def book2 = "book2"
         def book3 = "book3"
@@ -271,18 +287,19 @@ class RedisServiceTests extends GroovyTestCase {
 
         Set cacheMissSet = redisServiceMock.memoizeSet("mykey", cacheMissClosure)
 
-        assertEquals 1, calledCount
-        assertEquals([book1, book2, book3] as Set, cacheMissSet)
+        assert 1 == calledCount
+        assert [book1, book2, book3] as Set == cacheMissSet
 
         def cacheHitSet = redisServiceMock.memoizeSet("mykey", cacheMissClosure)
 
         // cache hit, don't call closure again
-        assertEquals 2, calledCount
-        assertEquals([book1, book2, book3] as Set, cacheHitSet)
-        assertEquals cacheMissSet, cacheHitSet
+        assert 2 == calledCount
+        assert [book1, book2, book3] as Set == cacheHitSet
+        assert cacheMissSet == cacheHitSet
     }
 
-    def testMemoizeSet() {
+    @Test
+    public void testMemoizeSet() {
         def book1 = "book1"
         def book2 = "book2"
         def book3 = "book3"
@@ -295,29 +312,31 @@ class RedisServiceTests extends GroovyTestCase {
         }
         
         Set cacheMissSet = redisService.memoizeSet("mykey", cacheMissClosure)
-        
-        assertEquals 1, calledCount
-        assertEquals([book1, book2, book3] as Set, cacheMissSet)
-        assertEquals NO_EXPIRATION_TTL, redisService.ttl("mykey")
+
+        assert 1 == calledCount
+        assert [book1, book2, book3] as Set == cacheMissSet
+        assert NO_EXPIRATION_TTL == redisService.ttl("mykey")
         
         def cacheHitSet = redisService.memoizeSet("mykey", cacheMissClosure)
         
         // cache hit, don't call closure again
-        assertEquals 1, calledCount
-        assertEquals([book1, book2, book3] as Set, cacheHitSet)
-        assertEquals cacheMissSet, cacheHitSet
+        assert 1 == calledCount
+        assert [book1, book2, book3] as Set == cacheHitSet
+        assert cacheMissSet == cacheHitSet
     }
 
-    def testMemoizeSetWithExpire() {
+    @Test
+    public void testMemoizeSetWithExpire() {
         def book1 = "book1"
-        assertTrue 0 > redisService.ttl("mykey")
+        assert 0 > redisService.ttl("mykey")
         def result = redisService.memoizeSet("mykey", 60) { [book1] as Set }
-        assertEquals([book1] as Set, result)
-        assertTrue NO_EXPIRATION_TTL < redisService.ttl("mykey")
+        assert [book1] as Set == result
+        assert NO_EXPIRATION_TTL < redisService.ttl("mykey")
     }
 
 
-    void testDeleteKeysWithPattern() {
+    @Test
+    public void testDeleteKeysWithPattern() {
         def calledCount = 0
         def cacheMissClosure = {
             calledCount += 1
@@ -326,13 +345,13 @@ class RedisServiceTests extends GroovyTestCase {
         redisService.memoize("mykey:1", cacheMissClosure)
         redisService.memoize("mykey:2", cacheMissClosure)
 
-        assertEquals 2, calledCount
+        assert 2 == calledCount
 
         redisService.memoize("mykey:1", cacheMissClosure)
         redisService.memoize("mykey:2", cacheMissClosure)
 
         // call count shouldn't increase
-        assertEquals 2, calledCount
+        assert 2 == calledCount
 
         redisService.deleteKeysWithPattern("mykey:*")
 
@@ -340,21 +359,23 @@ class RedisServiceTests extends GroovyTestCase {
         redisService.memoize("mykey:2", cacheMissClosure)
 
         // Because we deleted those keys before and there is a cache miss
-        assertEquals 4, calledCount
+        assert 4 == calledCount
     }
 
-    def testWithTransaction() {
+    @Test
+    public void testWithTransaction() {
         redisService.withRedis { Jedis redis ->
-            assertNull redis.get("foo")
+            assert redis.get("foo") == null
             redisService.withTransaction { Transaction transaction ->
                 transaction.set("foo", "bar")
-                assertNull redis.get("foo")
+                assert redis.get("foo") == null
             }
-            assertEquals "bar", redis.get("foo")
+            assert "bar" == redis.get("foo")
         }
     }
 
-    def testWithTransactionClosureException() {
+    @Test
+    public void testWithTransactionClosureException() {
         redisService.withRedis { Jedis redis ->
             assert redis.get("foo") == null
         }
@@ -371,34 +392,37 @@ class RedisServiceTests extends GroovyTestCase {
         }
     }
 
-    def testPropertyMissingGetterRetrievesStringValue() {
-        assertNull redisService.foo
+    @Test
+    public void testPropertyMissingGetterRetrievesStringValue() {
+        assert redisService.foo == null
 
         redisService.withRedis { Jedis redis ->
             redis.set("foo", "bar")
         }
 
-        assertEquals "bar", redisService.foo
+        assert "bar" == redisService.foo
     }
 
-    def testPropertyMissingSetterSetsStringValue() {
+    @Test
+    public void testPropertyMissingSetterSetsStringValue() {
         redisService.withRedis { Jedis redis ->
-            assertNull redis.foo
+            assert redis.foo == null
         }
 
         redisService.foo = "bar"
 
         redisService.withRedis { Jedis redis ->
-            assertEquals "bar", redis.foo
+            assert "bar" == redis.foo
         }
     }
 
-    def testMethodMissingDelegatesToJedis() {
-        assertNull redisService.foo
+    @Test
+    public void testMethodMissingDelegatesToJedis() {
+        assert redisService.foo == null
 
         redisService.set("foo", "bar")
 
-        assertEquals "bar", redisService.foo
+        assert "bar" == redisService.foo
     }
 
     def testMethodNotOnJedisThrowsMethodMissingException() {

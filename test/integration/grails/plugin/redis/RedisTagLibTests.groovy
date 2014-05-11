@@ -1,58 +1,39 @@
 package grails.plugin.redis
 
-import grails.test.TagLibUnitTestCase
+import org.junit.Before
+import org.junit.Test
 
-class RedisTagLibTests extends TagLibUnitTestCase {
+class RedisTagLibTests {
     protected static KEY = "RedisTagLibTests:memoize"
     protected static CONTENTS = "expected contents"
     protected static FAIL_BODY = "unexpected contents, should not have this"
     def redisService
+    def grailsApplication
+    def tagLib
 
-    protected void setUp() {
-        super.setUp()
-        tagLib.redisService = redisService
+    @Before
+    public void setUp() {
         redisService.flushDB()
+        tagLib = grailsApplication.mainContext.getBean(RedisTagLib.class.name)
     }
 
-    void testMemoizeMissingRequiredKey() {
-        def result = shouldFail {
-            tagLib.memoize(createParams([:])) {-> CONTENTS }
-        }
+    @Test
+    public void testMemoize() {
+        String result = tagLib.memoize([key: KEY], { -> CONTENTS }).toString()
+        assert CONTENTS == result
 
-        assertEquals "[key] attribute must be specified for memoize!", result
+        result = tagLib.memoize([key: KEY], { -> FAIL_BODY }).toString()
+        assert CONTENTS == result // won't find $FAIL_BODY
     }
 
-    void testMemoize() {
-        tagLib.memoize(createParams([key: KEY])) {-> CONTENTS }
-        assertTagLibContentsEquals CONTENTS
-    }
+    @Test
+    public void testMemoizeTTL() {
+        String result = tagLib.memoize([key:'no-ttl-test'], { -> CONTENTS }).toString()
+        assert CONTENTS == result
+        assert redisService.NO_EXPIRATION_TTL == redisService.ttl("no-ttl-test")
 
-    void testMemoizedAlready() {
-        redisService.memoize(KEY) {-> CONTENTS }
-        tagLib.memoize(createParams([key: KEY])) {-> FAIL_BODY }
-
-        assertTagLibContentsEquals CONTENTS
-    }
-
-    void testMemoizeWithoutExpiresHasNoTTL() {
-        tagLib.memoize(createParams([key: "no-ttl-test"])) {-> CONTENTS }
-        assertTagLibContentsEquals CONTENTS
-        assertEquals redisService.NO_EXPIRATION_TTL, redisService.ttl("no-ttl-test")
-    }
-
-    void testMemoizeWithExpireHasTTL() {
-        tagLib.memoize(createParams([key: "ttl-test", expire: "60"])) {-> CONTENTS }
-        assertTagLibContentsEquals CONTENTS
-        assertTrue redisService.ttl("ttl-test") > 0
-    }
-
-    private assertTagLibContentsEquals(String expectedContents) {
-        def result = tagLib.out.toString()
-        assertEquals expectedContents, result
-        return result
-    }
-
-    Binding createParams(params) {
-        return ([key: null, expire: null] + params) as Binding
+        result = tagLib.memoize([key:'ttl-test', expire:60], { -> CONTENTS }).toString()
+        assert CONTENTS == result
+        assert redisService.ttl("ttl-test") > 0
     }
 }
