@@ -334,6 +334,43 @@ class RedisServiceTests {
         assert NO_EXPIRATION_TTL < redisService.ttl("mykey")
     }
 
+    @Test
+    public void testMemoizeObject_simpleMapOfStrings() {
+        Map<String, String> map = [foo: "bar", baz: "qux"]
+
+        def calledCount = 0
+        def cacheMissClosure = {
+            calledCount += 1
+            map
+        }
+
+        def cacheMissValue = redisService.memoizeObject(Map.class, "mykey", cacheMissClosure)
+
+        assert 1 == calledCount
+        assert "bar" == cacheMissValue.foo
+        assert "qux" == cacheMissValue.baz
+        assert NO_EXPIRATION_TTL == redisService.ttl("mykey")
+
+        def cacheHitValue = redisService.memoizeObject(Map.class, "mykey", cacheMissClosure)
+
+        assert 1 == calledCount
+        assert "bar" == cacheHitValue.foo
+        assert "qux" == cacheHitValue.baz
+    }
+
+
+    @Test
+    public void testMemoizeObject_withTTL() {
+        Map<String, String> map = [foo: "bar", baz: "qux"]
+        assert 0 > redisService.ttl("mykey")
+
+        def cacheMissValue = redisService.memoizeObject(Map.class, "mykey", 60) { -> map }
+
+        assert "bar" == cacheMissValue.foo
+        assert "qux" == cacheMissValue.baz
+        assert NO_EXPIRATION_TTL < redisService.ttl("mykey")
+    }
+
 
     @Test
     public void testDeleteKeysWithPattern() {
