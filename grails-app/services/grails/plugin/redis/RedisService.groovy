@@ -14,6 +14,7 @@
  */
 package grails.plugin.redis
 
+import com.google.gson.Gson
 import redis.clients.jedis.Jedis
 import redis.clients.jedis.Pipeline
 import redis.clients.jedis.Transaction
@@ -321,10 +322,6 @@ class RedisService {
         domainClass.load(domainId)
     }
 
-//    Long persistDomainId(Object domainInstance, String key, Map options) {
-    //        return persistDomainId(domainInstance?.id as Long, key, options.expire)
-    //    }
-
     Long persistDomainId(Long domainId, String key, Integer expire) {
         if(domainId) {
             withOptionalPipeline { pipeline ->
@@ -334,8 +331,22 @@ class RedisService {
                 }
             }
         }
-//        if (domainId) withRedis { Jedis redis -> redis.set(key, domainId.toString()) }
         domainId
+    }
+
+    def memoizeObject(Class clazz, String key, Integer expire, Closure closure) {
+        memoizeObject(clazz, key, [expire: expire], closure)
+    }
+
+    def memoizeObject(Class clazz, String key, Map options = [:], Closure closure) {
+        Gson gson = new Gson()
+
+        String memoizedJson = memoize(key, options) { ->
+            def original = closure()
+            gson.toJson(original)
+        }
+
+        gson.fromJson(memoizedJson, clazz)
     }
 
     // deletes all keys matching a pattern (see redis "keys" documentation for more)

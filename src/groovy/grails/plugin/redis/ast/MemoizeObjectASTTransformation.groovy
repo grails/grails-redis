@@ -5,23 +5,17 @@ import java.util.Map;
 import org.codehaus.groovy.ast.ASTNode
 import org.codehaus.groovy.ast.ClassHelper;
 import org.codehaus.groovy.ast.ClassNode
-import org.codehaus.groovy.ast.FieldNode;
 import org.codehaus.groovy.ast.MethodNode
-import org.codehaus.groovy.ast.PropertyNode;
 import org.codehaus.groovy.ast.VariableScope;
-import org.codehaus.groovy.ast.builder.AstBuilder;
 import org.codehaus.groovy.ast.expr.ArgumentListExpression
 import org.codehaus.groovy.ast.expr.ClassExpression;
-import org.codehaus.groovy.ast.expr.ClosureExpression
 import org.codehaus.groovy.ast.expr.ConstantExpression
 import org.codehaus.groovy.ast.expr.ConstructorCallExpression;
 import org.codehaus.groovy.ast.expr.Expression;
 import org.codehaus.groovy.ast.expr.MethodCallExpression
-import org.codehaus.groovy.ast.expr.VariableExpression
 import org.codehaus.groovy.control.CompilePhase
 import org.codehaus.groovy.control.SourceUnit
 import org.codehaus.groovy.ast.stmt.BlockStatement
-import org.codehaus.groovy.ast.stmt.ExpressionStatement
 import org.codehaus.groovy.ast.stmt.ReturnStatement
 import org.codehaus.groovy.ast.stmt.Statement
 import org.codehaus.groovy.classgen.VariableScopeVisitor
@@ -29,8 +23,6 @@ import org.codehaus.groovy.classgen.VariableScopeVisitor
 import com.google.gson.Gson
 
 import grails.plugin.redis.RedisService
-import static org.springframework.asm.Opcodes.ACC_PRIVATE
-import static org.springframework.asm.Opcodes.ACC_PUBLIC
 
 import org.codehaus.groovy.transform.GroovyASTTransformation
 
@@ -132,7 +124,6 @@ class MemoizeObjectASTTransformation extends AbstractMemoizeASTTransformation {
         if(!validateMemoizeProperties(astNodes, sourceUnit, keyString, expire, clazz)) {
             return
         }
-        //***************************************************************************
 
         memoizeProperties.put(KEY, keyString)
 		memoizeProperties.put(CLAZZ, clazz)
