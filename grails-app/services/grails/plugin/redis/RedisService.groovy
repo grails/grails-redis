@@ -343,10 +343,11 @@ class RedisService {
 
         String memoizedJson = memoize(key, options) { ->
             def original = closure()
+            if (original == null && options.cacheNull == false) return null
             gson.toJson(original)
         }
 
-        gson.fromJson(memoizedJson, clazz)
+        gson.fromJson((String)memoizedJson, clazz)
     }
 
     // deletes all keys matching a pattern (see redis "keys" documentation for more)
