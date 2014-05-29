@@ -448,6 +448,15 @@ Here is an example of usage:
         new Book(title: title, createDate: date)
     }
 
+This method is also available from the `RedisService`:
+
+```
+redisService.memoizeObject(Book.class, title, grailsApplication.config.cache.ttl) {
+  println 'cache miss createObject'
+  new Book(title: title, createDate: date)
+}
+```
+
 ### @MemoizeDomainObject ###
 
 The @MemoizeDomainObject annotation is to be used when dealing with domain objects that are to have their id's stored in Redis.  See the documentation on Domain Object Memoization above for more details.  This annotation takes the following parameters:
@@ -553,6 +562,7 @@ Release Notes
 * 1.5.1 - released 3/16/2014 - updated to Jedis 2.4.2
 * 1.5.2 - released 4/18/2014 - Do not fail hard on bad poolConfig parameters
 * 1.5.3 - released 4/23/2014 - Fix the implementation on soft setting the poolConfig parameters
+* 1.5.5 - released 5/28/2014 - Added `redisService.memoizeObject` method (#34) with optional `[cacheNull: false]` flag (#35)
 
 [redisgorm]: http://grails.github.com/inconsequential/redis/
 [redis]: http://redis.io
