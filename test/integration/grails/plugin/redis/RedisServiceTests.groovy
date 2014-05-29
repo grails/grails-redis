@@ -95,6 +95,25 @@ class RedisServiceTests {
         assert NO_EXPIRATION_TTL < redisService.ttl("mykey")
     }
 
+    @Test
+    public void testMemoizeKeyNullValue() {
+        def calledCount = 0
+        def cacheMissClosure = {
+            calledCount += 1
+            return null
+        }
+        def cacheMissResult = redisService.memoize("mykey", cacheMissClosure)
+
+        assert 1 == calledCount
+        assert null == cacheMissResult
+
+        def cacheMissAgainResult = redisService.memoize("mykey", cacheMissClosure)
+
+        // should have called the method again if we got a null
+        assert 2 == calledCount
+        assert null == cacheMissAgainResult
+    }
+
     /**
      * Test hashfield memoization with an unreachable redis store
      */
@@ -369,6 +388,48 @@ class RedisServiceTests {
         assert "bar" == cacheMissValue.foo
         assert "qux" == cacheMissValue.baz
         assert NO_EXPIRATION_TTL < redisService.ttl("mykey")
+    }
+
+    @Test
+    public void testMemoizeObject_nullValue() {
+        Map<String, String> map = null
+
+        def calledCount = 0
+        def cacheMissClosure = {
+            calledCount += 1
+            map
+        }
+
+        def cacheMissValue = redisService.memoizeObject(Map.class, "mykey", cacheMissClosure)
+
+        assert 1 == calledCount
+        assert null == cacheMissValue
+
+        def cacheHitValue = redisService.memoizeObject(Map.class, "mykey", cacheMissClosure)
+
+        assert 1 == calledCount
+        assert null == cacheHitValue
+    }
+
+    @Test
+    public void testMemoizeObject_nullValue_cacheNullFalse() {
+        Map<String, String> map = null
+
+        def calledCount = 0
+        def cacheMissClosure = {
+            calledCount += 1
+            map
+        }
+
+        def cacheMissValue = redisService.memoizeObject(Map.class, "mykey", [cacheNull: false], cacheMissClosure)
+
+        assert 1 == calledCount
+        assert null == cacheMissValue
+
+        def cacheMissAgainValue = redisService.memoizeObject(Map.class, "mykey", [cacheNull: false], cacheMissClosure)
+
+        assert 2 == calledCount
+        assert null == cacheMissAgainValue
     }
 
 
