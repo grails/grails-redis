@@ -14,7 +14,7 @@ Redis is an [insanely fast][redisfast] key/value store, in some ways similar to 
 
 Redis is used in production today by a [number of very popular][redisusing] websites including Craigslist, StackOverflow, GitHub, The Guardian, and Digg.
 
-It's commonly lumped in with other NoSQL technologies and is commonly used as a caching layerhas some similarities to Memcached or Tokyo Tyrant.  Because Redis provides network-available data structures, it's very flexible and it's able to solve all kinds of problems.  The creator of Redis, Salvatore Sanfilippo, has a nice post on his blog showing [how to take advantage of Redis by just adding it to your stack][addredisstack].  With the Grails Redis plugin, adding Redis to your grails app is very easy.
+It's commonly lumped in with other NoSQL technologies and is commonly used as a caching layer.  It has some similarities to Memcached or Tokyo Tyrant.  Because Redis provides network-available data structures, it's very flexible and it's able to solve all kinds of problems.  The creator of Redis, Salvatore Sanfilippo, has a nice post on his blog showing [how to take advantage of Redis by just adding it to your stack][addredisstack].  With the Grails Redis plugin, adding Redis to your grails app is very easy.
 
 I've created an [introduction to Redis using groovy][redisgroovy] that shows you how to install redis and use some basic groovy commands.  There is also a [presentation that I gave at gr8conf 2011][slideshareggr].
 
