@@ -523,6 +523,23 @@ class RedisServiceTests {
         assert "bar" == redisService.foo
     }
 
+    @Test
+    public void testClearingRecordedKeys() {
+
+        redisService.recordKeys = false
+        redisService.set("foo", "bar")
+        redisService.recordKeys = true
+        redisService.set("bar", "bar")
+
+        assert "bar" == redisService.foo
+        assert "bar" == redisService.bar
+
+        redisService.rollbackRecordedKeys()
+
+        assert "bar" == redisService.foo
+        assert null == redisService.bar
+    }
+
     def testMethodNotOnJedisThrowsMethodMissingException() {
         def result = shouldFail { redisService.methodThatDoesNotExistAndNeverWill() }
 

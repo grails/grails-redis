@@ -15,6 +15,8 @@
 
 
 import grails.plugin.redis.RedisService
+import grails.plugin.redis.test.TestRedisService
+import grails.util.Environment
 import redis.clients.jedis.JedisPool
 import redis.clients.jedis.JedisPoolConfig
 import redis.clients.jedis.JedisSentinelPool
@@ -64,11 +66,11 @@ class RedisGrailsPlugin {
     def doWithSpring = {
         def redisConfigMap = application.config.grails.redis ?: [:]
 
-		configureService.delegate = delegate
-		configureService(redisConfigMap, "")
-		redisConfigMap?.connections?.each { connection ->
-			configureService(connection.value, connection?.key?.capitalize())
-		}
+        configureService.delegate = delegate
+        configureService(redisConfigMap, "")
+        redisConfigMap?.connections?.each { connection ->
+            configureService(connection.value, connection?.key?.capitalize())
+        }
     }
 
     def findValidPoolProperties(log, ConfigObject properties) {
@@ -103,26 +105,24 @@ class RedisGrailsPlugin {
         def timeout = redisConfigMap?.timeout ?: Protocol.DEFAULT_TIMEOUT
         def password = redisConfigMap?.password ?: null
         def database = redisConfigMap?.database ?: Protocol.DEFAULT_DATABASE
-	    def sentinels = redisConfigMap?.sentinels ?: null
-	    def masterName = redisConfigMap?.masterName ?: null
+        def sentinels = redisConfigMap?.sentinels ?: null
+        def masterName = redisConfigMap?.masterName ?: null
 
-	    // If sentinels and a masterName is present, using different pool implementation
-	    if (sentinels && masterName) {
-		    "redisPool${key}"(JedisSentinelPool, masterName, sentinels as Set, ref(poolBean), timeout, password, database) { bean ->
-			    bean.destroyMethod = 'destroy'
-		    }
-	    }
-	    else {
-			"redisPool${key}"(JedisPool, ref(poolBean), host, port, timeout, password, database) { bean ->
-				bean.destroyMethod = 'destroy'
-			}
-	    }
-
-        //only wire up additional services when key provided for multiple connection support
-        if(key) {
-            "redisService${key}"(RedisService) {
-                redisPool = ref("redisPool${key}")
+        // If sentinels and a masterName is present, using different pool implementation
+        if (sentinels && masterName) {
+            "redisPool${key}"(JedisSentinelPool, masterName, sentinels as Set, ref(poolBean), timeout, password, database) { bean ->
+                bean.destroyMethod = 'destroy'
             }
+        }
+        else {
+            "redisPool${key}"(JedisPool, ref(poolBean), host, port, timeout, password, database) { bean ->
+                bean.destroyMethod = 'destroy'
+            }
+        }
+
+        def beanClass = (Environment.current == Environment.TEST)?TestRedisService:RedisService
+        "redisService${key}"(beanClass) {
+            redisPool = ref("redisPool${key}")
         }
     }
 }
