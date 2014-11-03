@@ -13,12 +13,10 @@
  * limitations under the License.
  */
 
-
 import grails.plugin.redis.RedisService
-import redis.clients.jedis.JedisPool
-import redis.clients.jedis.JedisPoolConfig
-import redis.clients.jedis.JedisSentinelPool
-import redis.clients.jedis.Protocol
+import grails.plugin.redis.test.TestRedisService
+import grails.plugin.redis.util.RedisConfigurationUtil
+import grails.util.Environment
 
 class RedisGrailsPlugin {
 
@@ -62,67 +60,13 @@ class RedisGrailsPlugin {
     def documentation = "http://grails.org/plugin/redis"
 
     def doWithSpring = {
+        def configureService = RedisConfigurationUtil.configureService
         def redisConfigMap = application.config.grails.redis ?: [:]
 
-		configureService.delegate = delegate
-		configureService(redisConfigMap, "")
-		redisConfigMap?.connections?.each { connection ->
-			configureService(connection.value, connection?.key?.capitalize())
-		}
-    }
-
-    def findValidPoolProperties(log, ConfigObject properties) {
-        def fakeJedisPoolConfig = new JedisPoolConfig()
-        properties.findAll{ configKey, value ->
-            try {
-                fakeJedisPoolConfig[configKey] = value
-                return true
-            } catch(Exception exception) {
-                log.warn "Redis pool configuration parameter (${configKey}) does not exist on JedisPoolConfig or value is the wrong type"
-                return false
-            }
-        }
-    }
-
-    /**
-     * delegate to wire up the required beans.
-     */
-    def configureService = {redisConfigMap, key ->
-        def poolBean = "redisPoolConfig${key}"
-        def validPoolProperties = findValidPoolProperties(log, redisConfigMap.poolConfig)
-        "${poolBean}"(JedisPoolConfig) {
-            // used to set arbitrary config values without calling all of them out here or requiring any of them
-            // any property that can be set on RedisPoolConfig can be set here
-            validPoolProperties.each { configKey, value ->
-                delegate.setProperty(configKey, value)
-            }
-        }
-
-        def host = redisConfigMap?.host ?: 'localhost'
-        def port = redisConfigMap?.port ? (redisConfigMap?.port.class == String && redisConfigMap?.port.isInteger() ? redisConfigMap?.port.toInteger() : redisConfigMap?.port) : Protocol.DEFAULT_PORT
-        def timeout = redisConfigMap?.timeout ?: Protocol.DEFAULT_TIMEOUT
-        def password = redisConfigMap?.password ?: null
-        def database = redisConfigMap?.database ?: Protocol.DEFAULT_DATABASE
-	    def sentinels = redisConfigMap?.sentinels ?: null
-	    def masterName = redisConfigMap?.masterName ?: null
-
-	    // If sentinels and a masterName is present, using different pool implementation
-	    if (sentinels && masterName) {
-		    "redisPool${key}"(JedisSentinelPool, masterName, sentinels as Set, ref(poolBean), timeout, password, database) { bean ->
-			    bean.destroyMethod = 'destroy'
-		    }
-	    }
-	    else {
-			"redisPool${key}"(JedisPool, ref(poolBean), host, port, timeout, password, database) { bean ->
-				bean.destroyMethod = 'destroy'
-			}
-	    }
-
-        //only wire up additional services when key provided for multiple connection support
-        if(key) {
-            "redisService${key}"(RedisService) {
-                redisPool = ref("redisPool${key}")
-            }
+        configureService.delegate = delegate
+        configureService(redisConfigMap, "", RedisService)
+        redisConfigMap?.connections?.each { connection ->
+            configureService(connection.value, connection?.key?.capitalize(), RedisService)
         }
     }
 }
