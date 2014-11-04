@@ -14,7 +14,6 @@
  */
 
 import grails.plugin.redis.RedisService
-import grails.plugin.redis.test.TestRedisService
 import grails.plugin.redis.util.RedisConfigurationUtil
 import grails.util.Environment
 
