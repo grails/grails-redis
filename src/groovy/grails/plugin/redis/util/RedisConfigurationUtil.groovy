@@ -5,6 +5,20 @@ import redis.clients.jedis.JedisPoolConfig
 import redis.clients.jedis.JedisSentinelPool
 import redis.clients.jedis.Protocol
 
+/**
+* This class provides a closure that can (and must) be used within the context of a BeanBuilder. 
+* To wire all redisServices using a custom class do the following
+*
+* def configureService = RedisConfigurationUtil.configureService
+* def redisConfigMap = application.config.grails.redis ?: [:]
+*
+* configureService.delegate = delegate
+* configureService(redisConfigMap, "", MyRedisService)
+* redisConfigMap?.connections?.each { connection ->
+*   configureService(connection.value, connection?.key?.capitalize(), MyRedisService)
+* }
+*
+*/
 class RedisConfigurationUtil {
 	
     /**
