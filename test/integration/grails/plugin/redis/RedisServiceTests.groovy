@@ -1,6 +1,8 @@
 package grails.plugin.redis
 
 import grails.spring.BeanBuilder
+import grails.util.Holders
+import org.codehaus.groovy.grails.commons.GrailsApplication
 import org.junit.Before
 import org.junit.Test
 import redis.clients.jedis.exceptions.JedisConnectionException
@@ -12,7 +14,7 @@ import redis.clients.jedis.Transaction
 class RedisServiceTests {
     def redisService
     def redisServiceMock
-    def grailsApplication
+    GrailsApplication grailsApplication = Holders.grailsApplication
 
     boolean transactional = false
 

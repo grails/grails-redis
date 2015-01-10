@@ -19,7 +19,7 @@ import grails.util.Environment
 
 class RedisGrailsPlugin {
 
-    def version = "1.6.0"
+    def version = "1.6.1"
     def grailsVersion = "2.0.0 > *"
     def author = "Ted Naleid"
     def authorEmail = "contact@naleid.com"

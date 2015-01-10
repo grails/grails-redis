@@ -1,5 +1,7 @@
 package grails.plugin.redis
 
+import grails.util.Holders
+import org.codehaus.groovy.grails.commons.GrailsApplication
 import org.junit.Before
 import org.junit.Test
 
@@ -8,7 +10,7 @@ class RedisTagLibTests {
     protected static CONTENTS = "expected contents"
     protected static FAIL_BODY = "unexpected contents, should not have this"
     def redisService
-    def grailsApplication
+    GrailsApplication grailsApplication = Holders.grailsApplication
     def tagLib
 
     @Before

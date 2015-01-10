@@ -15,6 +15,8 @@
 package grails.plugin.redis
 
 import com.google.gson.Gson
+import grails.util.Holders
+import org.codehaus.groovy.grails.commons.GrailsApplication
 import redis.clients.jedis.Jedis
 import redis.clients.jedis.Pipeline
 import redis.clients.jedis.Transaction
@@ -26,7 +28,7 @@ class RedisService {
     public static final int KEY_DOES_NOT_EXIST = -2  // added in redis 2.8
 
     def redisPool
-    def grailsApplication
+    GrailsApplication grailsApplication = Holders.grailsApplication
 
     boolean transactional = false
 
