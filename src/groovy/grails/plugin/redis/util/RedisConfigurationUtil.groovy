@@ -36,8 +36,8 @@ class RedisConfigurationUtil {
         }
 
         def host = redisConfigMap?.host ?: 'localhost'
-        def port = "${redisConfigMap?.port?.isInteger() ? redisConfigMap.port : Protocol.DEFAULT_PORT}" as Integer
-        def timeout = "${redisConfigMap?.timeout?.isInteger() ? redisConfigMap.timeout : Protocol.DEFAULT_TIMEOUT}" as Integer
+        def port = redisConfigMap.isSet("port") ? "${redisConfigMap.port}" as Integer : Protocol.DEFAULT_PORT
+        def timeout = redisConfigMap.isSet("timeout") ? "${redisConfigMap?.timeout}" as Integer : Protocol.DEFAULT_TIMEOUT
         def password = redisConfigMap?.password ?: null
         def database = redisConfigMap?.database ?: Protocol.DEFAULT_DATABASE
         def sentinels = redisConfigMap?.sentinels ?: null

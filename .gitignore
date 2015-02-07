@@ -12,3 +12,4 @@ web-app
 *.iws
 .idea
 out
+*.swp
