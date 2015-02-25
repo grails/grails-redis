@@ -6,6 +6,7 @@ import org.codehaus.groovy.grails.commons.GrailsApplication
 import org.junit.Before
 import org.junit.Test
 import redis.clients.jedis.exceptions.JedisConnectionException
+import redis.clients.jedis.exceptions.JedisDataException
 
 import static grails.plugin.redis.RedisService.NO_EXPIRATION_TTL
 import redis.clients.jedis.Jedis
@@ -523,6 +524,29 @@ class RedisServiceTests {
         redisService.set("foo", "bar")
 
         assert "bar" == redisService.foo
+    }
+
+    @Test
+    public void testWithTransactionEmptyMapException() {
+        redisService.withRedis { Jedis redis ->
+            assert redis.get("foo") == null
+        }
+
+        shouldFail(JedisDataException) {
+            try {
+                redisService.withTransaction { Transaction transaction ->
+                    def emptyMap = [:]
+                    transaction.hmset("foo", emptyMap)
+                }
+            } catch (any) {
+                assert any.message.startsWith("EXECABORT")
+                throw any
+            }
+        }
+
+        redisService.withRedis { Jedis redis ->
+            assert redis.get("foo") == null
+        }
     }
 
     def testMethodNotOnJedisThrowsMethodMissingException() {
