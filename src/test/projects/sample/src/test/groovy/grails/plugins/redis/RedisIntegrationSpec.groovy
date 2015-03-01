@@ -51,7 +51,7 @@ class RedisIntegrationSpec extends Specification {
 
     public void testMemoizeDomainListWithExpire() {
         given:
-        def book1 = new Book(title: "book1")
+        def book1 = new Book(title: "book1").save(flush: true)
         KEY_DOES_NOT_EXIST == redisService.ttl("domainkey")
 
         when:
