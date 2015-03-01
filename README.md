@@ -544,6 +544,19 @@ Here is an example of usage:
         return map
     }
 
+## Grails 3.0
+
+Most things remain the same except configuration in the `application.yml` file will be done not in dsl closure but YAML style.
+
+```yml
+---
+grails:
+  redis:
+    poolConfig:
+      maxIdle: 10
+      doesnotexist: true
+```
+
 Release Notes
 =============
 
