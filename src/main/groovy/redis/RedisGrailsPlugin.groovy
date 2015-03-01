@@ -13,12 +13,13 @@ class RedisGrailsPlugin extends Plugin {
     def grailsVersion = "3.0.0.BUILD-SNAPSHOT > *"
     def pluginExcludes = [
             "codenarc.properties",
-            "grails-app/conf/DataSource.groovy",
-            "grails-app/conf/redis-codenarc.groovy",
+            "grails-app/conf/**",
             "grails-app/views/**",
             "grails-app/domain/**",
             "grails-app/services/test/**",
-            "test/**"
+            "gradle/**",
+            "test/**",
+            "src/test/**"
     ]
 
     def title = "Redis Plugin" // Headline display name of the plugin

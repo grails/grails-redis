@@ -1,4 +1,4 @@
-.settings/
+.settings
 *.log
 plugin.xml
 *.zip
@@ -7,9 +7,9 @@ plugin.xml
 target
 web-app
 build
-/bin/
-/build/
-/.gradle/
+bin
+build
+.gradle
 .project
 .settings
 .classpath

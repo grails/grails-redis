@@ -557,6 +557,8 @@ grails:
       doesnotexist: true
 ```
 
+The package namespace has changed to `grails.plugins.redis`.  Note the addition of the s in plugin[s].
+
 Release Notes
 =============
 
