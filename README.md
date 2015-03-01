@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/Grails-Plugin-Consortium/redis.svg)](https://travis-ci.org/Grails-Plugin-Consortium/redis)
+
 Grails Redis Plugin
 ===================
 
