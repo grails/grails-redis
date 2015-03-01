@@ -42,10 +42,8 @@ class RedisServiceSpec extends Specification {
         // actually called as part of setup too, but we can test it here
         redisService.withRedis { Jedis redis ->
             assert 0 == redis.dbSize()
-            println redis.dbSize()
             redis.set("foo", "bar")
             assert 1 == redis.dbSize()
-            println redis.dbSize()
         }
 
         when:

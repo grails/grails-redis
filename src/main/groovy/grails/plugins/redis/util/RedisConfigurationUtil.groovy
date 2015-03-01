@@ -29,12 +29,13 @@ class RedisConfigurationUtil {
 
         def poolBean = "redisPoolConfig${key}"
         def validPoolProperties = findValidPoolProperties(redisConfigMap.poolConfig)
-//            println validPoolProperties
         //todo: fix the validPoolProperty eval or just add them inline
-        delegate."${poolBean}"(JedisPoolConfig) {
-            validPoolProperties.each { configKey, value ->
-                delegate.setProperty(configKey, value)
-            }
+        delegate."${poolBean}"(JedisPoolConfig) { bean ->
+//            validPoolProperties.each { configKey, value ->
+////                bean.setProperty(configKey, value)
+////                bean[configKey] = value
+//                bean."${configKey}" = value
+//            }
         }
 
         delegate.with {
@@ -63,9 +64,9 @@ class RedisConfigurationUtil {
         }
     }
 
-    static def findValidPoolProperties(ConfigObject properties) {
+    static def findValidPoolProperties(def properties) {
         def fakeJedisPoolConfig = new JedisPoolConfig()
-        properties.findAll { configKey, value ->
+        properties?.findAll { configKey, value ->
             try {
                 fakeJedisPoolConfig[configKey] = value
                 return true

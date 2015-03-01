@@ -15,6 +15,6 @@ spring:
 ---
 grails:
   redis:
-#    poolConfig:
-#      maxIdle: 10
-#      doesnotexist: true
+    poolConfig:
+      maxIdle: 10
+      doesnotexist: true
