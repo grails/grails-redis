@@ -1,7 +1,10 @@
 package grails.plugins.redis.ast
 
 import grails.plugins.redis.RedisService
+import grails.util.Holders
+import org.codehaus.groovy.ast.*
 import org.codehaus.groovy.ast.builder.AstBuilder
+import org.codehaus.groovy.ast.expr.*
 import org.codehaus.groovy.ast.stmt.BlockStatement
 import org.codehaus.groovy.ast.stmt.ReturnStatement
 import org.codehaus.groovy.ast.stmt.Statement
@@ -12,10 +15,10 @@ import org.codehaus.groovy.control.messages.SyntaxErrorMessage
 import org.codehaus.groovy.syntax.SyntaxException
 import org.codehaus.groovy.transform.ASTTransformation
 import org.codehaus.groovy.transform.GroovyASTTransformation
-import org.codehaus.groovy.ast.*
-import org.codehaus.groovy.ast.expr.*
-import static org.springframework.asm.Opcodes.ACC_PRIVATE
+import org.springframework.beans.factory.annotation.Autowired
+
 import static org.springframework.asm.Opcodes.ACC_PUBLIC
+import static org.springframework.asm.Opcodes.ACC_STATIC
 
 /**
  */
@@ -33,6 +36,8 @@ abstract class AbstractMemoizeASTTransformation implements ASTTransformation {
     protected static final String THIS = 'this'
     protected static final String PRINTLN = 'println'
 
+    public static final ClassNode AUTOWIRED_CLASS_NODE = new ClassNode(Autowired).getPlainNodeReference()
+
     void visit(ASTNode[] astNodes, SourceUnit sourceUnit) {
         //map to hold the params we will pass to the memoize[?] method
         def memoizeProperties = [:]
@@ -41,7 +46,7 @@ abstract class AbstractMemoizeASTTransformation implements ASTTransformation {
             injectService(sourceUnit, REDIS_SERVICE, RedisService)
             generateMemoizeProperties(astNodes, sourceUnit, memoizeProperties)
             //if the key is missing there is an issue with the annotation
-            if(!memoizeProperties.containsKey(KEY) || !memoizeProperties.get(KEY)) {
+            if (!memoizeProperties.containsKey(KEY) || !memoizeProperties.get(KEY)) {
                 return
             }
             addMemoizedStatements((MethodNode) astNodes[1], memoizeProperties)
@@ -67,7 +72,7 @@ abstract class AbstractMemoizeASTTransformation implements ASTTransformation {
      * Fix the variable scopes for closures.  Without this closures will be missing the input params being passed from the parent scope.
      * @param sourceUnit The SourceUnit to visit and add the variable scopes.
      */
-    private void visitVariableScopes(SourceUnit sourceUnit) {
+    private static void visitVariableScopes(SourceUnit sourceUnit) {
         VariableScopeVisitor scopeVisitor = new VariableScopeVisitor(sourceUnit);
         sourceUnit.AST.classes.each {
             scopeVisitor.visitClass(it)
@@ -80,13 +85,64 @@ abstract class AbstractMemoizeASTTransformation implements ASTTransformation {
      * @param serviceName name of the service to detect and/or inject
      * @param serviceClass Class of the service
      */
-    protected void injectService(SourceUnit sourceUnit, String serviceName, Class serviceClass) {
-        if(!((ClassNode) sourceUnit.AST.classes.toArray()[0]).properties?.any { it?.field?.name == serviceName }) {
-            if(!sourceUnit.AST.imports.any {it.className == ClassHelper.make(serviceClass).name}
-                    && !sourceUnit.AST.starImports.any {it.packageName == "${ClassHelper.make(serviceClass).packageName}."}) {
-                sourceUnit.AST.addImport(serviceClass.simpleName, ClassHelper.make(serviceClass))
+    protected static void injectService(SourceUnit sourceUnit, String serviceName, Class serviceClass) {
+        def classNode = (ClassNode) sourceUnit.AST.classes.toArray()[0]
+        if (!classNode.fields?.any { it.name == serviceName }) {
+            addImport(sourceUnit, serviceClass)
+            addImport(sourceUnit, Holders)
+            addStarImport(sourceUnit, Holders)
+            addRedisService(classNode, serviceName, RedisService)
+            addFieldToTransients(classNode, serviceName)
+        }
+    }
+
+
+    private static void addStarImport(SourceUnit sourceUnit, Class serviceClass) {
+        if (!sourceUnit.AST.starImports.any { it.packageName =~ "${ClassHelper.make(serviceClass).packageName}" }) {
+            sourceUnit.AST.addStarImport(ClassHelper.make(serviceClass).packageName)
+        }
+    }
+
+    private static void addImport(SourceUnit sourceUnit, Class serviceClass) {
+        if (!sourceUnit.AST.imports.any { it.className == ClassHelper.make(serviceClass).name }
+                && !sourceUnit.AST.starImports.any {
+            it.packageName == "${ClassHelper.make(serviceClass).packageName}."
+        }) {
+            sourceUnit.AST.addImport(serviceClass.simpleName, ClassHelper.make(serviceClass))
+        }
+    }
+
+    private
+    static void addRedisService(ClassNode cNode, String propertyName, Class propertyType = Object.class, Expression initialValue = null) {
+        def ast = new AstBuilder().buildFromCode {
+            grails.util.Holders.findApplicationContext().getBean('redisService')
+        }
+
+        FieldNode fieldNode = new FieldNode(
+                propertyName,
+                ACC_PUBLIC,
+                new ClassNode(propertyType),
+                new ClassNode(cNode.class),
+                ast[0].statements[0].expression
+        )
+
+        def propertyNode = new PropertyNode(fieldNode, ACC_PUBLIC, null, null)
+        cNode.addProperty(propertyNode)
+
+    }
+
+    private static void addFieldToTransients(ClassNode parentClass, String propertyName) {
+        if (parentClass != null) {
+            FieldNode transients = parentClass.getField("transients")
+            if (!transients) {
+                transients = parentClass.addField(
+                        "transients",
+                        ACC_PUBLIC | ACC_STATIC,
+                        ClassHelper.DYNAMIC_TYPE,
+                        new ListExpression()
+                )
             }
-            addProperty((ClassNode) sourceUnit.AST.classes.toArray()[0], serviceName)
+            ((ListExpression) transients.initialExpression).addExpression(new ConstantExpression(propertyName))
         }
     }
 
@@ -94,20 +150,13 @@ abstract class AbstractMemoizeASTTransformation implements ASTTransformation {
      * This method adds a new property to the class. Groovy automatically handles adding the getters and setters so you
      * don't have to create special methods for those.  This could be reused for other properties.
      * @param cNode Node to inject property onto.  Usually a ClassNode for the current class.
-     * @param propertyName The name of the property to inject.
+     * @param anotationName The name of the property to inject.
      * @param propertyType The object class of the property. (defaults to Object.class)
      * @param initialValue Initial value of the property. (defaults null)
      */
-    private void addProperty(ClassNode cNode, String propertyName, Class propertyType = java.lang.Object.class, Expression initialValue = null) {
-        FieldNode field = new FieldNode(
-                propertyName,
-                ACC_PRIVATE,
-                new ClassNode(propertyType),
-                new ClassNode(cNode.class),
-                initialValue
-        )
-
-        cNode.addProperty(new PropertyNode(field, ACC_PUBLIC, null, null))
+    private static void addAutowiredAnnotation(AnnotatedNode node) {
+        final AnnotationNode autowiredAnnotation = new AnnotationNode(AUTOWIRED_CLASS_NODE)
+        node.addAnnotation(autowiredAnnotation)
     }
 
     /**
@@ -144,8 +193,9 @@ abstract class AbstractMemoizeASTTransformation implements ASTTransformation {
         )
     }
 
-    protected void addRedisServiceMemoizeKeyExpression(Map memoizeProperties, ArgumentListExpression argumentListExpression) {
-        if(memoizeProperties.get(KEY).toString().contains(HASH_CODE)) {
+    protected
+    static void addRedisServiceMemoizeKeyExpression(Map memoizeProperties, ArgumentListExpression argumentListExpression) {
+        if (memoizeProperties.get(KEY).toString().contains(HASH_CODE)) {
             def ast = new AstBuilder().buildFromString("""
                 "${memoizeProperties.get(KEY).toString().replace(HASH_CODE, GSTRING).toString()}"
            """)
@@ -155,19 +205,20 @@ abstract class AbstractMemoizeASTTransformation implements ASTTransformation {
         }
     }
 
-	protected void addRedisServiceMemoizeExpireExpression(Map memoizeProperties, ArgumentListExpression argumentListExpression) {
-		if(memoizeProperties.get(EXPIRE).toString().contains(HASH_CODE)) {
-			def ast = new AstBuilder().buildFromString("""
+    protected
+    static void addRedisServiceMemoizeExpireExpression(Map memoizeProperties, ArgumentListExpression argumentListExpression) {
+        if (memoizeProperties.get(EXPIRE).toString().contains(HASH_CODE)) {
+            def ast = new AstBuilder().buildFromString("""
                 Integer.parseInt("${memoizeProperties.get(EXPIRE).toString().replace(HASH_CODE, GSTRING).toString()}")
            """)
-			
-			argumentListExpression.addExpression(ast[0].statements[0].expression)
-		} else {
-			argumentListExpression.addExpression(makeConstantExpression(Integer.parseInt(memoizeProperties.get(EXPIRE).toString())))
-		}
-	}
-	
-    protected ClosureExpression makeClosureExpression(MethodNode methodNode) {
+
+            argumentListExpression.addExpression(ast[0].statements[0].expression)
+        } else {
+            argumentListExpression.addExpression(makeConstantExpression(Integer.parseInt(memoizeProperties.get(EXPIRE).toString())))
+        }
+    }
+
+    protected static ClosureExpression makeClosureExpression(MethodNode methodNode) {
         ClosureExpression closureExpression = new ClosureExpression(
                 [] as Parameter[],
                 new BlockStatement(methodNode.code.statements as Statement[], new VariableScope())
@@ -176,11 +227,11 @@ abstract class AbstractMemoizeASTTransformation implements ASTTransformation {
         closureExpression
     }
 
-    protected ConstantExpression makeConstantExpression(constantExpression) {
+    protected static ConstantExpression makeConstantExpression(constantExpression) {
         new ConstantExpression(constantExpression)
     }
 
-    protected void addError(String msg, ASTNode node, SourceUnit source) {
+    protected static void addError(String msg, ASTNode node, SourceUnit source) {
         int line = node.lineNumber
         int col = node.columnNumber
         SyntaxException se = new SyntaxException("${msg}\n", line, col)

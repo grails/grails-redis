@@ -28,7 +28,7 @@ class MemoizeASTTransformation extends AbstractMemoizeASTTransformation {
         }
     }
 
-    private Boolean validateMemoizeProperties(keyClosure, keyString, ASTNode[] astNodes, SourceUnit sourceUnit, expire) {
+    private static Boolean validateMemoizeProperties(keyClosure, keyString, ASTNode[] astNodes, SourceUnit sourceUnit, expire) {
         if(keyClosure?.class != ClosureExpression && keyString.class != String) {
             addError('Internal Error: annotation does not contain key closure or key property', astNodes[0], sourceUnit)
             return false

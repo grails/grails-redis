@@ -3,12 +3,15 @@ package grails.plugins.redis
 import com.example.Book
 import grails.test.mixin.integration.Integration
 import org.springframework.beans.factory.annotation.Autowired
+import spock.lang.Ignore
 import spock.lang.Specification
 
 import static grails.plugins.redis.RedisService.KEY_DOES_NOT_EXIST
 import static grails.plugins.redis.RedisService.NO_EXPIRATION_TTL
 
 @Integration
+@org.springframework.transaction.annotation.Transactional
+@Ignore
 class RedisIntegrationSpec extends Specification {
 
     @Autowired

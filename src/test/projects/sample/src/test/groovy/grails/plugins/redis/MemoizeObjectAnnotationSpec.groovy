@@ -3,13 +3,15 @@ package grails.plugins.redis
 import com.google.gson.GsonBuilder
 import grails.test.mixin.integration.Integration
 import org.springframework.beans.factory.annotation.Autowired
+import spock.lang.Ignore
 import spock.lang.Specification
 
 @Integration
+@Ignore
 class MemoizeObjectAnnotationSpec extends Specification {
 
     @Autowired
-    def redisService
+    RedisService redisService
     GsonBuilder gsonBuilder = new GsonBuilder()
 
     public void setup() {
