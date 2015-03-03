@@ -7,7 +7,6 @@ import spock.lang.Ignore
 import spock.lang.Specification
 
 @Integration
-@Ignore
 class MemoizeObjectAnnotationSpec extends Specification {
 
     @Autowired

@@ -11,7 +11,6 @@ import static grails.plugins.redis.RedisService.NO_EXPIRATION_TTL
 
 @Integration
 @org.springframework.transaction.annotation.Transactional
-@Ignore
 class RedisIntegrationSpec extends Specification {
 
     @Autowired

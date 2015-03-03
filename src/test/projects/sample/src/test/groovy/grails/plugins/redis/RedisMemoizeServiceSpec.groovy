@@ -9,7 +9,6 @@ import spock.lang.Specification
 
 @Integration
 @org.springframework.transaction.annotation.Transactional
-@Ignore
 class RedisMemoizeServiceSpec extends Specification {
 
     @Autowired

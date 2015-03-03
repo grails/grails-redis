@@ -343,6 +343,8 @@ Memoization Annotations
 
 ### Memoization Annotations ###
 
+#### These currently do not work with grails 3.0+ and domain classes.  Please only used these on service classes for grails 3.0+ until we can fix this ####
+
 In addition to using the concrete and finite redisService.memoize* methods, as of version 1.2 you may now also annotate a method with an appropriate @Memoize* annotation.  This will perform an AST transformation at compile time and wrap the entire body of the method with the corresponding memoization method.  The parameters such as key and expire are passed into the annotation and used in the redisService memoize method calls.
 
 The following are available as annotations:
@@ -558,6 +560,8 @@ grails:
 ```
 
 The package namespace has changed to `grails.plugins.redis`.  Note the addition of the s in plugin[s].
+
+@Memoize annotations currently do NOT work with domain objects and classes.  We are working to fix this.
 
 Release Notes
 =============

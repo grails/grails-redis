@@ -6,9 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired
 import spock.lang.Ignore
 import spock.lang.Specification
 
-@Ignore
 @Integration
 @org.springframework.transaction.annotation.Transactional
+@Ignore
 class RedisMemoizeDomainSpec extends Specification {
 
     @Autowired

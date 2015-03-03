@@ -33,12 +33,15 @@ abstract class AbstractMemoizeASTTransformation implements ASTTransformation {
     protected static final String HASH_CODE = '#'
     protected static final String GSTRING = '$'
     protected static final String REDIS_SERVICE = 'redisService'
+    protected static final String GET_REDIS_SERVICE = 'getRedisService'
     protected static final String THIS = 'this'
     protected static final String PRINTLN = 'println'
 
     public static final ClassNode AUTOWIRED_CLASS_NODE = new ClassNode(Autowired).getPlainNodeReference()
 
     void visit(ASTNode[] astNodes, SourceUnit sourceUnit) {
+        //return //todo: this isn't working with grails 3.0+, UGH!
+
         //map to hold the params we will pass to the memoize[?] method
         def memoizeProperties = [:]
 
@@ -91,7 +94,7 @@ abstract class AbstractMemoizeASTTransformation implements ASTTransformation {
             addImport(sourceUnit, serviceClass)
             addImport(sourceUnit, Holders)
             addStarImport(sourceUnit, Holders)
-            addRedisService(classNode, serviceName, RedisService)
+            addRedisServiceBuilder(classNode, serviceName, RedisService)
             addFieldToTransients(classNode, serviceName)
         }
     }
@@ -106,27 +109,56 @@ abstract class AbstractMemoizeASTTransformation implements ASTTransformation {
     private static void addImport(SourceUnit sourceUnit, Class serviceClass) {
         if (!sourceUnit.AST.imports.any { it.className == ClassHelper.make(serviceClass).name }
                 && !sourceUnit.AST.starImports.any {
-            it.packageName == "${ClassHelper.make(serviceClass).packageName}."
+            it.packageName == "${ClassHelper.make(serviceClass).packageName}.".toString()
         }) {
             sourceUnit.AST.addImport(serviceClass.simpleName, ClassHelper.make(serviceClass))
         }
     }
 
-    private
-    static void addRedisService(ClassNode cNode, String propertyName, Class propertyType = Object.class, Expression initialValue = null) {
-        def ast = new AstBuilder().buildFromCode {
-            grails.util.Holders.findApplicationContext().getBean('redisService')
-        }
+    private static void addRedisService(ClassNode cNode,
+                                        String propertyName,
+                                        Class propertyType = Object.class,
+                                        Expression initialValue = null) {
+        //def ast = new AstBuilder().buildFromString("Holders?.findApplicationContext()")
+        //?.getBean('redisService')")
 
         FieldNode fieldNode = new FieldNode(
                 propertyName,
                 ACC_PUBLIC,
                 new ClassNode(propertyType),
                 new ClassNode(cNode.class),
-                ast[0].statements[0].expression
+                initialValue
         )
 
-        def propertyNode = new PropertyNode(fieldNode, ACC_PUBLIC, null, null)
+        def holderExpression = new StaticMethodCallExpression(ClassHelper.make(Holders.class), 'findApplicationContext', null)
+        ArgumentListExpression argumentListExpression = new ArgumentListExpression()
+        argumentListExpression.addExpression(makeConstantExpression('redisService'))
+        def getBeanExpression = new MethodCallExpression(holderExpression, 'getBean', argumentListExpression)
+        getBeanExpression.setSafe(true)
+
+        def returnStatement = new ReturnStatement(getBeanExpression)
+
+
+        def propertyNode = new PropertyNode(fieldNode, ACC_PUBLIC, returnStatement, null)
+        cNode.addProperty(propertyNode)
+    }
+
+    private static void addRedisServiceBuilder(ClassNode cNode, String propertyName,
+                                               Class propertyType = Object.class,
+                                               Expression initialValue = null) {
+        def ast = new AstBuilder().buildFromString("return Holders?.findApplicationContext()?.getBean('redisService')")
+
+        FieldNode fieldNode = new FieldNode(
+                propertyName,
+                ACC_PUBLIC,
+                new ClassNode(propertyType),
+                new ClassNode(cNode.class),
+                initialValue
+        )
+
+        def returnStatement = new ReturnStatement(ast[0].statements[0].expression)
+
+        def propertyNode = new PropertyNode(fieldNode, ACC_PUBLIC, returnStatement, null)
         cNode.addProperty(propertyNode)
 
     }
@@ -143,6 +175,7 @@ abstract class AbstractMemoizeASTTransformation implements ASTTransformation {
                 )
             }
             ((ListExpression) transients.initialExpression).addExpression(new ConstantExpression(propertyName))
+            ((ListExpression) transients.initialExpression).addExpression(new ConstantExpression("get${propertyName.capitalize()}"))
         }
     }
 
@@ -182,13 +215,22 @@ abstract class AbstractMemoizeASTTransformation implements ASTTransformation {
         ArgumentListExpression argumentListExpression = makeRedisServiceArgumentListExpression(memoizeProperties)
         argumentListExpression.addExpression(makeClosureExpression(methodNode))
 
+        def ast = new AstBuilder().buildFromString("getRedisService()")
+
+        def getRedisServiceMethodExpression = ast[0].statements[0].expression as MethodCallExpression
+        getRedisServiceMethodExpression.setSafe(true)
+
+        def redisServiceMethodMethodExpression = new MethodCallExpression(
+                getRedisServiceMethodExpression,
+                makeRedisServiceConstantExpression(),
+                argumentListExpression
+        )
+
+        redisServiceMethodMethodExpression.setSafe(true)
+
         body.addStatement(
                 new ReturnStatement(
-                        new MethodCallExpression(
-                                new VariableExpression(REDIS_SERVICE),
-                                makeRedisServiceConstantExpression(),
-                                argumentListExpression
-                        )
+                        redisServiceMethodMethodExpression
                 )
         )
     }

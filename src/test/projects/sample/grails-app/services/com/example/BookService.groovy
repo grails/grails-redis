@@ -4,6 +4,8 @@ import grails.plugins.redis.*
 
 class BookService {
 
+    RedisService redisService
+
     @MemoizeScore(key = '#{map.key}', member = 'foo')
     def getAnnotatedScore(Map map) {
         println 'cache miss getAnnotatedScore'
@@ -66,13 +68,6 @@ class BookService {
     def getAnnotatedBook(Book book) {
         println 'cache miss getAnnotatedBook'
         return book.toString()
-    }
-
-    def getMemoizedBook(Book book, Date date) {
-        return redisService.memoize("${book.title}:${book.id}") {
-            println 'cache miss getMemoizedTextDate'
-            return "$text $date"
-        }
     }
 
     def getMemoizedTextDate(String text, Date date) {

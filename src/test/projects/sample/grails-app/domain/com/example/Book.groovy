@@ -1,16 +1,64 @@
 package com.example
 
-import grails.plugins.redis.Memoize
 import groovy.transform.ToString
 
 @ToString(includes = "id,title,createDate")
 class Book {
 
+//    RedisService redisService
+
     String title = ''
     Date createDate = new Date()
 
-    @Memoize(key = '#{title}')
+    //todo: FIX THESE ASAP!
+//    @Memoize(key = '#{title}')
     def getMemoizedTitle(Date date) {
         "$title $date"
     }
+
+
+    @Override
+    public String toString() {
+        return "Book{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", createDate=" + createDate +
+                '}';
+    }
 }
+
+//import grails.plugins.redis.RedisService
+//import grails.util.Holders
+//
+//class Book {
+//
+//    RedisService redisService
+//
+//    static transients = ['redisService', 'redisTitle']
+//
+//    String title = ''
+//    Date createDate = new Date()
+//    String redisTitle = getMemoizedTitle(createDate)
+//
+//    def getMemoizedTitle(Date date) {
+//        getRedisService()?.memoize(title) {
+//            println 'cache miss'
+//            "$title $date"
+//        }
+//    }
+//
+//    def getRedisService() {
+//        return Holders?.findApplicationContext()?.getBean('redisService')
+//    }
+//
+//
+//    @Override
+//    public String toString() {
+//        return "Book{" +
+//                "redisTitle='" + redisTitle + '\'' +
+//                ", createDate=" + createDate +
+//                ", title='" + title + '\'' +
+//                ", id=" + id +
+//                '}';
+//    }
+//}
