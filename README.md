@@ -563,6 +563,22 @@ The package namespace has changed to `grails.plugins.redis`.  Note the addition 
 
 @Memoize annotations currently do NOT work with domain objects and classes.  We are working to fix this.
 
+Previously the @Memoize annotations would inject the redisService into your classes, due to changes in how beans are wired in grails 3.0.0+ it is recommended that you 
+define the service in your classes like the following:
+
+``` groovy
+class MyService {
+    
+    RedisService redisService
+    
+    @Memoize()
+    def doFoo(){
+        ...
+    }
+    
+}
+```
+
 Release Notes
 =============
 
