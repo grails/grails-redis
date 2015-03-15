@@ -2,15 +2,15 @@ package grails.plugins.redis
 
 import com.example.Book
 import grails.test.mixin.integration.Integration
+import grails.transaction.Rollback
 import org.springframework.beans.factory.annotation.Autowired
-import spock.lang.Ignore
 import spock.lang.Specification
 
 import static grails.plugins.redis.RedisService.KEY_DOES_NOT_EXIST
 import static grails.plugins.redis.RedisService.NO_EXPIRATION_TTL
 
 @Integration
-@org.springframework.transaction.annotation.Transactional
+@Rollback
 class RedisIntegrationSpec extends Specification {
 
     @Autowired
@@ -71,10 +71,17 @@ class RedisIntegrationSpec extends Specification {
         def book2 = new Book(title: "book2").save(flush: true)
         def book3 = new Book(title: "book3").save(flush: true)
 
+        def books = []
+        books << Book.findByTitle('book1')
+        books << Book.findByTitle('book3')
+
         def calledCount = 0
         def cacheMissClosure = {
             calledCount += 1
-            return Book.findAllByTitleInList(["book1", "book3"])
+//            def books = []
+//            books << Book.findByTitle('book1')
+//            books << Book.findByTitle('book3')
+            return books
         }
 
         when:

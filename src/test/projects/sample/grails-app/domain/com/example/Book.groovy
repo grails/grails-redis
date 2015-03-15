@@ -5,7 +5,7 @@ import groovy.transform.ToString
 @ToString(includes = "id,title,createDate")
 class Book {
 
-//    RedisService redisService
+    transient redisService
 
     String title = ''
     Date createDate = new Date()
@@ -27,6 +27,7 @@ class Book {
     }
 }
 
+//todo: get the ast to do this because this seems to work.
 //import grails.plugins.redis.RedisService
 //import grails.util.Holders
 //
