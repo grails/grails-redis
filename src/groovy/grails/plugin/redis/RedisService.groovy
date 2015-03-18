@@ -67,11 +67,12 @@ class RedisService {
             Transaction transaction = redis.multi()
             try {
                 closure(transaction)
-                transaction.exec()
             } catch(Exception exception) {
                 transaction.discard()
                 throw exception
             }
+
+            transaction.exec()
         }
     }
 
