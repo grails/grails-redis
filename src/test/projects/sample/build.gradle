@@ -64,7 +64,7 @@ dependencies {
     runtime "org.grails.plugins:asset-pipeline"
     runtime "org.grails.plugins:scaffolding"
 
-    compile "org.grails.plugins:redis:2.0.0.BUILD-SNAPSHOT"
+    compile "org.grails.plugins:grails-redis:2.0.0.BUILD-SNAPSHOT"
 
     testCompile "org.grails:grails-plugin-testing"
     testCompile "org.grails.plugins:geb"
