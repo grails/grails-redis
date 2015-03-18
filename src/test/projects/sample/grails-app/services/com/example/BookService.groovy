@@ -42,7 +42,7 @@ class BookService {
     def getDomainListWithKeyClass(String title, Date date) {
         redisService.domainListWithKeyClassKey = "$title $date"
         println 'cache miss getDomainListWithKeyClass'
-        Book.findAllByTitle(title)
+        Book.executeQuery("from Book b where b.title = :title", [title: title])
     }
 
     @Memoize({ '#{text}' })

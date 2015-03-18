@@ -29,7 +29,7 @@ class RedisIntegrationSpec extends Specification {
         def calledCount = 0
         def cacheMissClosure = {
             calledCount += 1
-            return Book.findAllByTitleInList(["book1", "book3"])
+            return Book.executeQuery("from Book b where b.title = 'book1' or b.title = 'book3'")
         }
 
         when:
@@ -71,16 +71,11 @@ class RedisIntegrationSpec extends Specification {
         def book2 = new Book(title: "book2").save(flush: true)
         def book3 = new Book(title: "book3").save(flush: true)
 
-        def books = []
-        books << Book.findByTitle('book1')
-        books << Book.findByTitle('book3')
+        def books = [book1, book3]
 
         def calledCount = 0
         def cacheMissClosure = {
             calledCount += 1
-//            def books = []
-//            books << Book.findByTitle('book1')
-//            books << Book.findByTitle('book3')
             return books
         }
 
