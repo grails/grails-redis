@@ -19,7 +19,7 @@ import grails.util.Environment
 
 class RedisGrailsPlugin {
 
-    def version = "1.6.3"
+    def version = "1.6.4"
     def grailsVersion = "2.0.0 > *"
     def author = "Ted Naleid"
     def authorEmail = "contact@naleid.com"
@@ -41,7 +41,8 @@ class RedisGrailsPlugin {
             [name: "Florian Langenhahn"],
             [name: "German Sancho"],
             [name: "John Mulhern"],
-            [name: "Shaun Jurgemeyer"]
+            [name: "Shaun Jurgemeyer"],
+            [name: "R.A. Porter"]
     ]
 
     def pluginExcludes = [
