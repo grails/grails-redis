@@ -1,0 +1,20 @@
+grails:
+  profile: plugin
+  codegen:
+    defaultPackage: redis
+info:
+    app:
+        name: '@info.app.name@'
+        version: '@info.app.version@'
+        grailsVersion: '@info.app.grailsVersion@'
+spring:
+  groovy:
+    template:
+      check-template-location: false
+
+---
+grails:
+  redis:
+    poolConfig:
+      maxIdle: 10
+      doesnotexist: true

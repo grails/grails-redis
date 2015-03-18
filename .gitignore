@@ -1,4 +1,4 @@
-.settings/
+.settings
 *.log
 plugin.xml
 *.zip
@@ -6,10 +6,16 @@ plugin.xml
 .DS_Store
 target
 web-app
-
+build
+bin
+build
+.gradle
+.project
+.settings
+.classpath
+.idea
 *.iml
 *.ipr
 *.iws
-.idea
-out
 *.swp
+out
