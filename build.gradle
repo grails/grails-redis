@@ -22,17 +22,15 @@ apply plugin: 'idea'
 apply plugin: "spring-boot"
 apply plugin: "org.grails.grails-plugin"
 apply plugin: "org.grails.grails-gsp"
-// Used for publishing to central repository, remove if not needed
-apply from:'https://raw.githubusercontent.com/grails/grails-profile-repository/master/profiles/plugin/templates/grailsCentralPublishing.gradle'
-apply from:'https://raw.githubusercontent.com/grails/grails-profile-repository/master/profiles/plugin/templates/bintrayPublishing.gradle'
 
+apply from:'https://raw.githubusercontent.com/grails/grails-profile-repository/master/profiles/plugin/templates/grailsCentralPublishing.gradle'
 
 ext {
     grailsVersion = project.grailsVersion
     gradleWrapperVersion = project.gradleWrapperVersion
 }
 
-version "2.0.0.BUILD-SNAPSHOT"
+version "2.0.0"
 group "org.grails.plugins"
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
@@ -80,3 +78,24 @@ jar {
   exclude "application.groovy"
   exclude "src/test/projects/**"
 }
+
+bintray {
+    user = System.getenv("BINTRAY_USER") ?: project.hasProperty("bintrayUser") ? project.bintrayUser : '' 
+    key = System.getenv("BINTRAY_KEY") ?: project.hasProperty("bintrayKey") ? project.bintrayKey : '' 
+    publications = ['maven']
+    pkg {
+        repo = 'grails-plugins'
+        userOrg = 'tednaleid'
+        name = "org.grails.plugins:$project.name"
+        desc = "Grails $project.name plugin"
+        websiteUrl = "http://grails.org/plugin/$project.name"
+        issueTrackerUrl = "https://github.com/tednaleid/$project.name/issues"
+        vcsUrl = "https://github.com/tednaleid/${project.name}"
+        licenses = ['Apache-2.0']
+        publicDownloadNumbers = true
+    }
+}
+
+
+bintrayUpload.dependsOn build, sourcesJar, javadocJar
+
