@@ -1,14 +1,16 @@
+[![Build Status](https://travis-ci.org/Grails-Plugin-Consortium/redis.svg)](https://travis-ci.org/Grails-Plugin-Consortium/redis)
+
 Grails Redis Plugin
 ===================
 
-For integration between [Redis][redis] and Grails GORM layer, see the [Redis GORM plugin][redisgorm]. 
+For integration between [Redis][redis] and Grails GORM layer, see the [Redis GORM plugin][redisgorm].
 
 That plugin was originally called "redis" (the name of this plugin), but it has since been refactored to "redis-gorm" and now relies on this plugin for connectivity.
 
 What is Redis?
 --------------
 
-The best definition of Redis that I've heard is that it is a "collection of data structures exposed over the network".   
+The best definition of Redis that I've heard is that it is a "collection of data structures exposed over the network".
 
 Redis is an [insanely fast][redisfast] key/value store, in some ways similar to [memcached][memcached], but the values it stores aren't just dumb blobs of data.  Redis values are data structures like [strings][redisstring], [lists][redislist], [hash maps][redishash], [sets][redisset], and [sorted sets][redissortedset].  Redis also can act as a lightweight pub/sub or message queueing system.
 
@@ -52,7 +54,7 @@ Out of the box, the plugin expects that Redis is running on `localhost:6379`.  Y
             sentinels = [ "host1:6379", "host2:6379", "host3:6379" ] // list of sentinel instance host/ports
             masterName = "mymaster" // the name of a master the sentinel cluster is configured to monitor
         }
-		
+
     }
 
 The poolConfig section will let you tweak any of the [setter values made available by the JedisPoolConfig][jedispoolconfig].  It implements the Apache Commons [GenericObjectPool][genericobjectpool].
@@ -73,12 +75,12 @@ The service overrides `propertyMissing` and `methodMissing` to delegate any miss
     // overrides propertyMissing and methodMissing to delegate to redis
     def redisService
 
-    redisService.foo = "bar"   
-    assert "bar" == redisService.foo   
+    redisService.foo = "bar"
+    assert "bar" == redisService.foo
 
     redisService.sadd("months", "february")
     assert true == redisService.sismember("months", "february")
-        
+
 It also provides a template method called `withRedis` that takes a closure as a parameter.  It passes a Jedis connection object to Redis into the closure.  The template method automatically gets an object out of the pool and ensures that it gets returned to the pool after the closure finishes (even if there's an error).
 
     redisService.withRedis { Jedis redis ->
@@ -113,7 +115,7 @@ There are methods for the basic Redis data types:
 
 ### String Memoization ###
 
-    redisService.memoize("user:$userId:helloMessage") { 
+    redisService.memoize("user:$userId:helloMessage") {
         // expensive to calculate method that returns a String
         "Hello ${security.currentLoggedInUser().firstName}"
     }
@@ -121,9 +123,9 @@ There are methods for the basic Redis data types:
 By default, the key/value will be cached forever in Redis, you can ensure that the key is refreshed either by deleting the key from Redis, making the key include a date or timestamp, or by using the optional `expire` parameter, the value is the number of seconds before Redis should expire the key:
 
     def ONE_HOUR = 3600
-    redisService.memoize("user:$userId:helloMessage", [expire: ONE_HOUR]) { 
+    redisService.memoize("user:$userId:helloMessage", [expire: ONE_HOUR]) {
         """
-        Hello ${security.currentLoggedInUser().firstName. 
+        Hello ${security.currentLoggedInUser().firstName.
         The temperature this hour is ${currentTemperature()}
         """
     }
@@ -134,14 +136,14 @@ You can memoize a single domain object with redis.  It will cache the ID of the 
 
 
     String key = "user:42:favorite:author"
-    Author author = redisService.memoizeDomainObject(Author, key) { 
+    Author author = redisService.memoizeDomainObject(Author, key) {
         Author author = ... // expensive method to calculate user 42's favorite author...
         return author
     }
 
 Now that you have the proxy object for the Author, you can do queries with it without actually having to hydrate the object (and anything it eagerly loads):
 
-    def recommendedBooks = Book.findByAuthor(author) 
+    def recommendedBooks = Book.findByAuthor(author)
 
 The object has the id field populated, but the remaining fields are lazily loaded only if their values are requested, so you can still do:
 
@@ -162,13 +164,13 @@ This allows you to still grab the freshest objects from the database, but not re
         // that the user already owns, this stores the list of determined Book IDs
         // in Redis, but hydrates the Book objects from the DB
     }
-        
+
 ### Other Memoization Methods ###
 
 There are other memoization methods that the plugin provides, check out the [RedisService.groovy][redisservicecode] and the plugin tests for the exhaustive list.
 
     // Redis Hash memoize methods
-    
+
     redisService.memoizeHash("saved-hash") { return [foo: "bar"] }
 
     redisService.memoizeHashField("saved-hash", "foo") { return "bar" }
@@ -177,7 +179,7 @@ There are other memoization methods that the plugin provides, check out the [Red
     redisService.memoizeList("saved-list") { return ["foo", "bar", "baz"] }
 
     // Redis Set memoize method
-    redisService.memoizeSet("saved-set") { return ["foo", "bar", "baz"] as Set } 
+    redisService.memoizeSet("saved-set") { return ["foo", "bar", "baz"] as Set }
 
     // Redis Sorted Set memoize method
     redisService.memoizeScore("saved-sorted-set", "set-item") { return score }
@@ -298,7 +300,7 @@ class FooService {
     // custom created beans for each connection, you can use these or just use the `withConnection` method
     // both methods are demonstrated below for example purposes, but you'd like choose one method or the other
     def redisServiceCache
-    def redisServiceSearch  
+    def redisServiceSearch
 
     def doWork(){
         redisService.withRedis { Jedis redis ->
@@ -340,6 +342,8 @@ Memoization Annotations
 ------------
 
 ### Memoization Annotations ###
+
+#### These currently do not work with grails 3.0+ and domain classes.  Please only used these on service classes for grails 3.0+ until we can fix this ####
 
 In addition to using the concrete and finite redisService.memoize* methods, as of version 1.2 you may now also annotate a method with an appropriate @Memoize* annotation.  This will perform an AST transformation at compile time and wrap the entire body of the method with the corresponding memoization method.  The parameters such as key and expire are passed into the annotation and used in the redisService memoize method calls.
 
@@ -542,6 +546,39 @@ Here is an example of usage:
         return map
     }
 
+## Grails 3.0
+
+Most things remain the same except configuration in the `application.yml` file will be done not in dsl closure but YAML style.
+
+```yml
+---
+grails:
+  redis:
+    poolConfig:
+      maxIdle: 10
+      doesnotexist: true
+```
+
+The package namespace has changed to `grails.plugins.redis`.  Note the addition of the s in plugin[s].
+
+@Memoize annotations currently do NOT work with domain objects and classes.  We are working to fix this.
+
+Previously the @Memoize annotations would inject the redisService into your classes, due to changes in how beans are wired in grails 3.0.0+ it is recommended that you 
+define the service in your classes like the following:
+
+``` groovy
+class MyService {
+    
+    RedisService redisService
+    
+    @Memoize()
+    def doFoo(){
+        ...
+    }
+    
+}
+```
+
 Release Notes
 =============
 
@@ -565,6 +602,7 @@ Release Notes
 * 1.5.5 - released 5/28/2014 - Added `redisService.memoizeObject` method (#34) with optional `[cacheNull: false]` flag (#35)
 * 1.6.0 - released 11/04/2014 - Changed how `RedisService` is spring injected so that it's easier to mock out for tests by clients.  Upgraded to Jedis 2.6.0.
 * 1.6.2 - released 02/06/2015 - Port and timeout properties injected by external properties file are now converted to Integer.  If not integer, then defaults used.
+* 2.0.0.BUILD-SNAPSHOT - Grails 3.0.0 Support!
 
 [redisgorm]: http://grails.github.com/inconsequential/redis/
 [redis]: http://redis.io
