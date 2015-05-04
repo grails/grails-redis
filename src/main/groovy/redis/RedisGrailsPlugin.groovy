@@ -19,7 +19,8 @@ class RedisGrailsPlugin extends Plugin {
             "grails-app/services/test/**",
             "gradle/**",
             "test/**",
-            "src/test/**"
+            "src/test/**",
+            "web-app/**"
     ]
 
     def title = "Redis Plugin" // Headline display name of the plugin
