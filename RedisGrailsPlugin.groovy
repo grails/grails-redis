@@ -19,7 +19,7 @@ import grails.util.Environment
 
 class RedisGrailsPlugin {
 
-    def version = "1.6.4"
+    def version = "1.6.5"
     def grailsVersion = "2.0.0 > *"
     def author = "Ted Naleid"
     def authorEmail = "contact@naleid.com"
@@ -52,8 +52,8 @@ class RedisGrailsPlugin {
             "grails-app/views/**",
             "grails-app/domain/**",
             "grails-app/services/test/**",
-            "test/**"
-
+            "test/**",
+            "web-app/**"
     ]
 
     def scm = [url: "https://github.com/grails-plugins/grails-redis"]
