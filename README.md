@@ -608,6 +608,7 @@ Release Notes
 * 1.6.2 - released 02/06/2015 - Port and timeout properties injected by external properties file are now converted to Integer.  If not integer, then defaults used.
 * 2.0.0 - released 03/18/2015 - Grails 3.0.0 Support! You can install [from bintray](https://bintray.com/tednaleid/grails-plugins/org.grails.plugins%3Agrails-redis/2.0.0/view).  There is a known issue where `@Memoize` annotations don't work on domain classes, most everything else works.
 * 2.0.1 - released 05/04/2015 - web-inf directory removed from plugin
+* 2.0.2 - released 06/25/2015 - Adding support for external configuration of sentinels
 
 [redisgorm]: http://grails.github.com/inconsequential/redis/
 [redis]: http://redis.io
