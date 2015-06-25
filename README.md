@@ -565,6 +565,7 @@ Release Notes
 * 1.5.5 - released 5/28/2014 - Added `redisService.memoizeObject` method (#34) with optional `[cacheNull: false]` flag (#35)
 * 1.6.0 - released 11/04/2014 - Changed how `RedisService` is spring injected so that it's easier to mock out for tests by clients.  Upgraded to Jedis 2.6.0.
 * 1.6.2 - released 02/06/2015 - Port and timeout properties injected by external properties file are now converted to Integer.  If not integer, then defaults used.
+* 1.6.6 - released 06/25/2015 - Adding support for external configuration of sentinels
 
 [redisgorm]: http://grails.github.com/inconsequential/redis/
 [redis]: http://redis.io
