@@ -45,8 +45,14 @@ class RedisConfigurationUtil {
 
         // If sentinels and a masterName is present, using different pool implementation
         if (sentinels && masterName) {
-            "redisPool${key}"(JedisSentinelPool, masterName, sentinels as Set, ref(poolBean), timeout, password, database) { bean ->
-                bean.destroyMethod = 'destroy'
+            if(sentinels instanceof String){
+                sentinels = Eval.me(sentinels.toString())
+            }
+
+            if(sentinels instanceof Collection){
+                "redisPool${key}"(JedisSentinelPool, masterName, sentinels as Set, ref(poolBean), timeout, password, database) { bean ->
+                    bean.destroyMethod = 'destroy'
+                }
             }
         }
         else {
