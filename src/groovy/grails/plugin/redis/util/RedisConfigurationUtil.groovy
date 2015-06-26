@@ -45,11 +45,18 @@ class RedisConfigurationUtil {
 
         // If sentinels and a masterName is present, using different pool implementation
         if (sentinels && masterName) {
-            "redisPool${key}"(JedisSentinelPool, masterName, sentinels as Set, ref(poolBean), timeout, password, database) { bean ->
-                bean.destroyMethod = 'destroy'
+            if (sentinels instanceof String) {
+                sentinels = Eval.me(sentinels.toString())
             }
-        }
-        else {
+
+            if (sentinels instanceof Collection) {
+                "redisPool${key}"(JedisSentinelPool, masterName, sentinels as Set, ref(poolBean), timeout, password, database) { bean ->
+                    bean.destroyMethod = 'destroy'
+                }
+            } else {
+                throw new RuntimeException('Redis configuraiton property [sentinels] does not appear to be a valid collection.')
+            }
+        } else {
             "redisPool${key}"(JedisPool, ref(poolBean), host, port, timeout, password, database) { bean ->
                 bean.destroyMethod = 'destroy'
             }
