@@ -86,11 +86,11 @@ bintray {
     pkg {
         repo = 'grails-plugins'
         userOrg = 'tednaleid'
-        name = "org.grails.plugins:$project.name"
-        desc = "Grails $project.name plugin"
-        websiteUrl = "http://grails.org/plugin/$project.name"
-        issueTrackerUrl = "https://github.com/tednaleid/$project.name/issues"
-        vcsUrl = "https://github.com/tednaleid/${project.name}"
+        name = "org.grails.plugins:redis"
+        desc = "Grails Redis plugin"
+        websiteUrl = "http://grails.org/plugin/redis"
+        issueTrackerUrl = "https://github.com/tednaleid/grails-redis/issues"
+        vcsUrl = "https://github.com/tednaleid/grails-redis"
         licenses = ['Apache-2.0']
         publicDownloadNumbers = true
     }
