@@ -1,17 +1,11 @@
 .settings
 *.log
-plugin.xml
-*.zip
 *.un~
 .DS_Store
-target
-web-app
-build
 bin
 build
 .gradle
 .project
-.settings
 .classpath
 .idea
 *.iml

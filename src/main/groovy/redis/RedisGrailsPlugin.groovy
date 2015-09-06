@@ -10,17 +10,13 @@ import redis.clients.jedis.Protocol
 
 class RedisGrailsPlugin extends Plugin {
 
-    def grailsVersion = "3.0.0.BUILD-SNAPSHOT > *"
+    def grailsVersion = "3.0.0 > *"
     def pluginExcludes = [
             "codenarc.properties",
             "grails-app/conf/**",
             "grails-app/views/**",
             "grails-app/domain/**",
-            "grails-app/services/test/**",
-            "gradle/**",
-            "test/**",
-            "src/test/**",
-            "web-app/**"
+            "grails-app/services/test/**"
     ]
 
     def title = "Redis Plugin" // Headline display name of the plugin
