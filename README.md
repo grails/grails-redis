@@ -402,7 +402,7 @@ The @Memoize annotation is to be used when dealing with objects that are stored 
 
     value   - A closure in the following format. (key OR value required)
     key     - A unique key for the data cache. (key OR value required)
-    expire  - Expire time in ms.  Will default to never so only pass a value like 3600 if you want value to expire.
+    expire  - Expire time in seconds.  Will default to never so only pass a value like 3600 if you want value to expire.
 
 *You can either specify a closure OR a key and expire.  When using the closure style key `@Memoize({"#{text}"})` you may not pass a key or expire to the annotation as the closure will be evaluated directly and used as the key value.  This is due to a limitation on how Java deals with closure annotation parameters.*
 
@@ -445,7 +445,7 @@ Here is an example of usage:
 The @MemoizeObject annotation is to be used when dealing with simple (non-domain) objects that are to have their contents stored in Redis in JSON form.  The simple object being returned by the return statement will be converted to JSON, stored in Redis, then converted from JSON back to the object. It is important to ensure that the object class you're using is able to be converted to and from JSON for this annotation to work. This annotation takes the following parameters:
 
     key     - A unique key for the data cache. (required)
-    expire  - Expire time in ms.  Will default to never so only pass a value like 3600 if you want value to expire.
+    expire  - Expire time in seconds.  Will default to never so only pass a value like 3600 if you want value to expire.
 	clazz   - The class of the object to be memoizing. (required)
 
 Here is an example of usage:
@@ -470,7 +470,7 @@ redisService.memoizeObject(Book.class, title, grailsApplication.config.cache.ttl
 The @MemoizeDomainObject annotation is to be used when dealing with domain objects that are to have their id's stored in Redis.  See the documentation on Domain Object Memoization above for more details.  This annotation takes the following parameters:
 
     key     - A unique key for the data cache. (required)
-    expire  - Expire time in ms.  Will default to never so only pass a value like 3600 if you want value to expire.
+    expire  - Expire time in seconds.  Will default to never so only pass a value like 3600 if you want value to expire.
     clazz   - The class of the object to be memoizing. (required)
 
 Here is an example of usage:
@@ -486,7 +486,7 @@ Here is an example of usage:
 The @MemoizeDomainList annotation is to be used when dealing with lists of domain objects that are to have their id's stored in Redis.  See the documentation on Domain List Memoization above for more details.  This annotation takes the following parameters:
 
     key     - A unique key for the data cache. (required)
-    expire  - Expire time in ms.  Will default to never so only pass a value like 3600 if you want value to expire.
+    expire  - Expire time in seconds.  Will default to never so only pass a value like 3600 if you want value to expire.
     clazz   - The class of the object to be memizing. (required)
 
 Here is an example of usage:
@@ -503,7 +503,7 @@ The @MemoizeList annotation is to be used when dealing with list type objects.  
 
     value   - A closure in the following format. (key OR value required)
     key     - A unique key for the data cache. (key OR value required)
-    expire  - Expire time in ms.  Will default to never so only pass a value like 3600 if you want value to expire.
+    expire  - Expire time in seconds.  Will default to never so only pass a value like 3600 if you want value to expire.
 
 *You can either specify a closure OR a key and expire.  When using the closure style key `@Memoize({"#{text}"})` you may not pass a key or expire to the annotation as the closure will be evaluated directly and used as the key value.  This is due to a limitation on how Java deals with closure annotation parameters.*
 
@@ -521,7 +521,7 @@ Here is an example of usage:
 The @MemoizeScore annotation is to be used when dealing with scores in hashes.  This annotation takes the following parameters:
 
     key     - A unique key for the data cache. (required)
-    expire  - Expire time in ms.  Will default to never so only pass a value like 3600 if you want value to expire.
+    expire  - Expire time in seconds.  Will default to never so only pass a value like 3600 if you want value to expire.
     member  - The hash property to store. (required)
 
 Here is an example of usage:
