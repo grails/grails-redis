@@ -4,7 +4,7 @@ clear
 rm -rf ~/.m2/repository/org/grails/plugins/redis
 cd ../../../../
 pwd
-grails install
+./gradlew install
 cd src/test/projects/sample
 pwd
-grails test-app
+./gradlew test-app
