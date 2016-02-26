@@ -1,4 +1,6 @@
 language: groovy
+sudo: required
+dist: precise
 jdk:
   - openjdk7
 services:
@@ -6,7 +8,3 @@ services:
 before_script:
   - rm -rf build
 script: ./travis-build.sh
-env:
-  global:
-  - GIT_NAME="Christian Oestreich"
-  - GIT_EMAIL="acetrike@yahoo.com"
