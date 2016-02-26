@@ -1,8 +1,8 @@
-[![Build Status](https://travis-ci.org/Grails-Plugin-Consortium/redis.svg)](https://travis-ci.org/Grails-Plugin-Consortium/redis)
+[![Build Status](https://travis-ci.org/grails-plugins/grails-redis.svg)](https://travis-ci.org/grails-plugins/grails-redis)
 
 # Grails 3
 
-The [2.X version of the plugin](https://bintray.com/tednaleid/grails-plugins/org.grails.plugins%3Agrails-redis/view) is compatible only with grails 3.
+The [2.X version of the plugin](https://bintray.com/ctoestreich/grails-plugins/redis) is compatible only with grails 3.
 
 Grails Redis Plugin
 ===================
