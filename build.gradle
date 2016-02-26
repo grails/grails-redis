@@ -66,8 +66,8 @@ dependencies {
 
     console "org.grails:grails-console"
 
-    compile 'redis.clients:jedis:2.6.0'
-    compile 'com.google.code.gson:gson:2.3.1'
+    compile 'redis.clients:jedis:2.8.0'
+    compile 'com.google.code.gson:gson:2.6.1'
 }
 
 task wrapper(type: Wrapper) {
@@ -85,12 +85,12 @@ bintray {
     publications = ['maven']
     pkg {
         repo = 'grails-plugins'
-        userOrg = 'tednaleid'
+        userOrg = 'ctoestreich'
         name = "redis"
         desc = "Grails Redis plugin"
         websiteUrl = "http://grails.org/plugin/redis"
-        issueTrackerUrl = "https://github.com/tednaleid/grails-redis/issues"
-        vcsUrl = "https://github.com/tednaleid/grails-redis"
+        issueTrackerUrl = "https://github.com/grails-plugins/grails-redis/issues"
+        vcsUrl = "https://github.com/grails-plugins/grails-redis"
         licenses = ['Apache-2.0']
         publicDownloadNumbers = true
     }
