@@ -1,10 +1,10 @@
 language: groovy
-sudo: required
-dist: precise
+sudo: false
 jdk:
   - openjdk7
 services:
   - redis-server
 before_script:
   - rm -rf build
-script: ./travis-build.sh
+#script: ./travis-build.sh
+script: ./gradlew clean check assemble
