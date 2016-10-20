@@ -246,7 +246,7 @@ class RedisMemoizeServiceSpec extends Specification {
         value2 != "$text $date2"
     }
 
-    def "make sure redis is bahving correctly on non-annotated methods"() {
+    def "make sure redis is behaving correctly on non-annotated methods"() {
         given:
         def text = 'hello'
         def date = new Date()

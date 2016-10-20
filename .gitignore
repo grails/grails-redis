@@ -13,3 +13,7 @@ web-app
 .idea
 out
 *.swp
+grails-redis-*.zip.sha1
+grailsw
+grailsw.bat
+wrapper
