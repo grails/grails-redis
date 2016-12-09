@@ -585,6 +585,7 @@ class MyService {
 
 Release Notes Grails 3.x
 =============
+* 2.0.5 - released 12/08/2016 - Upgrading to Jedis 2.9.0. Putting close on the resource in withRedis block.
 * 2.0.4 - released 02/26/2016 - Upgrading to Jedis 2.8.0 and Gson 2.6.1. Official name for package to `org.grails.plugins:redis`. Moved bintray location. *Breaking Change*
 * 2.0.3 - released 02/01/2016 - Attempting to cleaup the code and naming for plugin/package
 * 2.0.2 - released 06/25/2015 - Adding support for external configuration of sentinels

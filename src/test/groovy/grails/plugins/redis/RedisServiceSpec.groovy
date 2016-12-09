@@ -3,11 +3,19 @@ package grails.plugins.redis
 import grails.core.GrailsApplication
 import grails.spring.BeanBuilder
 import grails.test.mixin.integration.Integration
+import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import redis.clients.jedis.Jedis
 import redis.clients.jedis.Transaction
 import redis.clients.jedis.exceptions.JedisConnectionException
 import spock.lang.Specification
+
+import java.util.concurrent.Callable
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentMap
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 import static grails.plugins.redis.RedisService.NO_EXPIRATION_TTL
 
@@ -27,7 +35,7 @@ class RedisServiceSpec extends Specification {
         app
     }
 
-    public void setup() {
+    void setup() {
         redisServiceMock = mockRedisServiceForFailureTest(getNewInstanceOfBean(RedisService))
         try {
             redisService.flushDB()
@@ -35,6 +43,88 @@ class RedisServiceSpec extends Specification {
         catch (JedisConnectionException jce) {
             // swallow connect exception so failure tests can proceed
         }
+    }
+
+    def "attempt pool exhaustion and redis.close()"() {
+        given:
+        Integer loopCount = 50
+        ExecutorService taskExecutor = Executors.newWorkStealingPool(loopCount)
+        CountDownLatch latch = new CountDownLatch(loopCount)
+        ConcurrentMap<Integer, Boolean> exceptionStatusMap = new ConcurrentHashMap<>()
+
+        when:
+        List<Callable> tasks = []
+        loopCount.times { Integer loop ->
+            tasks.add(new Callable(){
+                @Override
+                String call() throws Exception {
+                    Boolean hasException = false
+                    try {
+                        redisService.withRedis { Jedis redis ->
+                            println "Starting ${loop}"
+                            Thread.sleep(2000)
+                            latch.countDown()
+                            println "Completed ${loop}"
+                        }
+                    } catch (Exception e) {
+                        hasException = true
+                    } finally {
+                        exceptionStatusMap.putIfAbsent(loop, hasException)
+                    }
+                }
+            })
+        }
+        taskExecutor.invokeAll(tasks)
+
+        try {
+            latch.await()
+            taskExecutor.shutdown()
+        } catch (Exception e) {
+            assert false
+        }
+
+        then:
+        !exceptionStatusMap.containsValue(true)
+    }
+
+    def "attempt pool exhaustion and redis.close() through exeptions"() {
+        given:
+        Integer loopCount = 50
+        ExecutorService taskExecutor = Executors.newWorkStealingPool(loopCount)
+        CountDownLatch latch = new CountDownLatch(loopCount)
+        ConcurrentMap<Integer, Boolean> exceptionStatusMap = new ConcurrentHashMap<>()
+
+        when:
+        List<Callable> tasks = []
+        loopCount.times { Integer loop ->
+            tasks.add(new Callable(){
+                @Override
+                String call() throws Exception {
+                    Boolean hasException = false
+                    try {
+                        redisService.withRedis { Jedis redis ->
+                            latch.countDown()
+                            throw new RuntimeException("BOOM!")
+                        }
+                    } catch (Exception e) {
+                        hasException = true
+                    } finally {
+                        exceptionStatusMap.putIfAbsent(loop, hasException)
+                    }
+                }
+            })
+        }
+        taskExecutor.invokeAll(tasks)
+
+        try {
+            latch.await()
+            taskExecutor.shutdown()
+        } catch (Exception e) {
+            assert false
+        }
+
+        then:
+        exceptionStatusMap.containsValue(true)
     }
 
     def testFlushDB() {
@@ -82,7 +172,7 @@ class RedisServiceSpec extends Specification {
     }
 
 
-    public void testMemoizeKey() {
+    void testMemoizeKey() {
         given:
         def calledCount = 0
         def cacheMissClosure = {
@@ -119,7 +209,7 @@ class RedisServiceSpec extends Specification {
         NO_EXPIRATION_TTL < redisService.ttl("mykey")
     }
 
-    public void testMemoizeKeyNullValue() {
+    void testMemoizeKeyNullValue() {
         given:
         def calledCount = 0
         def cacheMissClosure = {
@@ -143,7 +233,7 @@ class RedisServiceSpec extends Specification {
     }
 
 
-    public void testMemoizeHashFieldWithoutRedis() {
+    void testMemoizeHashFieldWithoutRedis() {
         given:
         def calledCount = 0
         def cacheMissClosure = {
@@ -167,7 +257,7 @@ class RedisServiceSpec extends Specification {
     }
 
 
-    public void testMemoizeHashField() {
+    void testMemoizeHashField() {
         given:
         def calledCount = 0
         def cacheMissClosure = {
@@ -199,7 +289,7 @@ class RedisServiceSpec extends Specification {
     }
 
 
-    public void testMemoizeHashFieldWithExpire() {
+    void testMemoizeHashFieldWithExpire() {
         given:
         assert 0 > redisService.ttl("mykey")
 
@@ -211,7 +301,7 @@ class RedisServiceSpec extends Specification {
         NO_EXPIRATION_TTL < redisService.ttl("mykey")
     }
 
-    public void testMemoizeHashWithoutRedis() {
+    void testMemoizeHashWithoutRedis() {
         given:
         def calledCount = 0
         def expectedHash = [foo: 'bar', baz: 'qux']
@@ -236,7 +326,7 @@ class RedisServiceSpec extends Specification {
     }
 
 
-    public void testMemoizeHash() {
+    void testMemoizeHash() {
         given:
         def calledCount = 0
         def expectedHash = [foo: 'bar', baz: 'qux']
@@ -262,7 +352,7 @@ class RedisServiceSpec extends Specification {
     }
 
 
-    public void testMemoizeHashWithExpire() {
+    void testMemoizeHashWithExpire() {
         given:
         def expectedHash = [foo: 'bar', baz: 'qux']
         assert 0 > redisService.ttl("mykey")
@@ -275,7 +365,7 @@ class RedisServiceSpec extends Specification {
         assert NO_EXPIRATION_TTL < redisService.ttl("mykey")
     }
 
-    public void testMemoizeListWithoutRedis() {
+    void testMemoizeListWithoutRedis() {
         given:
         def book1 = "book1"
         def book2 = "book2"
@@ -305,7 +395,7 @@ class RedisServiceSpec extends Specification {
     }
 
 
-    public void testMemoizeList() {
+    void testMemoizeList() {
         given:
         def book1 = "book1"
         def book2 = "book2"
@@ -336,7 +426,7 @@ class RedisServiceSpec extends Specification {
     }
 
 
-    public void testMemoizeListWithExpire() {
+    void testMemoizeListWithExpire() {
         given:
         def book1 = "book1"
         assert 0 > redisService.ttl("mykey")
@@ -350,7 +440,7 @@ class RedisServiceSpec extends Specification {
     }
 
 
-    public void testMemoizeSetWithoutRedis() {
+    void testMemoizeSetWithoutRedis() {
         given:
         def book1 = "book1"
         def book2 = "book2"
@@ -380,7 +470,7 @@ class RedisServiceSpec extends Specification {
     }
 
 
-    public void testMemoizeSet() {
+    void testMemoizeSet() {
         given:
         def book1 = "book1"
         def book2 = "book2"
@@ -411,7 +501,7 @@ class RedisServiceSpec extends Specification {
     }
 
 
-    public void testMemoizeSetWithExpire() {
+    void testMemoizeSetWithExpire() {
         given:
         def book1 = "book1"
         assert 0 > redisService.ttl("mykey")
@@ -425,7 +515,7 @@ class RedisServiceSpec extends Specification {
     }
 
 
-    public void testMemoizeObject_simpleMapOfStrings() {
+    void testMemoizeObject_simpleMapOfStrings() {
         given:
         Map<String, String> map = [foo: "bar", baz: "qux"]
 
@@ -452,7 +542,7 @@ class RedisServiceSpec extends Specification {
     }
 
 
-    public void testMemoizeObject_withTTL() {
+    void testMemoizeObject_withTTL() {
         given:
         Map<String, String> map = [foo: "bar", baz: "qux"]
         assert 0 > redisService.ttl("mykey")
@@ -467,7 +557,7 @@ class RedisServiceSpec extends Specification {
     }
 
 
-    public void testMemoizeObject_nullValue() {
+    void testMemoizeObject_nullValue() {
         given:
         Map<String, String> map = null
 
@@ -489,7 +579,7 @@ class RedisServiceSpec extends Specification {
     }
 
 
-    public void testMemoizeObject_nullValue_cacheNullFalse() {
+    void testMemoizeObject_nullValue_cacheNullFalse() {
         given:
         Map<String, String> map = null
 
@@ -515,7 +605,7 @@ class RedisServiceSpec extends Specification {
     }
 
 
-    public void testDeleteKeysWithPattern() {
+    void testDeleteKeysWithPattern() {
         given:
         def calledCount = 0
         def cacheMissClosure = {
@@ -548,7 +638,7 @@ class RedisServiceSpec extends Specification {
     }
 
 
-    public void testWithTransaction() {
+    void testWithTransaction() {
         given:
         def bar = ''
 
@@ -567,7 +657,7 @@ class RedisServiceSpec extends Specification {
     }
 
 
-    public void testWithTransactionClosureException() {
+    void testWithTransactionClosureException() {
         given:
         def foo = "foo"
         def fooNew = "foo"
@@ -598,7 +688,7 @@ class RedisServiceSpec extends Specification {
     }
 
 
-    public void testPropertyMissingGetterRetrievesStringValue() {
+    void testPropertyMissingGetterRetrievesStringValue() {
         given:
         assert redisService.foo == null
 
@@ -612,7 +702,7 @@ class RedisServiceSpec extends Specification {
     }
 
 
-    public void testPropertyMissingSetterSetsStringValue() {
+    void testPropertyMissingSetterSetsStringValue() {
         given:
         def bar = ""
         redisService.withRedis { Jedis redis ->
