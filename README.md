@@ -53,6 +53,7 @@ Out of the box, the plugin expects that Redis is running on `localhost:6379`.  Y
             // use a single redis server (use only if nore using sentinel cluster)
             port = 6379
             host = "localhost"
+	    database = 5 // set default database to 5
 
             // use redis-sentinel cluster as opposed to a single redis server (use only if not use host/port)
             sentinels = [ "host1:6379", "host2:6379", "host3:6379" ] // list of sentinel instance host/ports
