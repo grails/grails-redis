@@ -42,6 +42,7 @@ class RedisConfigurationUtil {
         def database = redisConfigMap?.database ?: Protocol.DEFAULT_DATABASE
         def sentinels = redisConfigMap?.sentinels ?: null
         def masterName = redisConfigMap?.masterName ?: null
+        def useSSL = redisConfigMap?.useSSL ?: false
 
         // If sentinels and a masterName is present, using different pool implementation
         if (sentinels && masterName) {
@@ -50,7 +51,7 @@ class RedisConfigurationUtil {
             }
 
             if (sentinels instanceof Collection) {
-                "redisPool${key}"(JedisSentinelPool, masterName, sentinels as Set, ref(poolBean), timeout, password, database) { bean ->
+                "redisPool${key}"(JedisSentinelPool, masterName, sentinels as Set, ref(poolBean), timeout, password, database, useSSL) { bean ->
                     bean.destroyMethod = 'destroy'
                 }
             } else {
