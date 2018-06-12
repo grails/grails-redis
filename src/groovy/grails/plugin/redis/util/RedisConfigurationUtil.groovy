@@ -51,14 +51,14 @@ class RedisConfigurationUtil {
             }
 
             if (sentinels instanceof Collection) {
-                "redisPool${key}"(JedisSentinelPool, masterName, sentinels as Set, ref(poolBean), timeout, password, database, useSSL) { bean ->
+                "redisPool${key}"(JedisSentinelPool, masterName, sentinels as Set, ref(poolBean), timeout, password, database) { bean ->
                     bean.destroyMethod = 'destroy'
                 }
             } else {
                 throw new RuntimeException('Redis configuraiton property [sentinels] does not appear to be a valid collection.')
             }
         } else {
-            "redisPool${key}"(JedisPool, ref(poolBean), host, port, timeout, password, database) { bean ->
+            "redisPool${key}"(JedisPool, ref(poolBean), host, port, timeout, password, database, useSSL) { bean ->
                 bean.destroyMethod = 'destroy'
             }
         }
