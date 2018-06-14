@@ -14,7 +14,7 @@ before_install:
 before_script:
 - rm -rf target
 script: "./travis-build.sh"
-after_script
+after_script:
 - docker ps -a -q  --filter ancestor=redis | xargs docker container stop
 - docker ps -a -q  --filter ancestor=redis | xargs docker container rm
 env:
