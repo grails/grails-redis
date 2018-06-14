@@ -1,0 +1,25 @@
+sudo: required
+services:
+  - docker
+language: groovy
+jdk:
+- oraclejdk7
+before_install:
+- cat /etc/hosts
+- sudo hostname "$(hostname | cut -c1-63)"
+- sed -e "s/^\\(127\\.0\\.0\\.1.*\\)/\\1 $(hostname | cut -c1-63)/" /etc/hosts | sudo
+  tee /etc/hosts
+- cat /etc/hosts
+- docker run -p 6379:6379 -d redis redis-server --appendonly yes
+before_script:
+- rm -rf target
+script: "./travis-build.sh"
+after_script
+- docker ps -a -q  --filter ancestor=redis | xargs docker container stop
+- docker ps -a -q  --filter ancestor=redis | xargs docker container rm
+env:
+  global:
+  - GIT_NAME="Puneet Behl"
+  - GIT_EMAIL="behl4485@gmail.com"
+  - secure: I051j4FknH5oIkwmWuulzcDR/DjFOqoib+0ARqtcb3KcgCqMKZ0VkSMvWtj0Ba2134QuEQVwtxDwN7hG20DVGp2p/0OicGZB9ayp0ag+61vqcTEHI3KrQp4hRK67+lTjz4EYpehKkr7y50UcZA1tI0FpynKL0qLx4VTGdWhbX2Y=
+  - secure: wYhKGinku1Ui2tMbdokZwjTe2M8WMDp+Ug1iQJVLSvsT98YQSgBqGf6LbP245UHnWx52VEeUfiTVbw52VwtsofxCOdNHeXqMPTwx9wde74PZYA4/sDuIyA01Lnmhepm3cq5YkbXTxguO611iTYCY5h5zkxDKwvyDEymvZwc8890=

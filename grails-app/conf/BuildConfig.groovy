@@ -47,6 +47,11 @@ grails.project.dependency.resolution = {
     }
 }
 
+if(System.getenv('TRAVIS_BRANCH')) {
+    grails.project.repos.grailsCentral.username = System.getenv("GRAILS_CENTRAL_USERNAME")
+    grails.project.repos.grailsCentral.password = System.getenv("GRAILS_CENTRAL_PASSWORD")
+}
+
 codenarc {
     processTestUnit = false
     processTestIntegration = false
