@@ -2,7 +2,7 @@ package grails.plugins.redis
 
 import com.example.Book
 import grails.test.mixin.integration.Integration
-import grails.transaction.Rollback
+import grails.gorm.transactions.Rollback
 import org.springframework.beans.factory.annotation.Autowired
 import spock.lang.Specification
 
