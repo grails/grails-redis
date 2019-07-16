@@ -8,32 +8,29 @@ buildscript {
     }
     dependencies {
         classpath "org.grails:grails-gradle-plugin:$grailsVersion"
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
     }
 }
 
-plugins {
-    id "io.spring.dependency-management" version "0.6.1.RELEASE"
-    id "com.jfrog.bintray" version "1.1"
-}
+version "4.0.0"
+group "org.grails.plugins"
 
-apply plugin: 'maven-publish'
+
 apply plugin: 'eclipse'
 apply plugin: 'idea'
-apply plugin: "spring-boot"
-apply plugin: "org.grails.grails-plugin"
+apply plugin:"org.grails.grails-plugin"
+apply plugin:"org.grails.grails-plugin-publish"
 apply plugin: "org.grails.grails-gsp"
 
-apply from:'https://raw.githubusercontent.com/grails/grails-profile-repository/master/profiles/plugin/templates/grailsCentralPublishing.gradle'
 
 ext {
     grailsVersion = project.grailsVersion
     gradleWrapperVersion = project.gradleWrapperVersion
 }
 
-version "2.0.5"
-group "org.grails.plugins"
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
 
 repositories {
     mavenLocal()
@@ -62,15 +59,13 @@ dependencies {
     provided "org.grails:grails-dependencies"
     provided 'javax.servlet:javax.servlet-api:3.1.0'
 
-    testCompile "org.grails:grails-plugin-testing"
-
-    console "org.grails:grails-console"
+    testCompile 'org.grails:grails-web-testing-support:2.0.0'
 
     compile 'redis.clients:jedis:2.9.0'
     compile 'com.google.code.gson:gson:2.6.1'
 }
 
-task wrapper(type: Wrapper) {
+wrapper {
     gradleVersion = gradleWrapperVersion
 }
 

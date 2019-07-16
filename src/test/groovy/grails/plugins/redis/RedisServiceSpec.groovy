@@ -2,7 +2,7 @@ package grails.plugins.redis
 
 import grails.core.GrailsApplication
 import grails.spring.BeanBuilder
-import grails.test.mixin.integration.Integration
+import grails.testing.mixin.integration.Integration
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import redis.clients.jedis.Jedis
