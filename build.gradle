@@ -12,36 +12,28 @@ buildscript {
 }
 
 plugins {
-    id "io.spring.dependency-management" version "0.6.1.RELEASE"
-    id "com.jfrog.bintray" version "1.1"
+    id 'maven-publish'
+    id 'idea'
+    id 'eclipse'
+    id 'signing'
+    id 'io.github.gradle-nexus.publish-plugin' version '1.1.0'
 }
 
-apply plugin: 'maven-publish'
-apply plugin: 'eclipse'
-apply plugin: 'idea'
-apply plugin: "spring-boot"
 apply plugin: "org.grails.grails-plugin"
 apply plugin: "org.grails.grails-gsp"
 
-apply from:'https://raw.githubusercontent.com/grails/grails-profile-repository/master/profiles/plugin/templates/grailsCentralPublishing.gradle'
 
-ext {
-    grailsVersion = project.grailsVersion
-    gradleWrapperVersion = project.gradleWrapperVersion
-}
-
-version "2.0.5"
+version "2.0.6"
 group "org.grails.plugins"
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 repositories {
     mavenLocal()
     mavenCentral()
-    jcenter()
     maven { url "https://repo.grails.org/grails/core" }
-    maven { url "http://repo.spring.io/milestone/" }
-    maven { url "http://oss.sonatype.org/content/repositories/snapshots" }
+    maven { url "https://repo.spring.io/milestone/" }
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
 }
 
 dependencyManagement {
@@ -57,21 +49,15 @@ dependencies {
     provided "org.springframework.boot:spring-boot-starter-actuator"
     provided "org.springframework.boot:spring-boot-autoconfigure"
     provided "org.springframework.boot:spring-boot-starter-tomcat"
-
     provided "org.grails:grails-web-boot"
     provided "org.grails:grails-dependencies"
-    provided 'javax.servlet:javax.servlet-api:3.1.0'
 
-    testCompile "org.grails:grails-plugin-testing"
+    testCompile 'org.grails:grails-web-testing-support:2.0.0'
 
     console "org.grails:grails-console"
 
-    compile 'redis.clients:jedis:2.9.0'
-    compile 'com.google.code.gson:gson:2.6.1'
-}
-
-task wrapper(type: Wrapper) {
-    gradleVersion = gradleWrapperVersion
+    compile 'redis.clients:jedis:4.3.1'
+    compile 'com.google.code.gson:gson:2.9.1'
 }
 
 jar {
@@ -79,23 +65,67 @@ jar {
   exclude "src/test/projects/**"
 }
 
-bintray {
-    user = System.getenv("BINTRAY_USER") ?: project.hasProperty("bintrayUser") ? project.bintrayUser : '' 
-    key = System.getenv("BINTRAY_KEY") ?: project.hasProperty("bintrayKey") ? project.bintrayKey : '' 
-    publications = ['maven']
-    pkg {
-        repo = 'grails-plugins'
-        userOrg = 'ctoestreich'
-        name = "redis"
-        desc = "Grails Redis plugin"
-        websiteUrl = "http://grails.org/plugin/redis"
-        issueTrackerUrl = "https://github.com/grails-plugins/grails-redis/issues"
-        vcsUrl = "https://github.com/grails-plugins/grails-redis"
-        licenses = ['Apache-2.0']
-        publicDownloadNumbers = true
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+
+            groupId = project.group
+            artifactId = 'redis'
+            version = project.version
+
+            from components.java
+
+            artifact sourcesJar
+            artifact javadocJar
+
+            pom {
+                name = 'Grails Redis Plugin'
+                description = 'This Plugin provides access to Redis and various utilities(service, annotations, etc) for caching.'
+                url = 'https://github.com/grails-plugins/grails-redis'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'https://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'ctoestreich'
+                        name = 'Christian Oestreich'
+                        email = ''
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/grails-plugins/grails-redis.git'
+                    developerConnection = 'scm:git:ssh://github.com:/grails-plugins/grails-redis.git'
+                    url = 'https://github.com//grails-plugins/grails-redis/tree/master'
+                }
+            }
+        }
+
+
     }
 }
 
+//afterEvaluate {
+//    signing {
+//        //required { gradle.taskGraph.hasTask("publish") || gradle.taskGraph.hasTask("publishMavenPublicationToMavenLocal") }
+//        sign publishing.publications.maven
+//    }
+//}
 
-bintrayUpload.dependsOn sourcesJar, javadocJar
-
+nexusPublishing {
+    repositories {
+        sonatype {
+            def ossUser = System.getenv("SONATYPE_USERNAME") ?: project.hasProperty("sonatypeOssUsername") ? project.sonatypeOssUsername : ''
+            def ossPass = System.getenv("SONATYPE_PASSWORD") ?: project.hasProperty("sonatypeOssPassword") ? project.sonatypeOssPassword : ''
+            def ossStagingProfileId = System.getenv("SONATYPE_STAGING_PROFILE_ID") ?: project.hasProperty("sonatypeOssStagingProfileId") ? project.sonatypeOssStagingProfileId : ''
+            nexusUrl = uri("https://s01.oss.sonatype.org/service/local/")
+            snapshotRepositoryUrl = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+            username = ossUser
+            password = ossPass
+            stagingProfileId = ossStagingProfileId
+        }
+    }
+}
