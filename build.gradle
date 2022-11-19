@@ -24,7 +24,6 @@ apply plugin: "org.grails.grails-gsp"
 
 ext {
     grailsVersion = project.grailsVersion
-    gradleWrapperVersion = project.gradleWrapperVersion
 }
 
 version project.projectVersion
