@@ -3,7 +3,6 @@ buildscript {
         grailsVersion = project.grailsVersion
     }
     repositories {
-        mavenLocal()
         maven { url "https://repo.grails.org/grails/core" }
     }
     dependencies {
@@ -30,18 +29,15 @@ ext {
     gradleWrapperVersion = project.gradleWrapperVersion
 }
 
-version "2.0.5"
+version project.projectVersion
 group "org.grails.plugins"
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 repositories {
-    mavenLocal()
     mavenCentral()
-    jcenter()
     maven { url "https://repo.grails.org/grails/core" }
-    maven { url "http://repo.spring.io/milestone/" }
-    maven { url "http://oss.sonatype.org/content/repositories/snapshots" }
 }
 
 dependencyManagement {
