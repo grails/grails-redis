@@ -2,8 +2,7 @@ package grails.plugins.redis
 
 import grails.core.GrailsApplication
 import grails.spring.BeanBuilder
-import grails.test.mixin.integration.Integration
-import groovy.util.logging.Slf4j
+import grails.testing.mixin.integration.Integration
 import org.springframework.beans.factory.annotation.Autowired
 import redis.clients.jedis.Jedis
 import redis.clients.jedis.Transaction
@@ -21,10 +20,8 @@ import static grails.plugins.redis.RedisService.NO_EXPIRATION_TTL
 
 @Integration
 class RedisServiceSpec extends Specification {
-    @Autowired
-    RedisService redisService
-    @Autowired
-    GrailsApplication grailsApplication
+    @Autowired RedisService redisService
+    @Autowired GrailsApplication grailsApplication
     RedisService redisServiceMock
 
     def "application context wired up"() {
