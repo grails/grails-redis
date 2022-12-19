@@ -1,18 +1,18 @@
 package grails.plugins.redis
 
 import grails.core.GrailsApplication
+import grails.gorm.transactions.Rollback
 import grails.testing.mixin.integration.Integration
 import org.springframework.beans.factory.annotation.Autowired
 import spock.lang.Ignore
 import spock.lang.Specification
 
 @Integration
+@Rollback
 class RedisTagLibSpec extends Specification {
 
-    @Autowired
-    GrailsApplication grailsApplication
-    @Autowired
-    RedisService redisService
+    @Autowired GrailsApplication grailsApplication
+    @Autowired RedisService redisService
     RedisTagLib tagLib
 
     protected static KEY = "RedisTagLibTests:memoize"

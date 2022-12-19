@@ -1,0 +1,129 @@
+buildscript {
+    ext {
+        grailsVersion = project.grailsVersion
+    }
+    repositories {
+        maven { url "https://repo.grails.org/grails/core" }
+    }
+    dependencies {
+        classpath "org.grails:grails-gradle-plugin:$grailsVersion"
+    }
+}
+
+plugins {
+    id 'maven-publish'
+    id 'idea'
+    id 'eclipse'
+    id 'signing'
+    id 'java-library'
+}
+
+apply plugin: "org.grails.grails-plugin"
+apply plugin: "org.grails.grails-gsp"
+
+
+ext {
+    grailsVersion = project.grailsVersion
+}
+
+version project.projectVersion
+group "org.grails.plugins"
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    maven { url "https://repo.grails.org/grails/core" }
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.grails:grails-bom:$grailsVersion"
+    }
+    applyMavenExclusions false
+}
+
+configurations {
+    all {
+        resolutionStrategy {
+            force 'org.apache.commons:commons-pool2:2.11.1'
+        }
+    }
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-logging'
+    implementation "org.springframework.boot:spring-boot-starter-actuator"
+    implementation "org.springframework.boot:spring-boot-autoconfigure"
+    implementation "org.springframework.boot:spring-boot-starter-tomcat"
+    implementation "org.grails:grails-web-boot"
+    implementation "org.grails:grails-dependencies"
+
+    testImplementation 'org.grails:grails-web-testing-support'
+
+    console "org.grails:grails-console"
+
+    api 'redis.clients:jedis:4.3.1'
+    api 'com.google.code.gson:gson:2.9.1'
+}
+
+jar {
+  exclude "application.groovy"
+  exclude "src/test/projects/**"
+}
+
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+
+            groupId = project.group
+            artifactId = 'redis'
+            version = project.version
+
+            from components.java
+
+            artifact sourcesJar
+            artifact javadocJar
+
+            pom {
+                name = 'Grails Redis Plugin'
+                description = 'This Plugin provides access to Redis and various utilities(service, annotations, etc) for caching.'
+                url = 'https://github.com/grails/grails-redis'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'https://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'ctoestreich'
+                        name = 'Christian Oestreich'
+                    }
+                    developer {
+                        id = 'puneetbehl'
+                        name = 'Puneet Behl'
+                        email = 'behlp@objectcomputing.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/grails/grails-redis.git'
+                    developerConnection = 'scm:git:ssh://github.com:/grails/grails-redis.git'
+                    url = 'https://github.com/grails/grails-redis/'
+                }
+            }
+        }
+
+
+    }
+}
+
+afterEvaluate {
+    signing {
+        required { gradle.taskGraph.hasTask("publish") || gradle.taskGraph.hasTask("publishMavenPublicationToMavenLocal") }
+        sign publishing.publications.maven
+    }
+}
+

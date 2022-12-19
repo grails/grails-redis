@@ -15,10 +15,8 @@ import static grails.plugins.redis.RedisService.NO_EXPIRATION_TTL
 
 @Integration
 class RedisServiceSpec extends Specification {
-    @Autowired
-    RedisService redisService
-    @Autowired
-    GrailsApplication grailsApplication
+    @Autowired RedisService redisService
+    @Autowired GrailsApplication grailsApplication
     RedisService redisServiceMock
 
     def "application context wired up"() {

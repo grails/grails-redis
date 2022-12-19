@@ -1,4 +1,4 @@
-package grailsredis
+package redis
 
 import grails.boot.GrailsApp
 import grails.boot.config.GrailsAutoConfiguration

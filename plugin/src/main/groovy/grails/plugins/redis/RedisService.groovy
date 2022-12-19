@@ -16,6 +16,7 @@ package grails.plugins.redis
 
 import com.google.gson.Gson
 import grails.core.GrailsApplication
+import grails.gorm.transactions.Transactional
 import groovy.util.logging.Commons
 import redis.clients.jedis.Jedis
 import redis.clients.jedis.Pipeline
@@ -301,6 +302,7 @@ class RedisService {
         }
     }
 
+    @Transactional(readOnly = true)
     protected List hydrateDomainObjectsFrom(Class domainClass, List<Long> idList) {
         if (domainClass && idList) {
             //return domainClass.findAllByIdInList(idList, [cache: true])
@@ -315,6 +317,7 @@ class RedisService {
 
     // closure can return either a domain object or a Long id of a domain object
     // it will be persisted into redis as the Long
+    @Transactional(readOnly = true)
     def memoizeDomainObject(Class domainClass, String key, Map options = [:], Closure closure) {
         Long domainId = withOptionalRedis { redis ->
             redis?.get(key)?.toLong()
