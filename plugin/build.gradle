@@ -96,7 +96,6 @@ publishing {
         maven(MavenPublication) {
 
             groupId = project.group
-            artifactId = 'redis'
             version = project.version
 
             from components.java
