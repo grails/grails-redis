@@ -65,8 +65,26 @@ jar {
   exclude "src/test/projects/**"
 }
 
+if (isReleaseVersion) {
+    apply plugin: "signing"
+}
 
 publishing {
+
+    if (isSnapshot) {
+        repositories {
+            maven {
+                credentials {
+                    def u = System.getenv("ARTIFACTORY_USERNAME") ?: project.hasProperty("artifactoryPublishUsername") ? project.artifactoryPublishUsername : ''
+                    def p = System.getenv("ARTIFACTORY_PASSWORD") ?: project.hasProperty("artifactoryPublishPassword") ? project.artifactoryPublishPassword : ''
+                    username = u
+                    password = p
+                }
+                url "https://repo.grails.org/grails/plugins3-snapshots-local"
+            }
+        }
+    }
+
     publications {
         maven(MavenPublication) {
 
@@ -107,15 +125,12 @@ publishing {
                 }
             }
         }
-
-
     }
 }
 
 afterEvaluate {
     signing {
-        required { gradle.taskGraph.hasTask("publish") || gradle.taskGraph.hasTask("publishMavenPublicationToMavenLocal") }
+        required { isReleaseVersion && (gradle.taskGraph.hasTask("publish") || gradle.taskGraph.hasTask("publishMavenPublicationToMavenLocal")) }
         sign publishing.publications.maven
     }
 }
-

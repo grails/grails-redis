@@ -2,6 +2,9 @@ plugins {
     id 'io.github.gradle-nexus.publish-plugin' version '1.1.0'
 }
 
+ext.isSnapshot = project.projectVersion.endsWith('-SNAPSHOT')
+ext.isReleaseVersion = !isSnapshot
+
 allprojects {
 
     repositories {
@@ -16,17 +19,21 @@ allprojects {
     }
 }
 
-nexusPublishing {
-    repositories {
-        sonatype {
-            def ossUser = System.getenv("SONATYPE_USERNAME") ?: project.hasProperty("sonatypeOssUsername") ? project.sonatypeOssUsername : ''
-            def ossPass = System.getenv("SONATYPE_PASSWORD") ?: project.hasProperty("sonatypeOssPassword") ? project.sonatypeOssPassword : ''
-            def ossStagingProfileId = System.getenv("SONATYPE_STAGING_PROFILE_ID") ?: project.hasProperty("sonatypeOssStagingProfileId") ? project.sonatypeOssStagingProfileId : ''
-            nexusUrl = uri("https://s01.oss.sonatype.org/service/local/")
-            snapshotRepositoryUrl = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
-            username = ossUser
-            password = ossPass
-            stagingProfileId = ossStagingProfileId
+if (isReleaseVersion) {
+    apply plugin: "io.github.gradle-nexus.publish-plugin"
+
+    nexusPublishing {
+        repositories {
+            sonatype {
+                def ossUser = System.getenv("SONATYPE_USERNAME") ?: project.hasProperty("sonatypeOssUsername") ? project.sonatypeOssUsername : ''
+                def ossPass = System.getenv("SONATYPE_PASSWORD") ?: project.hasProperty("sonatypeOssPassword") ? project.sonatypeOssPassword : ''
+                def ossStagingProfileId = System.getenv("SONATYPE_STAGING_PROFILE_ID") ?: project.hasProperty("sonatypeOssStagingProfileId") ? project.sonatypeOssStagingProfileId : ''
+                nexusUrl = uri("https://s01.oss.sonatype.org/service/local/")
+                snapshotRepositoryUrl = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+                username = ossUser
+                password = ossPass
+                stagingProfileId = ossStagingProfileId
+            }
         }
     }
 }
