@@ -363,6 +363,17 @@ class RedisService {
         }
     }
 
+    /**
+     * Deletes key from redis.
+     *
+     * @param key The key to delete.
+     */
+    void deleteKey(String key){
+        withRedis { Jedis redis ->
+            redis.del(key)
+        }
+    }
+
     def memoizeList(String key, Integer expire, Closure closure) {
         memoizeList(key, [expire: expire], closure)
     }
