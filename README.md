@@ -1,8 +1,4 @@
-[![Build Status](https://travis-ci.org/grails-plugins/grails-redis.svg)](https://travis-ci.org/grails-plugins/grails-redis)
-
-# Grails 3
-
-The [2.X version of the plugin](https://bintray.com/ctoestreich/grails-plugins/redis) is compatible only with grails 3.
+[![Java CI](https://github.com/grails/grails-redis/actions/workflows/gradle.yml/badge.svg)](https://github.com/grails/grails-redis/actions/workflows/gradle.yml)
 
 Grails Redis Plugin
 ===================
@@ -34,7 +30,20 @@ What is Jedis?
 Installation
 ------------
 
-    grails install-plugin redis
+# Grails 3
+
+Add the following dependency to build.gradle:
+
+```
+dependencies {
+  ...
+  implementation 'org.grails.plugins:grails-redis:3.0.0'
+
+
+}
+```
+
+NOTE: The 2.X is compatible only with Grails 3.
 
 
 Out of the box, the plugin expects that Redis is running on `localhost:6379`.  You can modify this (as well as any other pool config options) by adding a stanza like this to your `grails-app/conf/Config.groovy` file:
