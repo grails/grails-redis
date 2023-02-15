@@ -1,9 +1,8 @@
 package com.example
 
-
+import grails.core.support.proxy.ProxyHandler
 import grails.plugins.redis.RedisService
 import grails.testing.mixin.integration.Integration
-import org.grails.datastore.mapping.proxy.ProxyHandler
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.annotation.Rollback
 import spock.lang.Specification

@@ -2,23 +2,18 @@ package com.example
 
 import grails.plugins.redis.RedisService
 import grails.testing.mixin.integration.Integration
-import org.junit.Test
 import org.springframework.beans.factory.annotation.Autowired
-import spock.lang.Ignore
 import spock.lang.Specification
 
 @Integration
-@Ignore
 class MemoizeAnnotationSpec extends Specification {
 
-    @Autowired
-    RedisService redisService
+    @Autowired RedisService redisService
 
-    public void setup() {
+    void setup() {
         redisService.flushDB()
     }
 
-    @Test
     void testMemoizeAnnotationExpire() {
         given:
         // set up test class
