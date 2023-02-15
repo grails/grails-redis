@@ -70,7 +70,7 @@ jobs:
         if: steps.build.outcome == 'success' && github.event_name == 'push'
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: docs
+          arguments: :grails-redis:groovydoc
       - name: Publish to Github Pages
         if: steps.docs.outcome == 'success' && github.event_name == 'push'
         uses: micronaut-projects/github-pages-deploy-action@master
@@ -78,7 +78,7 @@ jobs:
           TARGET_REPOSITORY: ${{ github.repository }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           BRANCH: gh-pages
-          FOLDER: build/docs
+          FOLDER: plugin/build/docs
           DOC_FOLDER: gh-pages
           COMMIT_EMAIL: behlp@objectcomputing.com
           COMMIT_NAME: Puneet Behl
