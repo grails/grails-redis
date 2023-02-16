@@ -134,9 +134,11 @@ publishing {
     }
 }
 
-afterEvaluate {
-    signing {
-        required { isReleaseVersion && (gradle.taskGraph.hasTask("publish") || gradle.taskGraph.hasTask("publishMavenPublicationToMavenLocal")) }
-        sign publishing.publications.maven
+if (isReleaseVersion) {
+    afterEvaluate {
+        signing {
+            required { gradle.taskGraph.hasTask("publish") || gradle.taskGraph.hasTask("publishMavenPublicationToMavenLocal") }
+            sign publishing.publications.maven
+        }
     }
 }
