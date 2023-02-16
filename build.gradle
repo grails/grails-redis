@@ -4,6 +4,11 @@ plugins {
 
 ext.isSnapshot = project.projectVersion.endsWith('-SNAPSHOT')
 ext.isReleaseVersion = !isSnapshot
+ext."signing.keyId" = project.hasProperty("signing.keyId") ? project.getProperty('signing.keyId') : System.getenv('SIGNING_KEY')
+ext."signing.secretKeyRingFile" = project.hasProperty("signing.secretKeyRingFile") ? project.getProperty('signing.secretKeyRingFile') : "${System.properties['user.home']}${File.separator}.gnupg${File.separator}secring.gpg"
+ext."signing.password" = project.hasProperty("signing.password") ? project.getProperty('signing.password') : System.getenv('SIGNING_PASSPHRASE')
+
+version = project.projectVersion
 
 allprojects {
 

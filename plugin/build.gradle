@@ -15,6 +15,7 @@ plugins {
     id 'java-library'
 }
 
+apply plugin: 'signing'
 apply plugin: "org.grails.grails-plugin"
 apply plugin: "org.grails.grails-gsp"
 
@@ -70,10 +71,6 @@ groovydoc {
 jar {
   exclude "application.groovy"
   exclude "src/test/projects/**"
-}
-
-if (isReleaseVersion) {
-    apply plugin: "signing"
 }
 
 publishing {
@@ -137,8 +134,11 @@ publishing {
 if (isReleaseVersion) {
     afterEvaluate {
         signing {
-            required { gradle.taskGraph.hasTask("publish") || gradle.taskGraph.hasTask("publishMavenPublicationToMavenLocal") }
             sign publishing.publications.maven
         }
     }
+}
+
+tasks.withType(Sign) {
+    onlyIf { isReleaseVersion }
 }
