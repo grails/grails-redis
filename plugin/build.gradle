@@ -41,7 +41,7 @@ configurations {
     documentation.extendsFrom compileClasspath
     all {
         resolutionStrategy {
-            force 'org.apache.commons:commons-pool2:2.11.1'
+            force 'org.apache.commons:commons-pool2:2.12.0'
         }
     }
 }
