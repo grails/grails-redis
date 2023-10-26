@@ -22,8 +22,8 @@ apply plugin: "org.grails.grails-gsp"
 version project.projectVersion
 group "org.grails.plugins"
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatibility = 1.11
+targetCompatibility = 1.11
 
 repositories {
     mavenCentral()
@@ -118,7 +118,7 @@ publishing {
                     developer {
                         id = 'puneetbehl'
                         name = 'Puneet Behl'
-                        email = 'behlp@objectcomputing.com'
+                        email = 'behlp@unityfoundation.io'
                     }
                 }
                 scm {
