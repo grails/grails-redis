@@ -61,7 +61,7 @@ jobs:
           GRADLE_ENTERPRISE_BUILD_CACHE_NODE_KEY: ${{ secrets.GRADLE_ENTERPRISE_BUILD_CACHE_NODE_KEY }}
       - name: Publish to Github Pages
         if: steps.docs.outcome == 'success' && github.event_name == 'push'
-        uses: micronaut-projects/github-pages-deploy-action@master
+        uses: grails/github-pages-deploy-action@v2.0.2
         env:
           TARGET_REPOSITORY: ${{ github.repository }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
