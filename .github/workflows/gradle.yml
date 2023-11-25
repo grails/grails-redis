@@ -10,15 +10,9 @@ on:
 jobs:
   container-job:
     runs-on: ubuntu-latest
-    container: node:21-alpine3.17
-    services:
-      redis:
-        image: redis
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+    strategy:
+      matrix:
+        redis-version: [6, 7]
     steps:
       - uses: actions/checkout@v3
       - name: Set up JDK
@@ -26,6 +20,10 @@ jobs:
         with:
           distribution: 'adopt'
           java-version: 11
+      - name: Start Redis
+        uses: supercharge/redis-github-action@1.7.0
+        with:
+          redis-version: ${{ matrix.redis-version }}
       - name: Run Build
         id: build
         uses: gradle/gradle-build-action@v2
