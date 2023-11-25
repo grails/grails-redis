@@ -20,7 +20,7 @@ jobs:
         with:
           distribution: 'adopt'
           java-version: 11
-      - name: Start Redis
+      - name: Setup Redis
         uses: supercharge/redis-github-action@1.7.0
         with:
           redis-version: ${{ matrix.redis-version }}
