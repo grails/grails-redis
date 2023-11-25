@@ -8,7 +8,7 @@ on:
       - '[3-9]+.[0-9]+.x'
   workflow_dispatch:
 jobs:
-  container-job:
+  build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
