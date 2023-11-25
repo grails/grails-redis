@@ -10,7 +10,7 @@ on:
 jobs:
   container-job:
     runs-on: ubuntu-latest
-    container: node:10.22-jessie
+    container: node:21-alpine3.17
     services:
       redis:
         image: redis
