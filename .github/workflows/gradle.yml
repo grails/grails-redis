@@ -37,7 +37,7 @@ jobs:
           arguments: build -Dgeb.env=chromeHeadless
   publish:
     if: github.event_name == 'push'
-    needs: container-job
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
