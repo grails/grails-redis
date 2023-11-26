@@ -1,0 +1,4 @@
+grails.plugins.redis
+grails.plugins.redis.ast
+grails.plugins.redis.util
+redis
