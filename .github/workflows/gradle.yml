@@ -21,7 +21,7 @@ jobs:
           distribution: 'adopt'
           java-version: 11
       - name: Setup Redis
-        uses: supercharge/redis-github-action@1.7.0
+        uses: supercharge/redis-github-action@1.8.0
         with:
           redis-version: ${{ matrix.redis-version }}
       - name: Run Build
