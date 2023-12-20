@@ -4,7 +4,7 @@ buildscript {
     }
     dependencies {
         classpath "org.grails:grails-gradle-plugin:$grailsGradlePluginVersion"
-        classpath "com.bertramlabs.plugins:asset-pipeline-gradle:3.2.4"
+        classpath "com.bertramlabs.plugins:asset-pipeline-gradle:4.3.0"
     }
 }
 
@@ -58,7 +58,7 @@ dependencies {
     runtimeOnly "com.h2database:h2"
     runtimeOnly "org.apache.tomcat:tomcat-jdbc"
     runtimeOnly "javax.xml.bind:jaxb-api:2.3.1"
-    runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:3.2.4"
+    runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:4.3.0"
 
 
     testImplementation "org.grails:grails-gorm-testing-support"
