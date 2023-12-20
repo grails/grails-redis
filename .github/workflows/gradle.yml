@@ -9,6 +9,7 @@ on:
   workflow_dispatch:
 jobs:
   build:
+    name: Build (Redis ${{ matrix.redis-version }})
     runs-on: ubuntu-latest
     strategy:
       matrix:
