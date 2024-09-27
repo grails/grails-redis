@@ -58,7 +58,7 @@ dependencies {
 
     console "org.grails:grails-console"
 
-    api 'redis.clients:jedis:5.1.0'
+    api 'redis.clients:jedis:5.2.0'
     api 'com.google.code.gson:gson:2.10.1'
 
     documentation('com.github.javaparser:javaparser-core:3.25.7') {
