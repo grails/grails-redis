@@ -27,7 +27,7 @@ jobs:
           redis-version: ${{ matrix.redis-version }}
       - name: Run Build
         id: build
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/gradle-build-action@v3
         env:
           REDIS_HOST: redis
           REDIS_PORT: 6379
@@ -46,7 +46,7 @@ jobs:
           java-version: 11
       - name: Publish Artifacts (repo.grails.org)
         id: publish
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/gradle-build-action@v3
         env:
           GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_ACCESS_KEY }}
           ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
@@ -56,7 +56,7 @@ jobs:
       - name: Build Docs
         id: docs
         if: success()
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/gradle-build-action@v3
         with:
           arguments: :grails-redis:groovydoc
         env:
