@@ -82,7 +82,6 @@ bootRun {
     ignoreExitValue true
     jvmArgs(
             '-Dspring.output.ansi.enabled=always',
-            '-noverify',
             '-XX:TieredStopAtLevel=1',
             '-Xmx1024m')
     sourceResources sourceSets.main
