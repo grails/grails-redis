@@ -1,26 +1,37 @@
-buildscript {
-    repositories {
-        maven { url "https://repo.grails.org/grails/core" }
-    }
-    dependencies {
-        classpath "org.grails:grails-gradle-plugin:$grailsGradlePluginVersion"
-        classpath "com.bertramlabs.plugins:asset-pipeline-gradle:4.3.0"
-    }
+
+plugins {
+    id "war"
+    id 'eclipse'
+    id 'idea'
+    id "org.grails.grails-web"
+    id "com.bertramlabs.asset-pipeline"
+    id "org.grails.grails-gsp"
 }
 
-version "0.1"
-group "com.example"
-
-apply plugin: "war"
-apply plugin: 'eclipse'
-apply plugin: 'idea'
-apply plugin: "org.grails.grails-web"
-apply plugin:"com.bertramlabs.asset-pipeline"
-apply plugin: "org.grails.grails-gsp"
-
+version = "0.1"
+group = "com.example"
 assets {
     minifyJs = true
     minifyCss = true
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+configurations.configureEach {
+    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+        if ((details.requested.group == 'org.codehaus.groovy' || details.requested.group == 'org.apache.groovy') && details.requested.name != 'groovy-bom') {
+            String groovyVersion = findProperty('groovyVersion') ?: libs.versions.groovy.get()
+            details.useTarget(group: 'org.apache.groovy', name: details.requested.name, version: groovyVersion)
+            details.because "The dependency coordinates are changed in Apache Groovy 4, plus ensure version"
+        }
+    }
+    resolutionStrategy.dependencySubstitution {
+        substitute(module("org.codehaus.groovy:groovy-bom:3.0.8")).using(module("org.apache.groovy:groovy-bom:$groovyVersion"))
+    }
 }
 
 repositories {
@@ -31,33 +42,34 @@ repositories {
 dependencies {
     implementation "org.springframework.boot:spring-boot-starter-logging"
     implementation "org.springframework.boot:spring-boot-autoconfigure"
-    implementation "org.grails:grails-core"
     implementation "org.springframework.boot:spring-boot-starter-actuator"
     implementation "org.springframework.boot:spring-boot-starter-tomcat"
-    implementation "org.grails:grails-web-boot"
-    implementation "org.grails:grails-logging"
-    implementation "org.grails:grails-plugin-rest"
-    implementation "org.grails:grails-plugin-databinding"
-    implementation "org.grails:grails-plugin-i18n"
-    implementation "org.grails:grails-plugin-services"
-    implementation "org.grails:grails-plugin-url-mappings"
-    implementation "org.grails:grails-plugin-interceptors"
+    implementation "org.grails:grails-core:$grailsVersion"
 
-    implementation "org.grails.plugins:cache:5.0.1"
-    implementation "org.grails.plugins:async"
-    implementation "org.grails.plugins:scaffolding"
+    implementation "org.grails:grails-web-boot:$grailsVersion"
+    implementation "org.grails:grails-logging:$grailsVersion"
+    implementation "org.grails:grails-plugin-rest:$grailsVersion"
+    implementation "org.grails:grails-plugin-databinding:$grailsVersion"
+    implementation "org.grails:grails-plugin-i18n:$grailsVersion"
+    implementation "org.grails:grails-plugin-services:$grailsVersion"
+    implementation "org.grails:grails-plugin-url-mappings:$grailsVersion"
+    implementation "org.grails:grails-plugin-interceptors:$grailsVersion"
+
+    implementation "org.grails.plugins:cache:$cacheVersion"
+    implementation "org.grails.plugins:async:$asyncVersion"
+    implementation "org.grails.plugins:scaffolding:$scaffoldingVersion"
     implementation "org.grails.plugins:events"
-    implementation "org.grails.plugins:hibernate5"
-    implementation "org.hibernate:hibernate-core:5.4.18.Final"
+    implementation "org.grails.plugins:hibernate5:$grailHibernateVersion"
+    implementation "org.hibernate:hibernate-core-jakarta:$hibernate5Version"
     implementation project(':grails-redis')
     implementation "org.grails.plugins:gsp"
     console "org.grails:grails-console"
     profile "org.grails.profiles:web"
 
-    runtimeOnly "org.glassfish.web:el-impl:2.1.2-b03"
+    runtimeOnly "org.glassfish.expressly:expressly:5.0.0"
     runtimeOnly "com.h2database:h2"
     runtimeOnly "org.apache.tomcat:tomcat-jdbc"
-    runtimeOnly "javax.xml.bind:jaxb-api:2.3.1"
+    runtimeOnly 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.2'
     runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:4.3.0"
 
 
@@ -81,4 +93,8 @@ bootRun {
 assets {
     minifyJs = true
     minifyCss = true
+}
+
+test {
+    useJUnitPlatform()
 }

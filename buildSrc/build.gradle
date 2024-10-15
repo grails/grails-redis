@@ -1,0 +1,10 @@
+repositories {
+    mavenCentral()
+    maven { url "https://repo.grails.org/grails/core" }
+    gradlePluginPortal()
+}
+dependencies {
+    //Trying to pull the property from grailsGradlePluginVersion threw an error
+    implementation "com.bertramlabs.plugins:asset-pipeline-gradle:4.3.0"
+    implementation "org.grails:grails-gradle-plugin:7.0.0-SNAPSHOT"
+}

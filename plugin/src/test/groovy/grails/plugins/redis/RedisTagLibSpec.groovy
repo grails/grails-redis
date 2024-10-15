@@ -21,7 +21,7 @@ class RedisTagLibSpec extends Specification {
 
     def setup() {
         redisService.flushDB()
-        tagLib = grailsApplication.mainContext.getBean(RedisTagLib)
+         tagLib= grailsApplication.mainContext.getBean(RedisTagLib)
     }
 
     @Ignore
