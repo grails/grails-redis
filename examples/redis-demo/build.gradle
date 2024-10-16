@@ -57,7 +57,7 @@ dependencies {
     runtimeOnly "org.apache.tomcat:tomcat-jdbc"
     runtimeOnly "jakarta.xml.bind:jakarta.xml.bind-api:$xmlBindApiVersion"
     runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:$assetPipelineGrailVersion"
-
+    implementation "org.grails:grails-shell:7.0.0-SNAPSHOT"
 
     testImplementation "org.grails:grails-gorm-testing-support"
     testImplementation "org.mockito:mockito-core"
