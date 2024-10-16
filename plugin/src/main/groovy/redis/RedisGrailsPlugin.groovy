@@ -44,7 +44,7 @@ class RedisGrailsPlugin extends Plugin {
 
     Closure doWithSpring() {
         { ->
-            def redisConfigMap = grailsApplication.config.grails.redis ?: [:]
+            def redisConfigMap = grailsApplication.config.getProperty('grails.redis') ?: [:]
 
             RedisConfigurationUtil.configureService(delegate, redisConfigMap, "", RedisService)
             redisConfigMap?.connections?.each { connection ->

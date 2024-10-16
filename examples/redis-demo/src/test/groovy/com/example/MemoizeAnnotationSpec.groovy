@@ -36,10 +36,10 @@ class TestClass{
         String testExpire = "1000"
 
         when:
-        def testInstance = testClass.newInstance()
+        def testInstance = testClass.getDeclaredConstructor().newInstance()
 
         // inject redis service
-//        testInstance.redisService = redisService
+        testInstance.redisService = redisService
         testInstance.key = testKey
         testInstance.expire = testExpire
 

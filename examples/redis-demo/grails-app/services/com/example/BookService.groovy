@@ -1,6 +1,7 @@
 package com.example
 
 import grails.plugins.redis.*
+import java.time.LocalDate
 
 class BookService {
 
@@ -32,11 +33,12 @@ class BookService {
 
 
     @MemoizeDomainObject(key = '#{title}', clazz = Book.class)
-    def createDomainObject(String title, Date date) {
+    def createDomainObject(String title, LocalDate date) {
         println 'cache miss createDomainObject'
         def book = new Book(title: title, createDate: date).save(flush: true)
         book
     }
+
 
     @MemoizeDomainList(key = 'getDomainListWithKeyClass:#{title}', clazz = Book.class)
     def getDomainListWithKeyClass(String title, Date date) {

@@ -50,7 +50,7 @@ dependencies {
     api "redis.clients:jedis:$jredisVersion"
     api "com.google.code.gson:gson:$gsonVersion"
 
-    documentation("com.github.javaparser:javaparser-core:$javaparserVersion") {
+    documentation("com.github.javaparser:javaparser-core:$javaParserCoreVersion") {
         transitive = false
     }
 }

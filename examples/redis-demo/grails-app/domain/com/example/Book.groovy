@@ -1,55 +1,28 @@
 package com.example
 
+import grails.plugins.redis.RedisService
 import groovy.transform.ToString
+import java.time.LocalDate
 
-@ToString(includes = "id")
+@ToString(includes = "id,createDate")
 class Book {
 
-    transient redisService
+    RedisService redisService
 
     String title = ''
-    Date createDate = new Date()
+    LocalDate createDate = LocalDate.now()
+    static transients = ['redisService']
+
+    static mapping = {
+        autowire true
+    }
 
     //todo: FIX THESE ASAP!
 //    @Memoize(key = '#{title}')
-    def getMemoizedTitle(Date date) {
-        "$title $date"
+    def getMemoizedTitle(LocalDate date) {
+        redisService?.memoize(title) {
+            println 'cache miss'
+            "$title $date"
+       }
     }
 }
-
-//todo: get the ast to do this because this seems to work.
-//import grails.plugins.redis.RedisService
-//import grails.util.Holders
-//
-//class Book {
-//
-//    RedisService redisService
-//
-//    static transients = ['redisService', 'redisTitle']
-//
-//    String title = ''
-//    Date createDate = new Date()
-//    String redisTitle = getMemoizedTitle(createDate)
-//
-//    def getMemoizedTitle(Date date) {
-//        getRedisService()?.memoize(title) {
-//            println 'cache miss'
-//            "$title $date"
-//        }
-//    }
-//
-//    def getRedisService() {
-//        return Holders?.findApplicationContext()?.getBean('redisService')
-//    }
-//
-//
-//    @Override
-//    public String toString() {
-//        return "Book{" +
-//                "redisTitle='" + redisTitle + '\'' +
-//                ", createDate=" + createDate +
-//                ", title='" + title + '\'' +
-//                ", id=" + id +
-//                '}';
-//    }
-//}
