@@ -45,7 +45,6 @@ dependencies {
 
     testImplementation 'org.grails:grails-web-testing-support'
 
-    implementation "org.grails:grails-shell:7.0.0-SNAPSHOT"
     implementation "org.grails:grails-console"
 
     api "redis.clients:jedis:$jredisVersion"
