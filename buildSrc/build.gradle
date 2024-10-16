@@ -11,5 +11,5 @@ repositories {
 dependencies {
     implementation "com.bertramlabs.plugins:asset-pipeline-gradle:${assetPipelineGrailVersion}"
     implementation "org.grails:grails-gradle-plugin:${grailsVersion}"
-    implementation "org.grails:grails-shell:7.0.0-SNAPSHOT"
+    implementation "org.gradle:gradle-tooling-api:8.10.2"
 }
