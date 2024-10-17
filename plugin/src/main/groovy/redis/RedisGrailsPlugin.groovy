@@ -10,7 +10,7 @@ import redis.clients.jedis.Protocol
 
 class RedisGrailsPlugin extends Plugin {
 
-    def grailsVersion = "3.0.0 > *"
+    def grailsVersion = "7.0.0 > *"
     def pluginExcludes = [
             "codenarc.properties",
             "grails-app/conf/**",
@@ -44,7 +44,7 @@ class RedisGrailsPlugin extends Plugin {
 
     Closure doWithSpring() {
         { ->
-            def redisConfigMap = grailsApplication.config.grails.redis ?: [:]
+            def redisConfigMap = grailsApplication.config.getProperty('grails.redis') ?: [:]
 
             RedisConfigurationUtil.configureService(delegate, redisConfigMap, "", RedisService)
             redisConfigMap?.connections?.each { connection ->

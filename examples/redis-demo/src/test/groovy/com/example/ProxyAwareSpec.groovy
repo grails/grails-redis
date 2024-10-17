@@ -1,13 +1,10 @@
 package com.example
 
-import grails.core.support.proxy.ProxyHandler
-
 trait ProxyAwareSpec {
 
-    ProxyHandler proxyHandler
 
     Serializable getEntityId(Object obj) {
-        Serializable identifier = proxyHandler.getIdentifier(obj)
+        Serializable identifier = proxyHandler.unwrapIfProxy(obj)?.ident()
         identifier ?: obj?.id
     }
 

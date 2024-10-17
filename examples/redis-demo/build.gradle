@@ -1,26 +1,25 @@
-buildscript {
-    repositories {
-        maven { url "https://repo.grails.org/grails/core" }
-    }
-    dependencies {
-        classpath "org.grails:grails-gradle-plugin:$grailsGradlePluginVersion"
-        classpath "com.bertramlabs.plugins:asset-pipeline-gradle:4.3.0"
-    }
+
+plugins {
+    id "war"
+    id 'eclipse'
+    id 'idea'
+    id "org.grails.grails-web"
+    id "com.bertramlabs.asset-pipeline"
+    id "org.grails.grails-gsp"
+    id "application"
 }
 
-version "0.1"
-group "com.example"
-
-apply plugin: "war"
-apply plugin: 'eclipse'
-apply plugin: 'idea'
-apply plugin: "org.grails.grails-web"
-apply plugin:"com.bertramlabs.asset-pipeline"
-apply plugin: "org.grails.grails-gsp"
-
+version = project.projectVersion
+group = "com.example"
 assets {
     minifyJs = true
     minifyCss = true
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
 }
 
 repositories {
@@ -31,9 +30,10 @@ repositories {
 dependencies {
     implementation "org.springframework.boot:spring-boot-starter-logging"
     implementation "org.springframework.boot:spring-boot-autoconfigure"
-    implementation "org.grails:grails-core"
     implementation "org.springframework.boot:spring-boot-starter-actuator"
     implementation "org.springframework.boot:spring-boot-starter-tomcat"
+    implementation "org.grails:grails-core"
+
     implementation "org.grails:grails-web-boot"
     implementation "org.grails:grails-logging"
     implementation "org.grails:grails-plugin-rest"
@@ -43,42 +43,35 @@ dependencies {
     implementation "org.grails:grails-plugin-url-mappings"
     implementation "org.grails:grails-plugin-interceptors"
 
-    implementation "org.grails.plugins:cache:5.0.1"
-    implementation "org.grails.plugins:async"
-    implementation "org.grails.plugins:scaffolding"
-    implementation "org.grails.plugins:events"
-    implementation "org.grails.plugins:hibernate5"
-    implementation "org.hibernate:hibernate-core:5.4.18.Final"
+    implementation "org.grails.plugins:cache:$cacheVersion"
+    implementation "org.grails.plugins:async:$asyncVersion"
+    implementation "org.grails.plugins:hibernate5:$gormVersion"
+    implementation "org.hibernate:hibernate-core-jakarta:$hibernate5Version"
     implementation project(':grails-redis')
     implementation "org.grails.plugins:gsp"
     console "org.grails:grails-console"
     profile "org.grails.profiles:web"
 
-    runtimeOnly "org.glassfish.web:el-impl:2.1.2-b03"
-    runtimeOnly "com.h2database:h2"
+    runtimeOnly "org.glassfish.expressly:expressly:$expresslyVersion"
+    runtimeOnly "com.h2database:h2:$h2Version"
     runtimeOnly "org.apache.tomcat:tomcat-jdbc"
-    runtimeOnly "javax.xml.bind:jaxb-api:2.3.1"
-    runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:4.3.0"
-
+    runtimeOnly "jakarta.xml.bind:jakarta.xml.bind-api:$xmlBindApiVersion"
+    runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:$assetPipelineGrailVersion"
 
     testImplementation "org.grails:grails-gorm-testing-support"
     testImplementation "org.mockito:mockito-core"
     testImplementation "org.grails:grails-web-testing-support"
 }
 
-bootRun {
-    ignoreExitValue true
-    jvmArgs(
-            '-Dspring.output.ansi.enabled=always',
-            '-noverify',
-            '-XX:TieredStopAtLevel=1',
-            '-Xmx1024m')
-    sourceResources sourceSets.main
-    String springProfilesActive = 'spring.profiles.active'
-    systemProperty springProfilesActive, System.getProperty(springProfilesActive)
+application {
+    mainClass.set("com.example.Application")
 }
 
 assets {
     minifyJs = true
     minifyCss = true
+}
+
+test {
+    useJUnitPlatform()
 }

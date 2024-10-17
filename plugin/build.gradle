@@ -1,33 +1,17 @@
-buildscript {
-    repositories {
-        maven { url "https://repo.grails.org/grails/core" }
-    }
-    dependencies {
-        classpath "org.grails:grails-gradle-plugin:$grailsGradlePluginVersion"
-    }
-}
-
 plugins {
-    id 'maven-publish'
-    id 'idea'
-    id 'eclipse'
-    id 'signing'
-    id 'java-library'
+    id "java-library"
+    id "eclipse"
+    id "idea"
+    id "org.grails.grails-plugin"
 }
 
-apply plugin: 'signing'
-apply plugin: "org.grails.grails-plugin"
-apply plugin: "org.grails.grails-gsp"
+version = project.projectVersion
+group = "org.grails.plugins"
 
-version project.projectVersion
-group "org.grails.plugins"
-
-sourceCompatibility = 1.11
-targetCompatibility = 1.11
-
-repositories {
-    mavenCentral()
-    maven { url "https://repo.grails.org/grails/core" }
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
 }
 
 dependencyManagement {
@@ -41,9 +25,14 @@ configurations {
     documentation.extendsFrom compileClasspath
     all {
         resolutionStrategy {
-            force 'org.apache.commons:commons-pool2:2.12.0'
+            force "org.apache.commons:commons-pool2:$commonsPool2Version"
         }
     }
+}
+
+repositories {
+    mavenCentral()
+    maven { url "https://repo.grails.org/grails/core" }
 }
 
 dependencies {
@@ -56,91 +45,21 @@ dependencies {
 
     testImplementation 'org.grails:grails-web-testing-support'
 
-    console "org.grails:grails-console"
+    implementation "org.grails:grails-console"
 
-    api 'redis.clients:jedis:5.1.0'
-    api 'com.google.code.gson:gson:2.10.1'
+    api "redis.clients:jedis:$jredisVersion"
+    api "com.google.code.gson:gson:$gsonVersion"
 
-    documentation('com.github.javaparser:javaparser-core:3.25.7') {
+    documentation("com.github.javaparser:javaparser-core:$javaParserCoreVersion") {
         transitive = false
     }
 }
 
-groovydoc {
-    groovyClasspath += configurations.documentation
+test {
+    useJUnitPlatform()
 }
 
 jar {
   exclude "application.groovy"
   exclude "src/test/projects/**"
-}
-
-publishing {
-
-    if (isSnapshot) {
-        repositories {
-            maven {
-                credentials {
-                    def u = System.getenv("ARTIFACTORY_USERNAME") ?: project.hasProperty("artifactoryPublishUsername") ? project.artifactoryPublishUsername : ''
-                    def p = System.getenv("ARTIFACTORY_PASSWORD") ?: project.hasProperty("artifactoryPublishPassword") ? project.artifactoryPublishPassword : ''
-                    username = u
-                    password = p
-                }
-                url "https://repo.grails.org/grails/plugins3-snapshots-local"
-            }
-        }
-    }
-
-    publications {
-        maven(MavenPublication) {
-
-            groupId = project.group
-            version = project.version
-
-            from components.java
-
-            artifact sourcesJar
-            artifact javadocJar
-
-            pom {
-                name = 'Grails Redis Plugin'
-                description = 'This Plugin provides access to Redis and various utilities(service, annotations, etc) for caching.'
-                url = 'https://github.com/grails/grails-redis'
-                licenses {
-                    license {
-                        name = 'The Apache License, Version 2.0'
-                        url = 'https://www.apache.org/licenses/LICENSE-2.0.txt'
-                    }
-                }
-                developers {
-                    developer {
-                        id = 'ctoestreich'
-                        name = 'Christian Oestreich'
-                    }
-                    developer {
-                        id = 'puneetbehl'
-                        name = 'Puneet Behl'
-                        email = 'behlp@unityfoundation.io'
-                    }
-                }
-                scm {
-                    connection = 'scm:git:git://github.com/grails/grails-redis.git'
-                    developerConnection = 'scm:git:ssh://github.com:/grails/grails-redis.git'
-                    url = 'https://github.com/grails/grails-redis/'
-                }
-            }
-        }
-    }
-}
-
-if (isReleaseVersion) {
-    afterEvaluate {
-        signing {
-            sign publishing.publications.maven
-        }
-    }
-}
-
-tasks.withType(Sign) {
-    onlyIf { isReleaseVersion }
 }

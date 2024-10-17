@@ -4,12 +4,11 @@ import grails.gorm.transactions.Rollback
 import grails.plugins.redis.RedisService
 import grails.testing.mixin.integration.Integration
 import org.springframework.beans.factory.annotation.Autowired
-import spock.lang.Ignore
 import spock.lang.Specification
+import java.time.LocalDate
 
 @Integration
 @Rollback
-@Ignore
 class RedisMemoizeDomainSpec extends Specification {
 
     @Autowired RedisService redisService
@@ -21,8 +20,8 @@ class RedisMemoizeDomainSpec extends Specification {
     def "get AST transformed domain object method"() {
         given:
         def title = 'all the things'
-        def date1 = new Date()
-        def date2 = new Date() + 1
+        LocalDate date1 = LocalDate.now()
+        LocalDate date2 =  date1.plusDays(1)
         Book book = new Book(title: title).save(flush: true)
 
         when:

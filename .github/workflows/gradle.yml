@@ -19,8 +19,8 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
-          distribution: 'adopt'
-          java-version: 11
+          distribution: 'liberica'
+          java-version: 17
       - name: Setup Redis
         uses: supercharge/redis-github-action@1.8.0
         with:
@@ -31,7 +31,7 @@ jobs:
         env:
           REDIS_HOST: redis
           REDIS_PORT: 6379
-          GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_ACCESS_KEY }}
+          DEVELOCITY_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_ACCESS_KEY }}
         with:
           arguments: build -Dgeb.env=chromeHeadless
   publish:
@@ -42,8 +42,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
         with:
-          distribution: 'adopt'
-          java-version: 11
+          distribution: 'liberica'
+          java-version: 17
       - name: Publish Artifacts (repo.grails.org)
         id: publish
         uses: gradle/gradle-build-action@v2
@@ -70,5 +70,5 @@ jobs:
           BRANCH: gh-pages
           FOLDER: plugin/build/docs
           DOC_FOLDER: gh-pages
-          COMMIT_EMAIL: behlp@unityfoundation.io
-          COMMIT_NAME: Puneet Behl
+          COMMIT_EMAIL: 'grails-build@users.noreply.github.com'
+          COMMIT_NAME: 'grails-build'
