@@ -1,0 +1,15 @@
+apply from: "./loadProps.gradle"
+
+repositories {
+    mavenCentral()
+    maven { url "https://repo.grails.org/grails/core" }
+    maven {
+        url = 'https://repo.gradle.org/gradle/libs-releases'
+        description = 'Needed for Gradle Tooling API'
+    }
+}
+dependencies {
+    implementation "com.bertramlabs.plugins:asset-pipeline-gradle:${assetPipelineGrailVersion}"
+    implementation "org.grails:grails-gradle-plugin:${grailsVersion}"
+    implementation "org.gradle:gradle-tooling-api:${gradleToolingApiVersion}"
+}

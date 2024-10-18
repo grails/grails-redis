@@ -4,9 +4,9 @@ import grails.gorm.transactions.Rollback
 import grails.plugins.redis.RedisService
 import grails.testing.mixin.integration.Integration
 import groovy.time.TimeCategory
-import groovy.transform.CompileStatic
 import org.springframework.beans.factory.annotation.Autowired
 import spock.lang.Specification
+import java.time.LocalDate
 
 @Integration
 @Rollback
@@ -126,7 +126,7 @@ class RedisMemoizeServiceSpec extends Specification {
     def "get AST transformed domain object using title"() {
         given:
         String title = 'ted'
-        Date date = new Date()
+        LocalDate date = LocalDate.now()
 
         when:
         Book book = bookService.createDomainObject(title, date)
@@ -183,8 +183,8 @@ class RedisMemoizeServiceSpec extends Specification {
     def "get AST transformed method using object property key"() {
         given:
         def title = 'narwhals'
-        Date date = new Date()
-        Book book = new Book(title: title, createDate: date).save(flush: true)
+        LocalDate date = LocalDate.now()
+        Book book = new Book(title: title, createDate: date).save(flush: true, failOnError:true)
         def bookString1 = book.toString()
 
         when: 'get the initial value and cache it'
@@ -267,6 +267,10 @@ class RedisMemoizeServiceSpec extends Specification {
         value2 == value1
         value2 == "$text $date"
         value2 != "$text $date2"
+    }
+
+    private LocalDate plusDays(LocalDate date, Integer number) {
+        date.plusDays(number)
     }
 
     private Date plusDays(Date date, Integer number) {

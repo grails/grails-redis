@@ -1,14 +1,13 @@
+
 plugins {
-    id 'io.github.gradle-nexus.publish-plugin' version '1.3.0'
+    id "java-library"
+    id "org.grails.internal.grails-plugin-publish"
+    id "org.grails.grails-gsp"
+    id "org.grails.grails-plugin"
 }
 
-ext.isSnapshot = project.projectVersion.endsWith('-SNAPSHOT')
-ext.isReleaseVersion = !isSnapshot
-ext."signing.keyId" = project.hasProperty("signing.keyId") ? project.getProperty('signing.keyId') : System.getenv('SIGNING_KEY')
-ext."signing.secretKeyRingFile" = project.hasProperty("signing.secretKeyRingFile") ? project.getProperty('signing.secretKeyRingFile') : "${System.properties['user.home']}${File.separator}.gnupg${File.separator}secring.gpg"
-ext."signing.password" = project.hasProperty("signing.password") ? project.getProperty('signing.password') : System.getenv('SIGNING_PASSPHRASE')
-
 version = project.projectVersion
+group = 'org.grails.plugins'
 
 allprojects {
 
@@ -24,21 +23,13 @@ allprojects {
     }
 }
 
-if (isReleaseVersion) {
-    apply plugin: "io.github.gradle-nexus.publish-plugin"
-
-    nexusPublishing {
-        repositories {
-            sonatype {
-                def ossUser = System.getenv("SONATYPE_USERNAME") ?: project.hasProperty("sonatypeOssUsername") ? project.sonatypeOssUsername : ''
-                def ossPass = System.getenv("SONATYPE_PASSWORD") ?: project.hasProperty("sonatypeOssPassword") ? project.sonatypeOssPassword : ''
-                def ossStagingProfileId = System.getenv("SONATYPE_STAGING_PROFILE_ID") ?: project.hasProperty("sonatypeOssStagingProfileId") ? project.sonatypeOssStagingProfileId : ''
-                nexusUrl = uri("https://s01.oss.sonatype.org/service/local/")
-                snapshotRepositoryUrl = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
-                username = ossUser
-                password = ossPass
-                stagingProfileId = ossStagingProfileId
-            }
-        }
+grailsPublish {
+    userOrg = 'grails'
+    githubSlug = 'grails/redis'
+    license {
+        name = 'Apache-2.0'
     }
+    title = 'Grails Redis Plugin'
+    desc = 'This Plugin provides access to Redis and various utilities(service, annotations, etc) for caching.'
+    developers = [puneetbehl: 'Puneet Behl']
 }
