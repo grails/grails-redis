@@ -14,19 +14,6 @@ allprojects {
     repositories {
         mavenCentral()
         maven { url "https://repo.grails.org/grails/core" }
-        maven {
-            url = 'https://repo.gradle.org/gradle/libs-releases'
-            description = 'Needed for Gradle Tooling API'
-        }
-    }
-
-    configurations.configureEach {
-        resolutionStrategy.eachDependency { DependencyResolveDetails details ->
-            if ((details.requested.group == 'org.codehaus.groovy' || details.requested.group == 'org.apache.groovy') && details.requested.name != 'groovy-bom') {
-                details.useTarget(group: 'org.apache.groovy', name: details.requested.name, version: "$groovyVersion")
-                details.because "The dependency coordinates are changed in Apache Groovy 4, plus ensure version"
-            }
-        }
     }
 
     tasks.withType(GroovyCompile) {
@@ -34,13 +21,6 @@ allprojects {
             forkOptions.jvmArgs = ['-Xmx1024m']
         }
     }
-}
-
-dependencyManagement {
-    imports {
-        mavenBom "org.grails:grails-bom:$grailsVersion"
-    }
-    applyMavenExclusions false
 }
 
 grailsPublish {

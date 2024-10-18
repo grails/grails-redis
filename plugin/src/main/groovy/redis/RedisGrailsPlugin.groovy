@@ -10,7 +10,7 @@ import redis.clients.jedis.Protocol
 
 class RedisGrailsPlugin extends Plugin {
 
-    def grailsVersion = "7.0.0 > *"
+    def grailsVersion = "7.0.0-SNAPSHOT > *"
     def pluginExcludes = [
             "codenarc.properties",
             "grails-app/conf/**",
