@@ -25,10 +25,10 @@ buildCache {
     }
 }
 
-rootProject.name = "grails-redis-root"
+rootProject.name = 'grails-redis-root'
 
 include 'plugin'
 findProject(':plugin').name = 'grails-redis'
 
 include 'examples-redis-demo'
-project(":examples-redis-demo").projectDir = [settingsDir, 'examples/redis-demo'] as File
+project(':examples-redis-demo').projectDir = new File(settingsDir, 'examples/redis-demo')
