@@ -29,6 +29,43 @@ group = 'org.apache.grails'
 dependencies {
 
     implementation platform("org.apache.grails:grails-bom:$grailsVersion")
+    compileOnly "org.apache.grails:grails-core", {
+        // requires groovy & is a grails plugin
+    }
+    compileOnly "org.apache.grails:grails-services", {
+        // project has a dynamic service
+    }
+    compileOnly "org.apache.grails:grails-web-boot", {
+        // project uses gsp features, including taglib
+    }
+
+    // Spring includes will be in any end grails application, do not export them
+    // as people may use undertow instead of tomcat, etc
+    compileOnly "org.springframework.boot:spring-boot-autoconfigure"
+    compileOnly "org.springframework.boot:spring-boot-starter"
+    compileOnly "org.springframework.boot:spring-boot-starter-actuator"
+    compileOnly "org.springframework.boot:spring-boot-starter-logging"
+    compileOnly "org.springframework.boot:spring-boot-starter-validation"
+    compileOnly "org.springframework.boot:spring-boot-starter-tomcat"
+
+    testImplementation platform("org.apache.grails:grails-bom:$grailsVersion")
+    testImplementation 'org.apache.grails:grails-testing-support-web'
+    testImplementation 'org.spockframework:spock-core'
+    testImplementation "org.springframework.boot:spring-boot-autoconfigure"
+    testImplementation "org.springframework.boot:spring-boot-starter"
+    testImplementation "org.springframework.boot:spring-boot-starter-actuator"
+    testImplementation "org.springframework.boot:spring-boot-starter-logging"
+    testImplementation "org.springframework.boot:spring-boot-starter-validation"
+    testImplementation "org.springframework.boot:spring-boot-starter-tomcat"
+    testImplementation "org.apache.grails:grails-core", {
+        // requires groovy & is a grails plugin
+    }
+    testImplementation "org.apache.grails:grails-services", {
+        // project has a dynamic service
+    }
+    testImplementation "org.apache.grails:grails-web-boot", {
+        // project uses gsp features, including taglib
+    }
 
     api 'redis.clients:jedis', {
         // api: Jedis, JedisConnectionException
@@ -37,31 +74,6 @@ dependencies {
     api 'com.google.code.gson:gson', {
         // api: Gson(transform)
     }
-    api 'org.springframework:spring-beans', {
-        // api: @Autowired(transform)
-    }
-    api 'org.springframework:spring-core', {
-        // api: Opcodes(transform)
-    }
-
-    implementation 'org.apache.grails.data:grails-datamapping-core', {
-        // impl: @Transactional(runtime)
-    }
-    implementation 'org.apache.grails.views:grails-web-taglib', {
-        // Project has a taglib
-    }
-
-    compileOnly 'org.apache.grails.bootstrap:grails-bootstrap', {
-        // comp: @PluginSource(source)
-    }
-    compileOnly 'org.apache.grails:grails-core', { // Provided as this is a Grails Plugin
-        // api GrailsApplication, Holders(transform)
-        // impl: GrailsApp, GrailsAutoConfiguration, Plugin
-    }
-    compileOnly 'org.apache.groovy:groovy' // Provided as this is a Grails Plugin
-
-    testImplementation 'org.apache.grails:grails-testing-support-web'
-    testImplementation 'org.spockframework:spock-core'
 }
 
 apply {
@@ -70,4 +82,8 @@ apply {
     from rootProject.layout.projectDirectory.file('gradle/publish-config.gradle')
     from rootProject.layout.projectDirectory.file('gradle/test-config.gradle')
     from rootProject.layout.projectDirectory.file('gradle/reproducible-config.gradle')
+}
+
+grails {
+    springDependencyManagement = false
 }
